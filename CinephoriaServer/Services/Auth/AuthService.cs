@@ -1,6 +1,10 @@
 ﻿using CinephoriaServer.Configurations;
 using CinephoriaServer.Models.PostgresqlDb;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace CinephoriaServer.Services
 {
@@ -8,10 +12,12 @@ namespace CinephoriaServer.Services
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        public AuthService(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
+        private readonly IConfiguration _configuration;
+        public AuthService(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _configuration = configuration;
 
         }
 
@@ -118,6 +124,86 @@ namespace CinephoriaServer.Services
                 StatusCode = 201,
                 Message = "User Created Successfully"
             };
+        }
+
+        public async Task<LoginResponseViewModel?> LoginAsync(LoginViewModel loginViewModel)
+        {
+            // Recherche de l'utilisateur par son nom d'utilisateur
+            var user = await _userManager.FindByNameAsync(loginViewModel.UserName);
+            if (user is null)
+            {
+                return null; // L'utilisateur n'existe pas
+            }
+
+            // Vérification du mot de passe
+            var isPasswordValid = await _userManager.CheckPasswordAsync(user, loginViewModel.Password);
+            if (!isPasswordValid)
+            {
+                return null; // Mot de passe incorrect
+            }
+
+            // Génération du jeton JWT pour l'utilisateur
+            var token = await GenerateJWTTokenAsync(user);
+
+            // Récupération des rôles de l'utilisateur
+            var roles = await _userManager.GetRolesAsync(user);
+
+            // Création d'un UserInfo à renvoyer au client
+            var userInfo = GenerateUserInfoObject(user, roles);
+
+            return new LoginResponseViewModel()
+            {
+                NewToken = token,
+                UserInfo = userInfo
+            };
+        }
+        private UserInfos GenerateUserInfoObject(AppUser user, IEnumerable<string> roles)
+        {
+            return new UserInfos()
+            {
+                AppUserId = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                UserName = user.UserName,
+                Email = user.Email,
+                CreatedAt = user.CreatedAt, 
+                Role = roles.ToList() 
+            };
+        }
+
+        private async Task<string> GenerateJWTTokenAsync(AppUser user)
+        {
+            // Récupère les rôles de l'utilisateur
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            // Crée les claims pour le token JWT
+            var authClaims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, user.UserName),
+            new Claim(ClaimTypes.NameIdentifier, user.Id),
+            new Claim("FirstName", user.FirstName),
+            new Claim("LastName", user.LastName)
+        };
+
+            foreach (var userRole in userRoles)
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+            }
+
+            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+
+            var signingCredentials = new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256);
+
+            // Construction du token JWT
+            var token = new JwtSecurityToken(
+                issuer: _configuration["JWT:ValidIssuer"],
+                audience: _configuration["JWT:ValidAudience"],
+                expires: DateTime.Now.AddHours(3),  // Durée de validité du token (3 heures)
+                claims: authClaims,
+                signingCredentials: signingCredentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

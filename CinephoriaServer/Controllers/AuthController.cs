@@ -71,5 +71,34 @@ namespace CinephoriaServer.Controllers
                 });
             }
         }
+
+        /// <summary>
+        /// Authentifie un utilisateur avec son nom d'utilisateur et son mot de passe.
+        /// </summary>
+        /// <param name="loginViewModel">Les informations de connexion de l'utilisateur.</param>
+        /// <returns>Un LoginResponseViewModel contenant le token JWT et les informations utilisateur, ou null en cas d'échec.</returns>
+        [HttpPost("login")]
+        public async Task<ActionResult<LoginResponseViewModel?>> LoginAsync([FromBody] LoginViewModel loginViewModel)
+        {
+            try
+            {
+                var result = await _authService.LoginAsync(loginViewModel);
+                if (result == null)
+                {
+                    return Unauthorized("Invalid username or password.");
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (not shown for brevity)
+                return StatusCode(500, new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = "An error occurred while logging in: " + ex.Message
+                });
+            }
+        }
     }
 }
