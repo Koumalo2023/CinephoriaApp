@@ -56,6 +56,7 @@ namespace CinephoriaServer.Services
         Task<GeneralServiceResponse> RegisterEmployeeAsync(EmployeeRegisterViewModel employeeRegisterViewModel);
         Task<GeneralServiceResponse> ChangeEmployeeRoleAsync(UpdateRoleByIdViewModel updateRoleViewModel);
         Task<GeneralServiceResponse> ResetEmployeePasswordAsync(ResetPasswordByIdViewModel resetPasswordViewModel);
+        Task<GeneralServiceResponse> UpdateEmployeeAsync(string employeeId, EmployeeUpdateViewModel employeeUpdateViewModel);
         Task<GeneralServiceResponseData<List<EmployeeAccount>>> GetAllEmployeesAsync();
         Task<EmployeeAccount?> GetEmployeeByIdAsync(string employeeId);
         Task<GeneralServiceResponse> DeleteEmployeeAsync(string employeeId);

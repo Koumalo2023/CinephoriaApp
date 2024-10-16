@@ -1,4 +1,5 @@
-﻿using CinephoriaServer.Models.PostgresqlDb;
+﻿using CinephoriaServer.Configurations;
+using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -67,30 +68,6 @@ namespace CinephoriaServer.Controllers
                 return StatusCode(500, new { message = "Erreur lors de la création de la demande de contact.", details = ex.Message });
             }
         }
-
-
-        //Test autorisation
-        [HttpGet("TestAdmin")]
-        [Authorize(Roles = "Admin")]
-        public IActionResult AdminOnlyAction()
-        {
-            return Content("Accessible uniquement aux administrateurs.");
-        }
-
-        [HttpGet("TestAdminEmployee")]
-        [Authorize(Roles = "Admin,Employee")]
-        public IActionResult AdminOrEmployeeAction()
-        {
-            return Content("Accessible aux administrateurs et aux employés.");
-        }
-
-        [HttpGet("TestAdminEmployeeUser")]
-        [Authorize(Roles = "Admin,Employee,User")]
-        public IActionResult AdminEmployeeUserAction()
-        {
-            return Content("Accessible à tous les rôles : Admin, Employee, et User.");
-        }
-
 
     }
 }

@@ -23,7 +23,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// <summary>
         /// Rôle de l'utilisateur : ADMIN, EMPLOYEE, USER.
         /// </summary>
-        public UserRole Role { get; set; } = UserRole.USER;
+        public IList<string> Roles { get; set; }=new List<string>();
 
         /// <summary>
         /// Date de création du compte.

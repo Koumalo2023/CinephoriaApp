@@ -39,8 +39,8 @@ namespace CinephoriaServer.Models.MongooDb
         /// <summary>
         /// Rôle de l'employé (EMPLOYEE, ADMIN).
         /// </summary>
-        public List<string> Role { get; set; }
-
+        
+        public IEnumerable<string> Roles { get; set; } = Enumerable.Empty<string>();
 
         /// <summary>
         /// Date d'embauche de l'employé.

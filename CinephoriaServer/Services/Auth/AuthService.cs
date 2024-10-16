@@ -316,7 +316,7 @@ namespace CinephoriaServer.Services
                 LastName = employeeRegisterViewModel.LastName,
                 PhoneNumber = employeeRegisterViewModel.PhoneNumber,
                 CreatedAt = DateTime.UtcNow,
-                Role = employeeRegisterViewModel.IsAdmin ? UserRole.ADMIN : UserRole.EMPLOYEE,
+                Roles = new List<string> { employeeRegisterViewModel.IsAdmin ? "Admin" : "Employee" },
                 HiredDate = employeeRegisterViewModel.HiredDate,
                 Position = employeeRegisterViewModel.Position
             };
@@ -328,9 +328,60 @@ namespace CinephoriaServer.Services
             {
                 IsSucceed = true,
                 StatusCode = 201,
-                Message = "Employee created successfully"
+                Message = "Employee and Identity user created successfully"
             };
         }
+
+        public async Task<GeneralServiceResponse> UpdateEmployeeAsync(string employeeId, EmployeeUpdateViewModel employeeUpdateViewModel)
+        {
+            // Convertir l'ID de l'employé en ObjectId
+            if (!ObjectId.TryParse(employeeId, out ObjectId objectId))
+            {
+                return new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 400,
+                    Message = "Invalid employee ID format"
+                };
+            }
+
+            // Recherche de l'employé par ObjectId
+            var existingEmployee = await _employeeCollection.Find(e => e.Id == objectId).FirstOrDefaultAsync();
+
+            if (existingEmployee == null)
+            {
+                return new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 404,
+                    Message = "Employee not found"
+                };
+            }
+
+            // Mise à jour des champs modifiables
+            existingEmployee.FirstName = employeeUpdateViewModel.FirstName ?? existingEmployee.FirstName;
+            existingEmployee.LastName = employeeUpdateViewModel.LastName ?? existingEmployee.LastName;
+            existingEmployee.PhoneNumber = employeeUpdateViewModel.PhoneNumber ?? existingEmployee.PhoneNumber;
+            existingEmployee.Position = employeeUpdateViewModel.Position ?? existingEmployee.Position;
+            existingEmployee.HiredDate = employeeUpdateViewModel.HiredDate ?? existingEmployee.HiredDate;
+
+            // Si le rôle est mis à jour
+            if (employeeUpdateViewModel.Roles != null && employeeUpdateViewModel.Roles.Any())
+            {
+                existingEmployee.Roles = employeeUpdateViewModel.Roles;
+            }
+
+            // Mise à jour dans la base de données MongoDB
+            await _employeeCollection.ReplaceOneAsync(e => e.Id == objectId, existingEmployee);
+
+            return new GeneralServiceResponse
+            {
+                IsSucceed = true,
+                StatusCode = 200,
+                Message = "Employee updated successfully"
+            };
+        }
+
 
         public async Task<GeneralServiceResponse> ChangeEmployeeRoleAsync(UpdateRoleByIdViewModel updateRoleViewModel)
         {
@@ -347,8 +398,10 @@ namespace CinephoriaServer.Services
                 };
             }
 
-            // Changement du rôle
-            employeeAccount.Role = updateRoleViewModel.NewRole;
+            // Conversion du nouveau rôle en chaîne de caractères et assignation
+            employeeAccount.Roles = new List<string> { updateRoleViewModel.NewRole.ToString() };
+
+            // Mise à jour de l'employé dans la base de données
             await _unitOfWork.EmployeeAccounts.UpdateAsync(employeeAccount);
 
             return new GeneralServiceResponse
@@ -468,7 +521,6 @@ namespace CinephoriaServer.Services
         //Methodes communes aux utilisateurs et aux employés & Admin
         public async Task<LoginResponseViewModel?> LoginAsync(string login, string password)
         {
-            // Vérification basée sur le domaine de l'email (ou un autre critère de login)
             bool isEmployee = login.EndsWith("@cinephoria.com");
 
             if (isEmployee)
@@ -479,11 +531,33 @@ namespace CinephoriaServer.Services
                     return null;
                 }
 
-                // Crée une liste de rôles selon la logique d'application (vous pouvez adapter en fonction des besoins)
-                var roles = new List<string>();
-                roles.Add(employee.Role.ToString()); // Ex. "Admin" ou "Employee"
+                // Synchroniser l'utilisateur avec ASP.NET Identity
+                var identityUser = await _userManager.FindByNameAsync(login);
+                if (identityUser == null)
+                {
+                    // Si l'utilisateur n'existe pas dans Identity, on le crée
+                    identityUser = new AppUser
+                    {
+                        UserName = employee.UserName,
+                        Email = employee.UserName,
+                        FirstName = employee.FirstName,
+                        LastName = employee.LastName,
+                        SecurityStamp = Guid.NewGuid().ToString(),
+                        CreatedAt = DateTime.UtcNow
+                    };
 
-                var token = GenerateJWTToken(employee.Id.ToString(), employee.UserName, employee.FirstName, employee.LastName, roles);
+                    await _userManager.CreateAsync(identityUser, password);
+
+                    // Assigner les rôles à l'utilisateur dans ASP.NET Identity
+                    foreach (var role in employee.Roles)
+                    {
+                        await _userManager.AddToRoleAsync(identityUser, role);
+                    }
+                }
+
+                // Générer le token JWT avec les rôles
+                var roles = await _userManager.GetRolesAsync(identityUser);
+                var token = GenerateJWTToken(identityUser.Id, identityUser.UserName, identityUser.FirstName, identityUser.LastName, roles.ToList());
 
                 var userInfo = new UserInfos
                 {
@@ -492,7 +566,7 @@ namespace CinephoriaServer.Services
                     LastName = employee.LastName,
                     UserName = employee.UserName,
                     Email = employee.UserName,
-                    Role = employee.Role.ToString(),
+                    Roles = roles, // Utiliser la liste des rôles
                     CreatedAt = employee.CreatedAt
                 };
 
@@ -504,18 +578,26 @@ namespace CinephoriaServer.Services
             }
             else
             {
+                // Gestion de l'authentification des utilisateurs classiques via ASP.NET Identity
                 var user = await _userManager.FindByNameAsync(login);
                 if (user == null || !await _userManager.CheckPasswordAsync(user, password))
                 {
                     return null;
                 }
 
-                // Récupère tous les rôles de l'utilisateur dans une liste
                 var roles = await _userManager.GetRolesAsync(user);
-
                 var token = GenerateJWTToken(user.Id, user.UserName, user.FirstName, user.LastName, roles.ToList());
 
-                var userInfo = GenerateUserInfoObject(user, string.Join(", ", roles)); // Concatène les rôles pour l'affichage
+                var userInfo = new UserInfos
+                {
+                    AppUserId = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    Roles = roles,
+                    CreatedAt = user.CreatedAt
+                };
 
                 return new LoginResponseViewModel
                 {
@@ -523,8 +605,9 @@ namespace CinephoriaServer.Services
                     UserInfo = userInfo
                 };
             }
-
         }
+
+
 
         private string GenerateJWTToken(string userId, string userName, string firstName, string lastName, List<string> roles)
         {
@@ -569,7 +652,7 @@ namespace CinephoriaServer.Services
                 UserName = user.UserName,
                 Email = user.Email,
                 CreatedAt = user.CreatedAt,
-                Role = role
+                Roles = user.Roles
             };
         }
 
