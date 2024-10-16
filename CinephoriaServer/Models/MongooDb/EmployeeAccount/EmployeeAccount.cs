@@ -15,7 +15,7 @@ namespace CinephoriaServer.Models.MongooDb
         /// <summary>
         /// Email utilisé comme login.
         /// </summary>
-        public string Login { get; set; }
+        public string UserName { get; set; }
 
         /// <summary>
         /// Mot de passe hashé de l'employé.

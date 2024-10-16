@@ -2,13 +2,12 @@
 
 namespace CinephoriaServer.Models.PostgresqlDb
 {
-    public class LoginViewModel
+    public class ResetPasswordViewModel
     {
         [Required(ErrorMessage = "UserName is required")]
         public string UserName { get; set; }
 
-        [Required(ErrorMessage = "Password is required")]
-        public string Password { get; set; }
-
+        [Required(ErrorMessage = "New password is required")]
+        public string NewPassword { get; set; }
     }
 }

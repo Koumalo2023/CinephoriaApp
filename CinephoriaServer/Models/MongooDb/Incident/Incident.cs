@@ -25,7 +25,7 @@ namespace CinephoriaServer.Models.MongooDb
         /// <summary>
         /// Identifiant de l'employé qui a signalé l'incident.
         /// </summary>
-        public EmployeeAccount ReportedBy { get; set; } // Lien avec EmployeeAccount via son ID
+        public string ReportedBy { get; set; } // Lien avec EmployeeAccount via son ID
 
         /// <summary>
         /// Statut de l'incident (PENDING, IN_PROGRESS, RESOLVED).

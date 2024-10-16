@@ -24,7 +24,7 @@ namespace CinephoriaServer.Data
 
         //Collections pour des types spécifiques si nécessaire
         public IMongoCollection<AdminDashboard> AdminDashboards => _database.GetCollection<AdminDashboard>("admin_dashboard");
-        public IMongoCollection<EmployeeAccount> EmployeeAccounts => _database.GetCollection<EmployeeAccount>("employee_accounts");
+        public IMongoCollection<EmployeeAccount> EmployeeAccounts => _database.GetCollection<EmployeeAccount>("EmployeeAccount");
         public IMongoCollection<Movie> Movie => _database.GetCollection<Movie>("movie");
         public IMongoCollection<Incident> Incidents => _database.GetCollection<Incident>("incidents");
         public IMongoCollection<Review> Reviews => _database.GetCollection<Review>("Reviews");

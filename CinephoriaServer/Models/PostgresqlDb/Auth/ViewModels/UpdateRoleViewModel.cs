@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using static CinephoriaServer.Configurations.EnumConfig;
 
 namespace CinephoriaServer.Models.PostgresqlDb
 {
@@ -6,13 +7,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
     {
         [Required(ErrorMessage = " UserName is required")]
         public string UserName { get; set; }
-        public RoleType NewRole { get; set; }
+        public UserRole NewRole { get; set; }
     }
 
-    public enum RoleType
-    {
-        Admin,
-        Employee,
-        User
-    }
 }

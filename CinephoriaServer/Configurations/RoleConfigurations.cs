@@ -2,17 +2,15 @@
 {
     public static class RoleConfigurations
     {
-        public const string GlobalAdmin = "GlobalAdmin";
-
-        public const string CineAdmin = "CineAdmin";
+        public const string CineAdmin = "Admin";
 
         public const string Employee = "Employee";
 
         public const string User = "User";
 
 
-        public const string GlobalAdminCineAdmin = "GlobalAdmin,CineAdmin";
-        public const string GlobalAdminCineAdminEmployee = "GlobalAdmin,CineAdmin, Employee";
-        public const string GlobalAdminCineAdminEmployeeUser = "GlobalAdmin,CineAdmin, Employee,User";
+        public const string Admin = "Admin";
+        public const string AdminEmployee = "Admin, Employee";
+        public const string AdminEmployeeUser = "Admin, Employee,User";
     }
 }

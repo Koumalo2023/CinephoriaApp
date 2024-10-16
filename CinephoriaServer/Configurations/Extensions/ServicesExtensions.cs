@@ -19,7 +19,8 @@ namespace CinephoriaServer.Configurations
 
             // injection des Services
             services.AddTransient<IAuthService, AuthService>();
-            //services.AddTransient<IContactService, ContactService>();
+            services.AddTransient<IContactService, ContactService>();
+            services.AddTransient<IIncidentService, IncidentService>();
 
 
             // Injection du UoW (Unit of Work) pour Entity Framework

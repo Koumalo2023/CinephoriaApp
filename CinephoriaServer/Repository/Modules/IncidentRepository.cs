@@ -20,7 +20,7 @@ namespace CinephoriaServer.Repository
         /// <summary>
         /// Filtre les incidents par employé, date, salle ou cinéma.
         /// </summary>
-        Task<List<Incident>> FilterIncidentsAsync(EmployeeAccount? reportedBy = null, string? theaterId = null, DateTime? reportedAt = null, string? cinemaId = null);
+        //Task<List<Incident>> FilterIncidentsAsync(EmployeeAccount? reportedBy = null, string? theaterId = null, DateTime? reportedAt = null, string? cinemaId = null);
 
         /// <summary>
         /// Récupère la liste de tous les incidents signalés par les employés.
@@ -63,36 +63,36 @@ namespace CinephoriaServer.Repository
             return await _Incidents.Find(filter).FirstOrDefaultAsync();
         }
 
-        public async Task<List<Incident>> FilterIncidentsAsync(EmployeeAccount? reportedBy = null, string? theaterId = null, DateTime? reportedAt = null, string? cinemaId = null)
-        {
-            var filters = new List<FilterDefinition<Incident>>();
+        //public async Task<List<Incident>> FilterIncidentsAsync(EmployeeAccount? reportedBy = null, string? theaterId = null, DateTime? reportedAt = null, string? cinemaId = null)
+        //{
+        //    var filters = new List<FilterDefinition<Incident>>();
 
-            // Vérifier si reportedBy est non nul et ensuite utiliser son ID
-            if (reportedBy != null)
-            {
-                filters.Add(Builders<Incident>.Filter.Eq(i => i.ReportedBy.Id, reportedBy.Id));
-            }
+        //    // Vérifier si reportedBy est non nul et ensuite utiliser son ID
+        //    if (reportedBy != null)
+        //    {
+        //        filters.Add(Builders<Incident>.Filter.Eq(i => i.ReportedBy.Id, reportedBy.Id));
+        //    }
 
-            if (!string.IsNullOrEmpty(theaterId))
-            {
-                filters.Add(Builders<Incident>.Filter.Eq(i => i.TheaterId, theaterId));
-            }
+        //    if (!string.IsNullOrEmpty(theaterId))
+        //    {
+        //        filters.Add(Builders<Incident>.Filter.Eq(i => i.TheaterId, theaterId));
+        //    }
 
-            if (reportedAt.HasValue)
-            {
-                filters.Add(Builders<Incident>.Filter.Gte(i => i.ReportedAt, reportedAt.Value));
-            }
+        //    if (reportedAt.HasValue)
+        //    {
+        //        filters.Add(Builders<Incident>.Filter.Gte(i => i.ReportedAt, reportedAt.Value));
+        //    }
 
-            if (!string.IsNullOrEmpty(cinemaId))
-            {
-                // Suppose that TheaterId includes information about the cinema, or you have a way to map TheaterId to CinemaId.
-                filters.Add(Builders<Incident>.Filter.Regex(i => i.TheaterId, new BsonRegularExpression(cinemaId)));
-            }
+        //    if (!string.IsNullOrEmpty(cinemaId))
+        //    {
+        //        // Suppose that TheaterId includes information about the cinema, or you have a way to map TheaterId to CinemaId.
+        //        filters.Add(Builders<Incident>.Filter.Regex(i => i.TheaterId, new BsonRegularExpression(cinemaId)));
+        //    }
 
-            var filter = filters.Count > 0 ? Builders<Incident>.Filter.And(filters) : Builders<Incident>.Filter.Empty;
+        //    var filter = filters.Count > 0 ? Builders<Incident>.Filter.And(filters) : Builders<Incident>.Filter.Empty;
 
-            return await _Incidents.Find(filter).ToListAsync();
-        }
+        //    return await _Incidents.Find(filter).ToListAsync();
+        //}
 
 
         public async Task UpdateIncidentAsync(ObjectId incidentId, Incident updatedIncident)

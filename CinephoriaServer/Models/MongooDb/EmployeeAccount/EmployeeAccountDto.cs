@@ -9,12 +9,12 @@ namespace CinephoriaServer.Models.MongooDb
         // <summary>
         /// Identifiant unique du compte employé.
         /// </summary>
-        public ObjectId Id { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// Email utilisé comme login.
         /// </summary>
-        public string Login { get; set; }
+        public string UserName { get; set; }
 
         /// <summary>
         /// Prénom de l'employé.
@@ -39,7 +39,8 @@ namespace CinephoriaServer.Models.MongooDb
         /// <summary>
         /// Rôle de l'employé (EMPLOYEE, ADMIN).
         /// </summary>
-        public UserRole Role { get; set; }
+        public List<string> Role { get; set; }
+
 
         /// <summary>
         /// Date d'embauche de l'employé.

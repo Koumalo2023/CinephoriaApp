@@ -14,5 +14,6 @@ namespace CinephoriaServer.Repository
         IMongoRepository<AdminDashboard> AdminDashboards { get; }
 
         Task SaveChangesAsync();
+        Task<bool> ExistsAsync<T>(string id) where T : class;
     }
 }
