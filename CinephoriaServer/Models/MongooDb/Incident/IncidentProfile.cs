@@ -11,13 +11,13 @@ namespace CinephoriaServer.Models.MongooDb
         {
             // Mapping de IncidentDto vers Incident
             CreateMap<IncidentDto, Incident>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.Id) ? new ObjectId(src.Id) : ObjectId.Empty)) // Conversion de string à ObjectId
-                .ForMember(dest => dest.ReportedBy, opt => opt.Ignore()); // Ignore ReportedBy pour le moment
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.Id) ? new ObjectId(src.Id) : ObjectId.Empty))
+                .ForMember(dest => dest.ReportedBy, opt => opt.Ignore());
 
             // Mapping de Incident vers IncidentDto
             CreateMap<Incident, IncidentDto>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString())) // Conversion de ObjectId à string
-                .ForMember(dest => dest.ReportedBy, opt => opt.MapFrom(src => src.ReportedBy)); // Inclure l'ID de l'employé
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
+                .ForMember(dest => dest.ReportedBy, opt => opt.MapFrom(src => src.ReportedBy));
         }
     }
 

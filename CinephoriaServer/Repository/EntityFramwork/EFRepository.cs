@@ -36,9 +36,18 @@ namespace CinephoriaServer.Repository.EntityFramwork
 
         public async Task<TEntity?> GetByIdAsync(int id, bool trackChanges = false)
         {
+            // Récupérer le nom de la propriété clé primaire
+            var keyName = _context.Model.FindEntityType(typeof(TEntity))
+                            .FindPrimaryKey()
+                            .Properties
+                            .Select(p => p.Name)
+                            .Single();
+
             return await ApplyTracking(_context.Set<TEntity>(), trackChanges)
-                .FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
+                .FirstOrDefaultAsync(e => EF.Property<int>(e, keyName) == id);
         }
+
+
 
         // Filtered queries
         public IEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> predicate, bool trackChanges = false)

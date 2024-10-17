@@ -12,7 +12,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// <summary>
         /// Référence au film (movies.id).
         /// </summary>
-        public int MovieId { get; set; }
+        public string MovieId { get; set; }
 
         /// <summary>
         /// Référence à l'utilisateur qui a laissé l'avis.

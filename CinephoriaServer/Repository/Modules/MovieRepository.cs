@@ -135,7 +135,7 @@ namespace CinephoriaServer.Repository
         /// <returns>Les détails du film, y compris les séances associées.</returns>
         public async Task<Movie> GetMovieByIdAsync(string filmId)
         {
-            return await _movieCollection.Find(m => m.Id == filmId).FirstOrDefaultAsync();
+            return await _movieCollection.Find(m => m.Id.ToString() == filmId).FirstOrDefaultAsync();
         }
 
         /// <summary>
@@ -189,7 +189,7 @@ namespace CinephoriaServer.Repository
         /// <returns>Le film mis à jour.</returns>
         public async Task<Movie> UpdateMovieAsync(string filmId, Movie movie)
         {
-            var result = await _movieCollection.ReplaceOneAsync(m => m.Id == filmId, movie);
+            var result = await _movieCollection.ReplaceOneAsync(m => m.Id.ToString() == filmId, movie);
             if (result.MatchedCount == 0)
             {
                 throw new KeyNotFoundException("Film non trouvé.");
@@ -205,7 +205,7 @@ namespace CinephoriaServer.Repository
         /// <returns>Une tâche représentant l'opération de suppression.</returns>
         public async Task DeleteMovieAsync(string filmId)
         {
-            var result = await _movieCollection.DeleteOneAsync(m => m.Id == filmId);
+            var result = await _movieCollection.DeleteOneAsync(m => m.Id.ToString() == filmId);
             if (result.DeletedCount == 0)
             {
                 throw new KeyNotFoundException("Film non trouvé.");

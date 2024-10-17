@@ -2,6 +2,7 @@
 using CinephoriaServer.Models.MongooDb;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using System.Linq.Expressions;
 
 namespace CinephoriaServer.Repository.EntityFramwork
 {
@@ -23,13 +24,9 @@ namespace CinephoriaServer.Repository.EntityFramwork
         // Méthode pour obtenir un élément par son Id
         public async Task<T> GetByIdAsync(string id)
         {
-            // Conversion de l'ID en ObjectId
             var objectId = ObjectId.Parse(id);
-
-            // Recherche dans la collection par ObjectId
             return await _collection.Find(Builders<T>.Filter.Eq("_id", objectId)).FirstOrDefaultAsync();
         }
-
 
         // Méthode pour ajouter un élément
         public async Task AddAsync(T entity)
@@ -40,10 +37,11 @@ namespace CinephoriaServer.Repository.EntityFramwork
         // Méthode pour mettre à jour un élément
         public async Task UpdateAsync(T entity)
         {
-            var objectId = typeof(T).GetProperty("Id")?.GetValue(entity)?.ToString();
-            if (objectId != null)
+            var objectId = typeof(T).GetProperty("Id")?.GetValue(entity) as ObjectId?;
+
+            if (objectId.HasValue)
             {
-                await _collection.ReplaceOneAsync(Builders<T>.Filter.Eq("_id", objectId), entity);
+                await _collection.ReplaceOneAsync(Builders<T>.Filter.Eq("_id", objectId.Value), entity);
             }
             else
             {
@@ -51,11 +49,15 @@ namespace CinephoriaServer.Repository.EntityFramwork
             }
         }
 
-
         // Méthode pour supprimer un élément par son Id
         public async Task<bool> DeleteAsync(string id)
         {
-            var result = await _collection.DeleteOneAsync(Builders<T>.Filter.Eq("_id", id));
+            if (!ObjectId.TryParse(id, out ObjectId objectId))
+            {
+                throw new ArgumentException("L'ID spécifié est invalide.");
+            }
+
+            var result = await _collection.DeleteOneAsync(Builders<T>.Filter.Eq("_id", objectId));
             return result.DeletedCount > 0;
         }
 
@@ -65,6 +67,30 @@ namespace CinephoriaServer.Repository.EntityFramwork
             return await _collection.Find(filter).ToListAsync();
         }
 
+        // Méthode pour trouver des éléments en utilisant une expression lambda
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> filter)
+        {
+            return await _collection.Find(filter).ToListAsync();
+        }
+
+        // **Nouvelle Méthode**: Met à jour un élément spécifique en fonction d'un filtre et des champs à mettre à jour.
+        public async Task UpdatePartialAsync(string id, UpdateDefinition<T> updates)
+        {
+            var objectId = ObjectId.Parse(id);
+            await _collection.UpdateOneAsync(Builders<T>.Filter.Eq("_id", objectId), updates);
+        }
+
+        // **Nouvelle Méthode**: Récupérer un élément via un filtre.
+        public async Task<T> FindOneAsync(FilterDefinition<T> filter)
+        {
+            return await _collection.Find(filter).FirstOrDefaultAsync();
+        }
+
+        // **Nouvelle Méthode**: Vérifier l'existence d'un élément avec un certain filtre.
+        public async Task<bool> ExistsAsync(FilterDefinition<T> filter)
+        {
+            return await _collection.Find(filter).AnyAsync();
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 ﻿using Amazon.Runtime.Internal;
 using CinephoriaServer.Models.MongooDb;
 using MongoDB.Driver;
+using System.Linq.Expressions;
 
 namespace CinephoriaServer.Repository.EntityFramwork
 {
@@ -12,6 +13,10 @@ namespace CinephoriaServer.Repository.EntityFramwork
         Task UpdateAsync(T entity);
         Task<bool> DeleteAsync(string id);
         Task<List<T>> FilterAsync(FilterDefinition<T> filter);
+        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> filter);
+        Task UpdatePartialAsync(string id, UpdateDefinition<T> updates);
+        Task<T> FindOneAsync(FilterDefinition<T> filter);
+        Task<bool> ExistsAsync(FilterDefinition<T> filter);
     }
 
 }

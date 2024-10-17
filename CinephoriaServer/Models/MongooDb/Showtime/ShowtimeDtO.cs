@@ -63,7 +63,7 @@ namespace CinephoriaServer.Models.MongooDb
         /// <summary>
         /// Navigation vers la salle où se déroule la séance (relation plusieurs-à-un).
         /// </summary>
-        public TheaterDtO Theater { get; set; }
+        public TheaterDto Theater { get; set; }
 
         /// <summary>
         /// Liste des réservations associées à cette séance.

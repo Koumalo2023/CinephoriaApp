@@ -17,7 +17,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// Référence au film (movies.id).
         /// </summary>
         [ForeignKey("Movie")]
-        public int MovieId { get; set; }
+        public string MovieId { get; set; }
         /// <summary>
         /// Référence à l'utilisateur qui a laissé l'avis.
         /// </summary>
