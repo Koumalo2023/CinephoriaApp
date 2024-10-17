@@ -46,7 +46,7 @@ namespace CinephoriaServer.Repository
         /// <param name="startDate">Date de début de la période</param>
         /// <param name="endDate">Date de fin de la période</param>
         /// <returns>Liste des identifiants des films sans réservation</returns>
-        Task<List<string>> GetMoviesWithZeroReservationsAsync(DateTime startDate, DateTime endDate);
+        //Task<List<string>> GetMoviesWithZeroReservationsAsync(DateTime startDate, DateTime endDate);
 
         /// <summary>
         /// Récupère la tendance des réservations pour un film donné sur une période.
@@ -157,28 +157,28 @@ namespace CinephoriaServer.Repository
         /// <summary>
         /// Récupère la liste des films sans réservations sur une période donnée.
         /// </summary>
-        public async Task<List<string>> GetMoviesWithZeroReservationsAsync(DateTime startDate, DateTime endDate)
-        {
-            var filter = Builders<Showtime>.Filter.And(
-                Builders<Showtime>.Filter.Gte(s => s.StartTime, startDate),
-                Builders<Showtime>.Filter.Lte(s => s.StartTime, endDate)
-            );
+        //public async Task<List<string>> GetMoviesWithZeroReservationsAsync(DateTime startDate, DateTime endDate)
+        //{
+        //    var filter = Builders<Showtime>.Filter.And(
+        //        Builders<Showtime>.Filter.Gte(s => s.StartTime, startDate),
+        //        Builders<Showtime>.Filter.Lte(s => s.StartTime, endDate)
+        //    );
 
-            var showtimes = await _showtimes.Find(filter).ToListAsync();
-            var movieIdsWithReservations = showtimes
-                .Where(s => s.Reservations.Count > 0)
-                .Select(s => s.MovieId)
-                .Distinct()
-                .ToList();
+        //    var showtimes = await _showtimes.Find(filter).ToListAsync();
+        //    var movieIdsWithReservations = showtimes
+        //        .Where(s => s.Reservations.Count > 0)
+        //        .Select(s => s.MovieId)
+        //        .Distinct()
+        //        .ToList();
 
-            var allMovies = await _movies.Find(Builders<Movie>.Filter.Empty).ToListAsync();
-            var moviesWithoutReservations = allMovies
-                .Where(m => !movieIdsWithReservations.Contains(m.Id))
-                .Select(m => m.Id)
-                .ToList();
+        //    var allMovies = await _movies.Find(Builders<Movie>.Filter.Empty).ToListAsync();
+        //    var moviesWithoutReservations = allMovies
+        //        .Where(m => !movieIdsWithReservations.Contains(m.Id.ToString()))
+        //        .Select(m => m.Id)
+        //        .ToList();
 
-            return moviesWithoutReservations;
-        }
+        //    return moviesWithoutReservations;
+        //}
 
         /// <summary>
         /// Récupère la tendance des réservations pour un film donné sur une période.

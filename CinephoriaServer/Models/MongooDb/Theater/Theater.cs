@@ -1,4 +1,5 @@
 ﻿using CinephoriaServer.Models.PostgresqlDb;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using static CinephoriaServer.Configurations.EnumConfig;
 
@@ -10,7 +11,7 @@ namespace CinephoriaServer.Models.MongooDb
         /// Identifiant unique de la salle de projection.
         /// </summary>
         [BsonId]
-        public string Id { get; set; }
+        public ObjectId Id { get; set; }
 
         /// <summary>
         /// Nom ou numéro de la salle.
@@ -26,7 +27,7 @@ namespace CinephoriaServer.Models.MongooDb
         /// <summary>
         /// l'identifiant du Cinema auquel apparient la salle.
         /// </summary>
-        public string CinemaId { get; set; }
+        public int CinemaId { get; set; }
 
         // <summary>
         /// Indique si la salle est pleinement fonctionnelle.

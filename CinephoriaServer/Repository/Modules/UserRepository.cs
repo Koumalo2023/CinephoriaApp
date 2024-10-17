@@ -143,7 +143,7 @@ namespace CinephoriaServer.Repository
 
             if (!string.IsNullOrEmpty(email))
             {
-                filters.Add(Builders<EmployeeAccount>.Filter.Regex(e => e.Login, new BsonRegularExpression(email, "i")));
+                filters.Add(Builders<EmployeeAccount>.Filter.Regex(e => e.UserName, new BsonRegularExpression(email, "i")));
             }
 
             var filter = filters.Count > 0 ? Builders<EmployeeAccount>.Filter.And(filters) : Builders<EmployeeAccount>.Filter.Empty;

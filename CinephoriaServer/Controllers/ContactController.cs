@@ -1,5 +1,7 @@
-﻿using CinephoriaServer.Models.PostgresqlDb;
+﻿using CinephoriaServer.Configurations;
+using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

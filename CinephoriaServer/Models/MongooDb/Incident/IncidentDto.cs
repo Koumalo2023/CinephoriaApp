@@ -8,7 +8,7 @@ namespace CinephoriaServer.Models.MongooDb
         /// <summary>
         /// Identifiant unique de l'incident.
         /// </summary>
-        public ObjectId Id { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// Identifiant de la salle où l'incident a été signalé.

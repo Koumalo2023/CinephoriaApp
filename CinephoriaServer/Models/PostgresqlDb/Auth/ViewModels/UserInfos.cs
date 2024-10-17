@@ -9,7 +9,7 @@
         public string Email { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        public IEnumerable<string> Role { get; set; } = Enumerable.Empty<string>();
+        public IEnumerable<string> Roles { get; set; } = Enumerable.Empty<string>();
 
 
     }

@@ -9,5 +9,6 @@ namespace CinephoriaServer.Models.PostgresqlDb
 
         [Required(ErrorMessage = "Password is required")]
         public string Password { get; set; }
+
     }
 }

@@ -12,7 +12,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// <summary>
         /// Rôle de l'utilisateur dans l'application.
         /// </summary>
-        public UserRole Role { get; set; }
+        public IEnumerable<string> Roles { get; set; } = Enumerable.Empty<string>();
 
         /// <summary>
         /// Date de création du compte utilisateur.

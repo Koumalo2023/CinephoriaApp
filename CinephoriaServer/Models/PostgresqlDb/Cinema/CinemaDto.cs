@@ -33,6 +33,10 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// Pays où se trouve le cinéma.
         /// </summary>
         public string Country { get; set; }
+        // <summary>
+        /// Horaires d'ouverture du cinéma.
+        /// </summary>
+        public string OpeningHours { get; set; }
 
         /// <summary>
         /// Liste des salles de cinéma.

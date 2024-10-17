@@ -23,6 +23,11 @@
         public string Genre { get; set; }
 
         /// <summary>
+        /// Identifiant du cinema dans lequel est projecté le film.
+        /// </summary>
+        public int CinemaId { get; set; }
+
+        /// <summary>
         /// Durée du film.
         /// </summary>
         public string Duration { get; set; }

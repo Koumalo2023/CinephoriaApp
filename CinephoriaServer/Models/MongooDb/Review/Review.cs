@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using static CinephoriaServer.Configurations.EnumConfig;
 
 namespace CinephoriaServer.Models.MongooDb
@@ -9,7 +10,7 @@ namespace CinephoriaServer.Models.MongooDb
         /// Identifiant unique de l'avis.
         /// </summary>
         [BsonId]
-        public string Id { get; set; }
+        public ObjectId Id { get; set; }
 
         /// <summary>
         /// Identifiant du film sur lequel l'utilisateur a déposé un avis.

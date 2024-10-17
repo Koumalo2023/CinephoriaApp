@@ -1,4 +1,5 @@
 ﻿using CinephoriaServer.Models.PostgresqlDb;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace CinephoriaServer.Models.MongooDb
@@ -9,7 +10,7 @@ namespace CinephoriaServer.Models.MongooDb
         /// Identifiant unique du film.
         /// </summary>
         [BsonId]
-        public string Id { get; set; }
+        public ObjectId Id { get; set; }
 
         /// <summary>
         /// Titre du film.

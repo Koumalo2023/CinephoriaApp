@@ -2,7 +2,7 @@
 
 namespace CinephoriaServer.Models.MongooDb
 {
-    public class TheaterDtO
+    public class TheaterDto
     {
         /// <summary>
         /// Identifiant unique de la salle de projection.
@@ -22,7 +22,7 @@ namespace CinephoriaServer.Models.MongooDb
         /// <summary>
         /// Identifiant du cinéma auquel appartient la salle.
         /// </summary>
-        public string CinemaId { get; set; }
+        public int CinemaId { get; set; }
 
         /// <summary>
         /// Indique si la salle est pleinement fonctionnelle.
