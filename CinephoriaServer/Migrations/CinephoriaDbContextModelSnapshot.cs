@@ -211,8 +211,9 @@ namespace CinephoriaServer.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
-                    b.Property<int>("MovieId")
-                        .HasColumnType("integer");
+                    b.Property<string>("MovieId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<float>("Rating")
                         .HasColumnType("real");

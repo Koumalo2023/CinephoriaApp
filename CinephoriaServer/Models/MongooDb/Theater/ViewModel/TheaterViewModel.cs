@@ -2,12 +2,12 @@
 
 namespace CinephoriaServer.Models.MongooDb
 {
-    public class TheaterDto
+    public class TheaterViewModel
     {
         /// <summary>
-        /// Identifiant unique de la salle de projection.
+        /// Identifiant de la salle.
         /// </summary>
-        public string Id { get; set; }
+        public string? Id { get; set; }
 
         /// <summary>
         /// Nom ou numéro de la salle.
@@ -30,18 +30,8 @@ namespace CinephoriaServer.Models.MongooDb
         public bool IsOperational { get; set; }
 
         /// <summary>
-        /// Qualité de projection disponible dans la salle (ex : "4DX", "3D", "4K").
+        /// Qualité de projection disponible dans la salle.
         /// </summary>
         public ProjectionQuality ProjectionQuality { get; set; }
-
-        /// <summary>
-        /// Liste des incidents signalés dans la salle (relation un-à-plusieurs).
-        /// </summary>
-        public ICollection<IncidentDto> Incidents { get; set; }
-
-        /// <summary>
-        /// Liste des séances projetées dans cette salle (relation un-à-plusieurs).
-        /// </summary>
-        public List<ShowtimeDtO> Showtimes { get; set; }
     }
 }

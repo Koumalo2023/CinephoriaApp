@@ -1,14 +1,7 @@
-﻿using CinephoriaServer.Models.MongooDb;
-
-namespace CinephoriaServer.Models.PostgresqlDb
+﻿namespace CinephoriaServer.Models.PostgresqlDb
 {
-    public class CinemaDto
+    public class CinemaViewModel
     {
-        /// <summary>
-        /// Identifiant unique du cinéma.
-        /// </summary>
-        public int Id { get; set; }
-
         /// <summary>
         /// Nom du cinéma.
         /// </summary>
@@ -33,14 +26,10 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// Pays où se trouve le cinéma.
         /// </summary>
         public string Country { get; set; }
-        // <summary>
+
+        /// <summary>
         /// Horaires d'ouverture du cinéma.
         /// </summary>
         public string OpeningHours { get; set; }
-
-        /// <summary>
-        /// Liste des salles de cinéma.
-        /// </summary>
-        public List<Theater> Theaters { get; set; }
     }
 }

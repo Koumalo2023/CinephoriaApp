@@ -167,7 +167,7 @@ namespace CinephoriaServer.Repository
         /// <returns>True si la modification a réussi, sinon False.</returns>
         public async Task<bool> UpdateTheaterAsync(string theaterId, Theater updatedTheater)
         {
-            var result = await _theaterCollection.ReplaceOneAsync(t => t.Id == theaterId, updatedTheater);
+            var result = await _theaterCollection.ReplaceOneAsync(t => t.Id.ToString() == theaterId, updatedTheater);
             return result.IsAcknowledged && result.ModifiedCount > 0;
         }
 
@@ -178,7 +178,7 @@ namespace CinephoriaServer.Repository
         /// <returns>True si la suppression a réussi, sinon False.</returns>
         public async Task<bool> DeleteTheaterAsync(string theaterId)
         {
-            var result = await _theaterCollection.DeleteOneAsync(t => t.Id == theaterId);
+            var result = await _theaterCollection.DeleteOneAsync(t => t.Id.ToString() == theaterId);
             return result.DeletedCount > 0;
         }
 
@@ -189,7 +189,7 @@ namespace CinephoriaServer.Repository
         /// <returns>Liste des salles du cinéma spécifié.</returns>
         public async Task<List<Theater>> GetTheatersByCinemaIdAsync(string cinemaId)
         {
-            return await _theaterCollection.Find(t => t.CinemaId == cinemaId).ToListAsync();
+            return null /*await _theaterCollection.Find(t => t.CinemaId == cinemaId).ToListAsync()*/;
         }
 
         #endregion
