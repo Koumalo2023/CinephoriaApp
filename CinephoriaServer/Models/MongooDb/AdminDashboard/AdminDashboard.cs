@@ -22,15 +22,17 @@ namespace CinephoriaServer.Models.MongooDb
         /// </summary>
         public int ReservationsCount { get; set; }
 
-        /// <summary>
-        /// Liste des réservations par film avec les détails associés.
-        /// </summary>
-        public List<Reservation> Reservations { get; set; }
 
         /// <summary>
         /// Identifiant du film concerné par les données.
         /// </summary>
         public string MovieId { get; set; }
+
+
+        /// <summary>
+        /// Identifiant du Cinéma concerné par les données.
+        /// </summary>
+        public int CinemaId { get; set; }
 
         /// <summary>
         /// Période de début des statistiques (date).
@@ -41,5 +43,10 @@ namespace CinephoriaServer.Models.MongooDb
         /// Période de fin des statistiques (date).
         /// </summary>
         public DateTime EndDate { get; set; }
+
+        /// <summary>
+        /// Liste des réservations par film avec les détails associés.
+        /// </summary>
+        public List<Reservation> Reservations { get; set; }
     }
 }

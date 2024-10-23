@@ -10,7 +10,7 @@ namespace CinephoriaServer.Models.MongooDb
         /// <summary>
         /// Identifiant unique du tableau de bord.
         /// </summary>
-        public ObjectId Id { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// Plage de dates de visualisation (7 jours).
@@ -20,17 +20,17 @@ namespace CinephoriaServer.Models.MongooDb
         /// <summary>
         /// Nombre total de réservations effectuées pour un film spécifique sur une période de 7 jours.
         /// </summary>
-        public int ReservationsCount { get; set; }
-
-        /// <summary>
-        /// Liste des réservations par film avec les détails associés.
-        /// </summary>
-        public List<ReservationDto> Reservations { get; set; }
+        public int ReservationsCount { get; set; }        
 
         /// <summary>
         /// Identifiant du film concerné par les données.
         /// </summary>
         public string MovieId { get; set; }
+
+        /// <summary>
+        /// Identifiant du Cinéma concerné par les données.
+        /// </summary>
+        public int CinemaId { get; set; }
 
         /// <summary>
         /// Période de début des statistiques (date).
@@ -41,5 +41,10 @@ namespace CinephoriaServer.Models.MongooDb
         /// Période de fin des statistiques (date).
         /// </summary>
         public DateTime EndDate { get; set; }
+
+        /// <summary>
+        /// Liste des réservations par film avec les détails associés.
+        /// </summary>
+        public List<ReservationDto> Reservations { get; set; }
     }
 }
