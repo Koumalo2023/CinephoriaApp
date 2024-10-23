@@ -25,7 +25,7 @@ namespace CinephoriaServer.Controllers
         /// <returns>Réponse HTTP avec le statut de la création.</returns>
         [HttpPost]
         [Route("create")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<IActionResult> CreateCinema([FromBody] CinemaViewModel cinemaViewModel)
         {
             var response = await _cinemaService.CreateCinemaAsync(cinemaViewModel);
@@ -45,7 +45,7 @@ namespace CinephoriaServer.Controllers
         /// <returns>Réponse HTTP avec le statut de la mise à jour.</returns>
         [HttpPut]
         [Route("update/{cinemaId}")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<IActionResult> UpdateCinema(int cinemaId, [FromBody] CinemaViewModel cinemaViewModel)
         {
             var response = await _cinemaService.UpdateCinemaAsync(cinemaId, cinemaViewModel);
@@ -64,7 +64,7 @@ namespace CinephoriaServer.Controllers
         /// <returns>Réponse HTTP avec le statut de la suppression.</returns>
         [HttpDelete]
         [Route("delete/{cinemaId}")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<IActionResult> DeleteCinema(int cinemaId)
         {
             var response = await _cinemaService.DeleteCinemaAsync(cinemaId);
@@ -82,7 +82,7 @@ namespace CinephoriaServer.Controllers
         /// <returns>Liste des cinémas.</returns>
         [HttpGet]
         [Route("all")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<IActionResult> GetAllCinemas()
         {
             var cinemas = await _cinemaService.GetAllCinemasAsync();
@@ -110,7 +110,7 @@ namespace CinephoriaServer.Controllers
         /// <returns>Réponse HTTP avec le statut de la création de la salle.</returns>
         [HttpPost]
         [Route("{cinemaId}/theater/create")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<IActionResult> CreateTheater(int cinemaId, [FromBody] TheaterViewModel theaterViewModel)
         {
             var response = await _cinemaService.CreateTheaterForCinemaAsync(theaterViewModel);
@@ -130,7 +130,7 @@ namespace CinephoriaServer.Controllers
         /// <returns>Réponse HTTP avec le statut de la mise à jour de la salle.</returns>
         [HttpPut]
         [Route("theater/update/{theaterId}")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<IActionResult> UpdateTheater(string theaterId, [FromBody] TheaterViewModel theaterViewModel)
         {
             var response = await _cinemaService.UpdateTheaterAsync(theaterId, theaterViewModel);
@@ -149,7 +149,7 @@ namespace CinephoriaServer.Controllers
         /// <returns>Réponse HTTP avec le statut de la suppression de la salle.</returns>
         [HttpDelete]
         [Route("theater/delete/{theaterId}")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<IActionResult> DeleteTheater(string theaterId)
         {
             var response = await _cinemaService.DeleteTheaterAsync(theaterId);

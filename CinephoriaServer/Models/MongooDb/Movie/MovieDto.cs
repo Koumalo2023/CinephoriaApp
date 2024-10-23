@@ -65,7 +65,7 @@
         /// <summary>
         /// Liste des séances associées à ce film (relation un-à-plusieurs).
         /// </summary>
-        public ICollection<ShowtimeDtO> Showtimes { get; set; }
+        public ICollection<ShowtimeDto> Showtimes { get; set; }
 
         /// <summary>
         /// Liste des avis déposés sur ce film (relation un-à-plusieurs).

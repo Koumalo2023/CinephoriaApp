@@ -42,6 +42,6 @@ namespace CinephoriaServer.Models.MongooDb
         /// <summary>
         /// Liste des séances projetées dans cette salle (relation un-à-plusieurs).
         /// </summary>
-        public List<ShowtimeDtO> Showtimes { get; set; }
+        public List<ShowtimeDto> Showtimes { get; set; }
     }
 }
