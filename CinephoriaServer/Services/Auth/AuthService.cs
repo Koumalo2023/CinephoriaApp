@@ -27,7 +27,7 @@ namespace CinephoriaServer.Services
         {
             _userManager = userManager;
             _roleManager = roleManager;
-            _employeeCollection = database.GetCollection<EmployeeAccount>("EmployeeAccount");
+            _employeeCollection = database.GetCollection<EmployeeAccount>("employeeaccount");
             _configuration = configuration;
             _unitOfWork = unitOfWork;
             _mapper = mapper;

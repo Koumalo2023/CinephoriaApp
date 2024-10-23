@@ -23,6 +23,10 @@ namespace CinephoriaServer.Configurations
             services.AddTransient<IIncidentService, IncidentService>();
             services.AddTransient<ICinemaService, CinemaService>();
             services.AddTransient<IMovieService, MovieService>();
+            services.AddTransient<IShowtimeService, ShowtimeService>();
+            services.AddTransient<IReservationService, ReservationService>();
+            services.AddTransient<IAdminDashboardService, AdminDashboardService>();
+
 
 
             // Injection du UoW (Unit of Work) pour Entity Framework

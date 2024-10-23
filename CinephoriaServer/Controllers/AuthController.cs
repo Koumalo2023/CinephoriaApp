@@ -259,9 +259,8 @@ namespace CinephoriaServer.Controllers
 
 
         // Endpoint pour l'enregistrement des employés/admins
-
         [HttpPost("employees/register-employee")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<IActionResult> RegisterEmployee([FromBody] EmployeeRegisterViewModel employeeRegisterViewModel)
         {
             if (!ModelState.IsValid)
@@ -283,7 +282,7 @@ namespace CinephoriaServer.Controllers
         /// <param name="updateRoleViewModel">Le modèle contenant l'identifiant de l'employé et le nouveau rôle.</param>
         /// <returns>Un objet GeneralServiceResponse indiquant le succès ou l'échec de l'opération.</returns>
         [HttpPut("employees/change-role")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<IActionResult> ChangeEmployeeRoleAsync([FromBody] UpdateRoleByIdViewModel updateRoleViewModel)
         {
             var response = await _authService.ChangeEmployeeRoleAsync(updateRoleViewModel);
@@ -296,7 +295,7 @@ namespace CinephoriaServer.Controllers
         /// <param name="resetPasswordViewModel">Le modèle contenant l'identifiant de l'employé et le nouveau mot de passe.</param>
         /// <returns>Un objet GeneralServiceResponse indiquant le succès ou l'échec de l'opération.</returns>
         [HttpPost("employees/reset-password")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> ResetEmployeePasswordAsync([FromBody] ResetPasswordByIdViewModel resetPasswordViewModel)
         {
             var response = await _authService.ResetEmployeePasswordAsync(resetPasswordViewModel);
@@ -304,7 +303,7 @@ namespace CinephoriaServer.Controllers
         }
 
         [HttpPut("UpdateEmployee/{id}")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> UpdateEmployee(string id, [FromBody] EmployeeUpdateViewModel employeeUpdateViewModel)
         {
             if (!ModelState.IsValid)
@@ -322,13 +321,12 @@ namespace CinephoriaServer.Controllers
             return Ok(response.Message);
         }
 
-
         /// <summary>
         /// Récupère la liste de tous les employés.
         /// </summary>
         /// <returns>Un objet GeneralServiceResponseData contenant la liste des employés.</returns>
         [HttpGet("employees")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> GetAllEmployeesAsync()
         {
             var response = await _authService.GetAllEmployeesAsync();
@@ -341,7 +339,7 @@ namespace CinephoriaServer.Controllers
         /// <param name="employeeId">L'identifiant de l'employé.</param>
         /// <returns>Un objet GeneralServiceResponse contenant les détails de l'employé.</returns>
         [HttpGet("employees/{employeeId}")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> GetEmployeeByIdAsync(string employeeId)
         {
             var response = await _authService.GetEmployeeByIdAsync(employeeId);
@@ -362,16 +360,12 @@ namespace CinephoriaServer.Controllers
         /// <param name="employeeId">L'identifiant de l'employé à supprimer.</param>
         /// <returns>Un objet GeneralServiceResponse indiquant le succès ou l'échec de l'opération.</returns>
         [HttpDelete("employees/{employeeId}")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<IActionResult> DeleteEmployeeAsync(string employeeId)
         {
             var response = await _authService.DeleteEmployeeAsync(employeeId);
             return StatusCode(response.StatusCode, response);
         }
-
-
-
-
 
     }
 }
