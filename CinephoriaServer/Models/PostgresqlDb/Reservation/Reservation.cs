@@ -24,7 +24,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// Identifiant de la séance réservée.
         /// </summary>
         [ForeignKey("Showtime")]
-        public int ShowtimeId { get; set; }
+        public string ShowtimeId { get; set; }
 
         /// <summary>
         /// Liste des numéros de sièges réservés.
