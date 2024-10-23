@@ -3,7 +3,7 @@ using static CinephoriaServer.Configurations.EnumConfig;
 
 namespace CinephoriaServer.Models.MongooDb
 {
-    public class ShowtimeDtO
+    public class ShowtimeDto
     {
         /// <summary>
         /// Identifiant unique de la séance.
@@ -23,7 +23,7 @@ namespace CinephoriaServer.Models.MongooDb
         /// <summary>
         /// Identifiant du cinéma où a lieu la projection.
         /// </summary>
-        public string CinemaId { get; set; }
+        public int CinemaId { get; set; }
 
         /// <summary>
         /// Heure de début de la séance.
