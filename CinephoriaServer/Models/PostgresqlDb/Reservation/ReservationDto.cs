@@ -5,7 +5,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
 {
     public class ReservationDto
     {
-        [BsonId]
+        
         /// <summary>
         /// Identifiant unique de la réservation.
         /// </summary>
@@ -19,7 +19,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// <summary>
         /// Identifiant de la séance réservée.
         /// </summary>
-        public int ShowtimeId { get; set; }
+        public string ShowtimeId { get; set; }
 
         /// <summary>
         /// Numéro du siège réservé.

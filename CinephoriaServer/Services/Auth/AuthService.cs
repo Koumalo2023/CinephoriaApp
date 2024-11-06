@@ -12,6 +12,7 @@ using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using static CinephoriaServer.Configurations.EnumConfig;
 
 namespace CinephoriaServer.Services
 {
@@ -19,15 +20,13 @@ namespace CinephoriaServer.Services
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IMongoCollection<EmployeeAccount> _employeeCollection;
         private readonly IConfiguration _configuration;
         private readonly IUnitOfWorkMongoDb _unitOfWork;
         private readonly IMapper _mapper;
-        public AuthService(UserManager<AppUser> userManager, IUnitOfWorkMongoDb unitOfWork, IMapper mapper, IMongoDatabase database, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
+        public AuthService(UserManager<AppUser> userManager, IUnitOfWorkMongoDb unitOfWork, IMapper mapper, RoleManager<IdentityRole> roleManager, IConfiguration configuration)
         {
             _userManager = userManager;
             _roleManager = roleManager;
-            _employeeCollection = database.GetCollection<EmployeeAccount>("EmployeeAccount");
             _configuration = configuration;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -63,8 +62,7 @@ namespace CinephoriaServer.Services
             };
         }
 
-
-        public async Task<GeneralServiceResponse> RegisterAsync(RegisterViewModel registerViewModel)
+        public async Task<GeneralServiceResponse> RegisterAsync(RegisterViewModel registerViewModel, string currentUserRole)
         {
             // Vérifie si l'utilisateur existe déjà (basé sur l'email)
             var isExistsUser = await _userManager.FindByNameAsync(registerViewModel.UserName);
@@ -74,7 +72,7 @@ namespace CinephoriaServer.Services
                 {
                     IsSucceed = false,
                     StatusCode = 409,
-                    Message = "UserName Already Exists"
+                    Message = "L'utilisateur existe déjà!"
                 };
             }
 
@@ -85,25 +83,88 @@ namespace CinephoriaServer.Services
                 {
                     IsSucceed = false,
                     StatusCode = 400,
-                    Message = "Passwords do not match"
+                    Message = "Les mots de passe sont différents"
+                };
+            }
+
+            // Gestion du rôle par défaut "USER" si aucun rôle ou un rôle incorrect est spécifié
+            if (registerViewModel.Roles == null ||
+                !registerViewModel.Roles.Any() ||
+                registerViewModel.Roles.First().Equals("string", StringComparison.OrdinalIgnoreCase))
+            {
+                registerViewModel.Roles = new List<string> { RoleConfigurations.User };
+            }
+
+            string role = registerViewModel.Roles.First();
+
+            // Vérifie les règles pour les rôles "ADMIN" et "EMPLOYEE"
+            if (role == RoleConfigurations.Admin || role == RoleConfigurations.Employee)
+            {
+                if (currentUserRole != RoleConfigurations.Admin)
+                {
+                    return new GeneralServiceResponse()
+                    {
+                        IsSucceed = false,
+                        StatusCode = 403,
+                        Message = "Seul un administrateur peut créer un autre administrateur ou un employé"
+                    };
+                }
+
+                // Vérifie que l'adresse email a le suffixe "@cinephoria.com"
+                if (!registerViewModel.UserName.EndsWith("@cinephoria.com"))
+                {
+                    return new GeneralServiceResponse()
+                    {
+                        IsSucceed = false,
+                        StatusCode = 400,
+                        Message = "Les comptes administrateurs et employés doivent utiliser une adresse email se terminant par '@cinephoria.com'."
+                    };
+                }
+
+                // Validation supplémentaire pour les employés
+                if (role == RoleConfigurations.Employee)
+                {
+                    if (string.IsNullOrEmpty(registerViewModel.PhoneNumber) ||
+                        !registerViewModel.HiredDate.HasValue ||
+                        string.IsNullOrEmpty(registerViewModel.Position))
+                    {
+                        return new GeneralServiceResponse()
+                        {
+                            IsSucceed = false,
+                            StatusCode = 400,
+                            Message = "Le numéro de téléphone, la date d'embauche et le poste de l'employé sont obligatoires"
+                        };
+                    }
+                }
+            }
+            else if (role != RoleConfigurations.User)
+            {
+                // Si le rôle n'est ni "USER", ni "EMPLOYEE", ni "ADMIN", renvoie une erreur
+                return new GeneralServiceResponse()
+                {
+                    IsSucceed = false,
+                    StatusCode = 400,
+                    Message = $"Le rôle spécifié '{role}' n'est pas valide."
                 };
             }
 
             // Création de l'utilisateur avec les informations fournies
-            var newUser = new AppUser()
+            AppUser newUser = new AppUser()
             {
                 UserName = registerViewModel.UserName,
                 Email = registerViewModel.UserName,
                 FirstName = registerViewModel.FirstName,
                 LastName = registerViewModel.LastName,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                PhoneNumber = role == RoleConfigurations.Employee ? registerViewModel.PhoneNumber : null,
+                HiredDate = role == RoleConfigurations.Employee ? registerViewModel.HiredDate : null,
+                Position = role == RoleConfigurations.Employee ? registerViewModel.Position : null
             };
 
             // Création de l'utilisateur avec le mot de passe hashé
             var createUserResult = await _userManager.CreateAsync(newUser, registerViewModel.Password);
 
-            // Si la création échoue, retourne les erreurs retournées par ASP.NET Identity
             if (!createUserResult.Succeeded)
             {
                 var errorString = string.Join(" ", createUserResult.Errors.Select(e => e.Description));
@@ -111,14 +172,13 @@ namespace CinephoriaServer.Services
                 {
                     IsSucceed = false,
                     StatusCode = 400,
-                    Message = "User creation failed: " + errorString
+                    Message = "Erreur lors de la création de l'utilisateur: " + errorString
                 };
             }
 
-            // Assigner le rôle par défaut à l'utilisateur (par exemple "User")
-            var addRoleResult = await _userManager.AddToRoleAsync(newUser, "User");
+            // Assigner le rôle approprié (User, Employee, ou Admin)
+            var addRoleResult = await _userManager.AddToRoleAsync(newUser, role);
 
-            // Si l'assignation de rôle échoue, retourner un message d'erreur
             if (!addRoleResult.Succeeded)
             {
                 var roleErrorString = string.Join(" ", addRoleResult.Errors.Select(e => e.Description));
@@ -126,18 +186,17 @@ namespace CinephoriaServer.Services
                 {
                     IsSucceed = false,
                     StatusCode = 500,
-                    Message = "Failed to assign role: " + roleErrorString
+                    Message = "Le rôle n'a pas été assigné à l'utilisateur en cours de création: " + roleErrorString
                 };
             }
 
-            // Retourne un message de succès si tout s'est bien passé
             return new GeneralServiceResponse()
             {
                 IsSucceed = true,
                 StatusCode = 201,
-                Message = "User Created Successfully"
+                Message = "Votre inscription a bien été prise en compte"
             };
-        }
+        }   
 
         public async Task<LoginResponseViewModel?> MeAsync(MeViewModel meViewModel)
         {
@@ -162,10 +221,24 @@ namespace CinephoriaServer.Services
             var role = await _userManager.GetRolesAsync(user);
 
             // Génération du nouveau token JWT
-            var newToken =  GenerateJWTToken(user.Id, user.UserName, user.FirstName, user.LastName, role.ToList());
+            var newToken = await GenerateJWTToken(user);
 
+            var userDto = await GenerateUserInfoObject(user, role);
             // Mapping AppUser vers UserInfos
-            var userInfo = _mapper.Map<UserInfos>(user);
+            var userInfo = new UserInfos()
+            {
+                AppUserId = userDto.AppUserId,
+                UserName = userDto.UserName,
+                FirstName = userDto.FirstName,
+                LastName = userDto.LastName,
+                CreatedAt = userDto.CreatedAt,
+                UpdatedAt = userDto.UpdatedAt,
+                Roles = userDto.Roles.ToList(),
+                HasApprovedTermsOfUse = userDto.HasApprovedTermsOfUse,
+                HiredDate = userDto.HiredDate,
+                Position = userDto.Position,
+                
+            };
 
             return new LoginResponseViewModel
             {
@@ -174,24 +247,49 @@ namespace CinephoriaServer.Services
             };
         }
 
-        public async Task<UserInfos?> GetUserDetailsByUserNameAsync(string userName)
+        public async Task<AppUserDto?> GetUserDetailsByUserNameAsync(string userName)
         {
             var user = await _userManager.FindByNameAsync(userName);
             if (user == null)
                 return null;
 
-            // Mapping AppUser vers UserInfos
-            var userInfo = _mapper.Map<UserInfos>(user);
+            var roles = await _userManager.GetRolesAsync(user);
 
+            var userInfo = new AppUserDto()
+            {
+                AppUserId = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                UserName = user.UserName,
+                PhoneNumber = user.PhoneNumber,
+                Roles = roles.ToList(),
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt,
+                HasApprovedTermsOfUse = user.HasApprovedTermsOfUse,
+                HiredDate = user.HiredDate,
+                Position = user.Position,
+                ReportedIncidents = user.ReportedIncidents,
+                Reservations = user.Reservations,
+                MovieRatings = user.MovieRatings,
+                Contact = user.Contact
+            };
             return userInfo;
         }
 
-        public async Task<IEnumerable<UserInfos>> GetUsersListAsync()
+        public async Task<IEnumerable<AppUserDto>> GetUsersListAsync()
         {
             var users = await _userManager.Users.ToListAsync();
 
-            // Mapping de la liste AppUser vers une liste UserInfos
-            var userInfosList = _mapper.Map<IEnumerable<UserInfos>>(users);
+            List<AppUserDto> userInfosList = new List<AppUserDto>();
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+
+                // Attendre que la tâche se termine pour obtenir le DTO
+                var userInfo = await GenerateUserInfoObject(user, roles);
+                userInfosList.Add(userInfo);
+            }
 
             return userInfosList;
         }
@@ -261,6 +359,9 @@ namespace CinephoriaServer.Services
             user.FirstName = updateUserViewModel.FirstName;
             user.LastName = updateUserViewModel.LastName;
             user.Email = updateUserViewModel.Email;
+            user.Position = updateUserViewModel.Position;
+            user.UserName = updateUserViewModel.UserName;
+            user.PhoneNumber = updateUserViewModel.PhoneNumber;
 
             var result = await _userManager.UpdateAsync(user);
 
@@ -284,376 +385,242 @@ namespace CinephoriaServer.Services
         }
 
 
-
-
-        // Gestion des employée & &Admin
-
-        // Implémentation pour l'enregistrement des employés/admins
-        public async Task<GeneralServiceResponse> RegisterEmployeeAsync(EmployeeRegisterViewModel employeeRegisterViewModel)
+        // Méthode pour réinitialiser le mot de passe d'un utilisateur
+        public async Task<GeneralServiceResponse> ResetEmployeePasswordAsync(string userId, string newPassword)
         {
-            // Vérifie si un employé existe déjà (basé sur l'email)
-            var existingEmployee = await _employeeCollection.Find(e => e.UserName == employeeRegisterViewModel.UserName).FirstOrDefaultAsync();
-            if (existingEmployee != null)
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
             {
-                return new GeneralServiceResponse()
+                return new GeneralServiceResponse
                 {
                     IsSucceed = false,
-                    StatusCode = 409,
-                    Message = "Employee already exists"
+                    StatusCode = 404,
+                    Message = "Utilisateur non trouvé."
                 };
             }
 
-            // Hashage du mot de passe de l'employé
-            var passwordHash = BCrypt.Net.BCrypt.HashPassword(employeeRegisterViewModel.Password);
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var resetResult = await _userManager.ResetPasswordAsync(user, resetToken, newPassword);
 
-            // Création de l'objet EmployeeAccount
-            var newEmployee = new EmployeeAccount()
+            if (!resetResult.Succeeded)
             {
-                UserName = employeeRegisterViewModel.UserName,
-                PasswordHash = passwordHash,
-                FirstName = employeeRegisterViewModel.FirstName,
-                LastName = employeeRegisterViewModel.LastName,
-                PhoneNumber = employeeRegisterViewModel.PhoneNumber,
-                CreatedAt = DateTime.UtcNow,
-                Roles = new List<string> { employeeRegisterViewModel.IsAdmin ? "Admin" : "Employee" },
-                HiredDate = employeeRegisterViewModel.HiredDate,
-                Position = employeeRegisterViewModel.Position
-            };
-
-            // Ajout dans la base de données MongoDB
-            await _employeeCollection.InsertOneAsync(newEmployee);
-
-            return new GeneralServiceResponse()
-            {
-                IsSucceed = true,
-                StatusCode = 201,
-                Message = "Employee and Identity user created successfully"
-            };
-        }
-
-        public async Task<GeneralServiceResponse> UpdateEmployeeAsync(string employeeId, EmployeeUpdateViewModel employeeUpdateViewModel)
-        {
-            // Convertir l'ID de l'employé en ObjectId
-            if (!ObjectId.TryParse(employeeId, out ObjectId objectId))
-            {
+                var errorString = string.Join(" ", resetResult.Errors.Select(e => e.Description));
                 return new GeneralServiceResponse
                 {
                     IsSucceed = false,
                     StatusCode = 400,
-                    Message = "Invalid employee ID format"
+                    Message = "Erreur de réinitialisation du mot de passe: " + errorString
                 };
             }
-
-            // Recherche de l'employé par ObjectId
-            var existingEmployee = await _employeeCollection.Find(e => e.Id == objectId).FirstOrDefaultAsync();
-
-            if (existingEmployee == null)
-            {
-                return new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 404,
-                    Message = "Employee not found"
-                };
-            }
-
-            // Mise à jour des champs modifiables
-            existingEmployee.FirstName = employeeUpdateViewModel.FirstName ?? existingEmployee.FirstName;
-            existingEmployee.LastName = employeeUpdateViewModel.LastName ?? existingEmployee.LastName;
-            existingEmployee.PhoneNumber = employeeUpdateViewModel.PhoneNumber ?? existingEmployee.PhoneNumber;
-            existingEmployee.Position = employeeUpdateViewModel.Position ?? existingEmployee.Position;
-            existingEmployee.HiredDate = employeeUpdateViewModel.HiredDate ?? existingEmployee.HiredDate;
-
-            // Si le rôle est mis à jour
-            if (employeeUpdateViewModel.Roles != null && employeeUpdateViewModel.Roles.Any())
-            {
-                existingEmployee.Roles = employeeUpdateViewModel.Roles;
-            }
-
-            // Mise à jour dans la base de données MongoDB
-            await _employeeCollection.ReplaceOneAsync(e => e.Id == objectId, existingEmployee);
 
             return new GeneralServiceResponse
             {
                 IsSucceed = true,
                 StatusCode = 200,
-                Message = "Employee updated successfully"
+                Message = "Mot de passe réinitialisé avec succès."
             };
         }
 
-
-        public async Task<GeneralServiceResponse> ChangeEmployeeRoleAsync(UpdateRoleByIdViewModel updateRoleViewModel)
+        // Méthode pour changer le rôle d'un utilisateur
+        public async Task<GeneralServiceResponse> ChangeEmployeeRoleAsync(string userId, string newRole)
         {
-            // Recherche de l'employé par EmployeeId
-            var employeeAccount = await _unitOfWork.EmployeeAccounts.GetByIdAsync(updateRoleViewModel.EmployeeId);
-
-            if (employeeAccount == null)
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
             {
                 return new GeneralServiceResponse
                 {
                     IsSucceed = false,
                     StatusCode = 404,
-                    Message = "Employee not found"
+                    Message = "Utilisateur non trouvé."
                 };
             }
 
-            // Conversion du nouveau rôle en chaîne de caractères et assignation
-            employeeAccount.Roles = new List<string> { updateRoleViewModel.NewRole.ToString() };
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
 
-            // Mise à jour de l'employé dans la base de données
-            await _unitOfWork.EmployeeAccounts.UpdateAsync(employeeAccount);
+            if (!removeResult.Succeeded)
+            {
+                var errorString = string.Join(" ", removeResult.Errors.Select(e => e.Description));
+                return new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 400,
+                    Message = "Erreur lors de la suppression des anciens rôles: " + errorString
+                };
+            }
+
+            var addRoleResult = await _userManager.AddToRoleAsync(user, newRole);
+
+            if (!addRoleResult.Succeeded)
+            {
+                var errorString = string.Join(" ", addRoleResult.Errors.Select(e => e.Description));
+                return new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 400,
+                    Message = "Erreur lors de l'attribution du nouveau rôle: " + errorString
+                };
+            }
 
             return new GeneralServiceResponse
             {
                 IsSucceed = true,
                 StatusCode = 200,
-                Message = "Employee role changed successfully"
+                Message = $"Rôle changé avec succès à {newRole}."
             };
         }
 
-        public async Task<GeneralServiceResponse> ResetEmployeePasswordAsync(ResetPasswordByIdViewModel resetPasswordViewModel)
+        // Méthode pour supprimer un utilisateur
+        public async Task<GeneralServiceResponse> DeleteUserAsync(string userId)
         {
-            // Recherche de l'employé par EmployeeId
-            var employee = await _unitOfWork.EmployeeAccounts.GetByIdAsync(resetPasswordViewModel.EmployeeId);
-
-            if (employee == null)
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
             {
                 return new GeneralServiceResponse
                 {
                     IsSucceed = false,
                     StatusCode = 404,
-                    Message = "Employee not found"
+                    Message = "Utilisateur non trouvé."
                 };
             }
 
-            // Hachage du nouveau mot de passe
-            var passwordHash = BCrypt.Net.BCrypt.HashPassword(resetPasswordViewModel.NewPassword);
+            var deleteResult = await _userManager.DeleteAsync(user);
 
-            // Mise à jour du mot de passe
-            employee.PasswordHash = passwordHash;
-            await _unitOfWork.EmployeeAccounts.UpdateAsync(employee);
-
-            return new GeneralServiceResponse
+            if (!deleteResult.Succeeded)
             {
-                IsSucceed = true,
-                StatusCode = 200,
-                Message = "Password reset successfully"
-            };
-        }
-
-        public async Task<GeneralServiceResponse> DeleteEmployeeAsync(string employeeId)
-        {
-            var employee = await _unitOfWork.EmployeeAccounts.GetByIdAsync(employeeId);
-
-            if (employee == null)
-            {
+                var errorString = string.Join(" ", deleteResult.Errors.Select(e => e.Description));
                 return new GeneralServiceResponse
                 {
                     IsSucceed = false,
-                    StatusCode = 404,
-                    Message = "Employee not found"
+                    StatusCode = 400,
+                    Message = "Erreur lors de la suppression de l'utilisateur: " + errorString
                 };
             }
-
-            await _unitOfWork.EmployeeAccounts.DeleteAsync(employeeId);
 
             return new GeneralServiceResponse
             {
                 IsSucceed = true,
                 StatusCode = 200,
-                Message = "Employee deleted successfully"
+                Message = "Utilisateur supprimé avec succès."
             };
         }
 
-        public async Task<EmployeeAccount?> GetEmployeeByIdAsync(string employeeId)
+        // Méthode pour obtenir un utilisateur par son identifiant
+        public async Task<AppUserDto?> GetEmployeeByIdAsync(string userId)
         {
-            var employee = await _unitOfWork.EmployeeAccounts.GetByIdAsync(employeeId);
-
-            if (employee == null)
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
             {
                 return null;
             }
 
-            return employee;
-        }
-
-        public async Task<GeneralServiceResponseData<List<EmployeeAccount>>> GetAllEmployeesAsync()
-        {
-            var employees = (await _unitOfWork.EmployeeAccounts.GetAllAsync()).ToList();
-
-            return new GeneralServiceResponseData<List<EmployeeAccount>>
+            var roles = await _userManager.GetRolesAsync(user);
+            return new AppUserDto
             {
-                IsSucceed = true,
-                StatusCode = 200,
-                Message = "All employees retrieved successfully",
-                Data = employees
+                AppUserId = user.Id,
+                UserName = user.UserName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                PhoneNumber = user.PhoneNumber,
+                Roles = roles.ToList(),
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt,
+                HasApprovedTermsOfUse = user.HasApprovedTermsOfUse,
+                HiredDate = user.HiredDate,
+                Position = user.Position,
+                ReportedIncidents = user.ReportedIncidents,
+                Reservations = user.Reservations,
+                MovieRatings = user.MovieRatings,
             };
         }
 
-        public async Task<List<EmployeeAccount>> FilterEmployeesAsync(string? firstName = null, string? lastName = null, string? email = null)
-        {
-            var filterBuilder = Builders<EmployeeAccount>.Filter;
-            var filters = new List<FilterDefinition<EmployeeAccount>>();
-
-            if (!string.IsNullOrEmpty(firstName))
-            {
-                filters.Add(filterBuilder.Regex(e => e.FirstName, new BsonRegularExpression(firstName, "i")));
-            }
-
-            if (!string.IsNullOrEmpty(lastName))
-            {
-                filters.Add(filterBuilder.Regex(e => e.LastName, new BsonRegularExpression(lastName, "i")));
-            }
-
-            if (!string.IsNullOrEmpty(email))
-            {
-                filters.Add(filterBuilder.Regex(e => e.UserName, new BsonRegularExpression(email, "i")));
-            }
-
-            var finalFilter = filters.Count > 0 ? filterBuilder.And(filters) : filterBuilder.Empty;
-
-            return await _unitOfWork.EmployeeAccounts.FilterAsync(finalFilter);
-        }
-
-
-
-        //Methodes communes aux utilisateurs et aux employés & Admin
         public async Task<LoginResponseViewModel?> LoginAsync(string login, string password)
         {
-            bool isEmployee = login.EndsWith("@cinephoria.com");
-
-            if (isEmployee)
+            // Cherche l'utilisateur dans ASP.NET Identity par son login
+            var identityUser = await _userManager.FindByNameAsync(login);
+            if (identityUser == null || !await _userManager.CheckPasswordAsync(identityUser, password))
             {
-                var employee = await _employeeCollection.Find(e => e.UserName == login).FirstOrDefaultAsync();
-                if (employee == null || !BCrypt.Net.BCrypt.Verify(password, employee.PasswordHash))
-                {
-                    return null;
-                }
-
-                // Synchroniser l'utilisateur avec ASP.NET Identity
-                var identityUser = await _userManager.FindByNameAsync(login);
-                if (identityUser == null)
-                {
-                    // Si l'utilisateur n'existe pas dans Identity, on le crée
-                    identityUser = new AppUser
-                    {
-                        UserName = employee.UserName,
-                        Email = employee.UserName,
-                        FirstName = employee.FirstName,
-                        LastName = employee.LastName,
-                        SecurityStamp = Guid.NewGuid().ToString(),
-                        CreatedAt = DateTime.UtcNow
-                    };
-
-                    await _userManager.CreateAsync(identityUser, password);
-
-                    // Assigner les rôles à l'utilisateur dans ASP.NET Identity
-                    foreach (var role in employee.Roles)
-                    {
-                        await _userManager.AddToRoleAsync(identityUser, role);
-                    }
-                }
-
-                // Générer le token JWT avec les rôles
-                var roles = await _userManager.GetRolesAsync(identityUser);
-                var token = GenerateJWTToken(identityUser.Id, identityUser.UserName, identityUser.FirstName, identityUser.LastName, roles.ToList());
-
-                var userInfo = new UserInfos
-                {
-                    AppUserId = employee.Id.ToString(),
-                    FirstName = employee.FirstName,
-                    LastName = employee.LastName,
-                    UserName = employee.UserName,
-                    Email = employee.UserName,
-                    Roles = roles, // Utiliser la liste des rôles
-                    CreatedAt = employee.CreatedAt
-                };
-
-                return new LoginResponseViewModel
-                {
-                    NewToken = token,
-                    UserInfo = userInfo
-                };
+                return null;
             }
-            else
+
+            // Récupère les rôles de l'utilisateur
+            var roles = await _userManager.GetRolesAsync(identityUser);
+
+            // Génère le token JWT
+            var token = await GenerateJWTToken(identityUser);
+
+            var userInfo = new UserInfos
             {
-                // Gestion de l'authentification des utilisateurs classiques via ASP.NET Identity
-                var user = await _userManager.FindByNameAsync(login);
-                if (user == null || !await _userManager.CheckPasswordAsync(user, password))
-                {
-                    return null;
-                }
-
-                var roles = await _userManager.GetRolesAsync(user);
-                var token = GenerateJWTToken(user.Id, user.UserName, user.FirstName, user.LastName, roles.ToList());
-
-                var userInfo = new UserInfos
-                {
-                    AppUserId = user.Id,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    Roles = roles,
-                    CreatedAt = user.CreatedAt
-                };
-
-                return new LoginResponseViewModel
-                {
-                    NewToken = token,
-                    UserInfo = userInfo
-                };
-            }
-        }
-
-
-
-        private string GenerateJWTToken(string userId, string userName, string firstName, string lastName, List<string> roles)
-        {
-            // Création des claims
-                    var authClaims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, userName),
-                new Claim(ClaimTypes.NameIdentifier, userId),
-                new Claim("FirstName", firstName),
-                new Claim("LastName", lastName)
+                AppUserId = identityUser.Id,
+                FirstName = identityUser.FirstName,
+                LastName = identityUser.LastName,
+                UserName = identityUser.UserName,
+                Email = identityUser.Email,
+                Roles = roles,
+                CreatedAt = identityUser.CreatedAt
             };
 
-            // Ajout des rôles dans les claims (si plusieurs rôles sont présents)
-            foreach (var role in roles)
+            // Retourne la réponse avec le token et les informations de l'utilisateur
+            return new LoginResponseViewModel
             {
-                authClaims.Add(new Claim(ClaimTypes.Role, role));
+                NewToken = token,
+                UserInfo = userInfo
+            };
+        }
+
+        private async Task<string> GenerateJWTToken(AppUser user)
+        {
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            var authClaims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim("FirstName", user.FirstName),
+                new Claim("LastName", user.LastName),
+            };
+
+            foreach (var userRole in userRoles)
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, userRole));
             }
 
-            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
-            var signingCredentials = new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256);
+            var authSecret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+            var signingCredentials = new SigningCredentials(authSecret, SecurityAlgorithms.HmacSha256);
 
-            // Génération du token JWT
-            var token = new JwtSecurityToken(
+            var tokenObject = new JwtSecurityToken(
                 issuer: _configuration["JWT:ValidIssuer"],
                 audience: _configuration["JWT:ValidAudience"],
+                notBefore: DateTime.Now,
                 expires: DateTime.Now.AddHours(3),
                 claims: authClaims,
                 signingCredentials: signingCredentials
-            );
+                );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            string token = new JwtSecurityTokenHandler().WriteToken(tokenObject);
+            return token;
         }
 
-
-        private UserInfos GenerateUserInfoObject(AppUser user, string role)
+        private async Task<AppUserDto> GenerateUserInfoObject(AppUser user, IEnumerable<string> Roles)
         {
-            return new UserInfos()
+            var userDto = new AppUserDto()
             {
                 AppUserId = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 UserName = user.UserName,
-                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                Roles = Roles.ToList(),
                 CreatedAt = user.CreatedAt,
-                Roles = user.Roles
+                UpdatedAt = user.UpdatedAt,
+                HasApprovedTermsOfUse = user.HasApprovedTermsOfUse,
+                HiredDate = user.HiredDate,
+                Position = user.Position
             };
+
+            return userDto;
         }
+
 
     }
 }

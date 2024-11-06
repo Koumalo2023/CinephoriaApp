@@ -36,7 +36,6 @@ namespace CinephoriaBackEnd.Data
             modelBuilder.Ignore<Theater>();
             modelBuilder.Ignore<Showtime>();
             modelBuilder.Ignore<AdminDashboard>();
-            modelBuilder.Ignore<EmployeeAccount>();
 
         }
     }

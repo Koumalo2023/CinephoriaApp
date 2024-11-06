@@ -13,94 +13,194 @@ namespace CinephoriaServer.Controllers
     public class MovieController : ControllerBase
     {
         private readonly IMovieService _movieService;
+        private readonly IImageService _imageService;
 
-        public MovieController(IMovieService movieService)
+        public MovieController(IMovieService movieService, IImageService imageService)
         {
             _movieService = movieService;
+            _imageService = imageService;
         }
+
+
 
         /// <summary>
         /// Récupère tous les films disponibles.
         /// </summary>
-        /// <returns>Une liste de films.</returns>
+        /// <returns>Une liste de tous les films disponibles.</returns>
         [HttpGet("all")]
         [Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> GetAllMovies()
         {
-            var movies = await _movieService.GetAllMoviesAsync();
-            return Ok(movies);
+            try
+            {
+                var movies = await _movieService.GetAllMoviesAsync();
+                return Ok(movies);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = $"Erreur lors de la récupération des films : {ex.Message}"
+                });
+            }
         }
+
 
         /// <summary>
         /// Récupère tous les films disponibles dans un cinéma spécifique.
         /// </summary>
-        /// <param name="cinemaId">L'identifiant du cinéma.</param>
-        /// <returns>Une liste de films disponibles dans ce cinéma.</returns>
+        /// <param name="cinemaId">Identifiant du cinéma.</param>
+        /// <returns>Une liste de films disponibles dans le cinéma spécifié.</returns>
         [HttpGet("cinema/{cinemaId}")]
         [Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> GetMoviesByCinema(int cinemaId)
         {
-            var movies = await _movieService.GetMoviesByCinemaAsync(cinemaId);
-            return Ok(movies);
+            try
+            {
+                var movies = await _movieService.GetMoviesByCinemaAsync(cinemaId);
+                return Ok(movies);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = $"Erreur lors de la récupération des films pour le cinéma {cinemaId} : {ex.Message}"
+                });
+            }
         }
 
+
         /// <summary>
-        /// Récupère les détails d'un film par son identifiant.
+        /// Récupère les détails d'un film spécifique, y compris les séances disponibles.
         /// </summary>
-        /// <param name="filmId">L'identifiant du film.</param>
-        /// <returns>Les détails du film.</returns>
+        /// <param name="filmId">L'identifiant unique du film.</param>
+        /// <returns>Les détails du film, y compris les séances associées.</returns>
         [HttpGet("{filmId}")]
         [Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
         public async Task<IActionResult> GetMovieById(string filmId)
         {
-            var movie = await _movieService.GetMovieByIdAsync(filmId);
-            if (movie == null)
+            try
             {
-                return NotFound();
+                var movie = await _movieService.GetMovieByIdAsync(filmId);
+                if (movie == null)
+                {
+                    return NotFound(new GeneralServiceResponse
+                    {
+                        IsSucceed = false,
+                        StatusCode = 404,
+                        Message = "Film non trouvé."
+                    });
+                }
+
+                return Ok(movie);
             }
-            return Ok(movie);
+            catch (Exception ex)
+            {
+                return StatusCode(500, new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = $"Erreur lors de la récupération du film {filmId} : {ex.Message}"
+                });
+            }
         }
 
+
         /// <summary>
-        /// Filtre les films par cinéma, genre et date.
+        /// Filtre les films par cinéma, genre ou jour spécifique.
+        /// Si un paramètre n'est pas fourni, il n'est pas pris en compte dans le filtrage.
         /// </summary>
-        /// <param name="cinemaId">L'identifiant du cinéma (optionnel).</param>
-        /// <param name="genre">Le genre du film (optionnel).</param>
-        /// <param name="date">La date des séances (optionnelle).</param>
-        /// <returns>Une liste filtrée de films.</returns>
+        /// <param name="cinemaId">L'identifiant du cinéma.</param>
+        /// <param name="genre">Le genre du film.</param>
+        /// <param name="date">Le jour spécifique des séances.</param>
+        /// <returns>Une liste filtrée des films selon les critères fournis.</returns>
         [HttpGet("filter")]
         [Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
         public async Task<IActionResult> FilterMovies([FromQuery] int? cinemaId, [FromQuery] string genre, [FromQuery] DateTime? date)
         {
-            var movies = await _movieService.FilterMoviesAsync(cinemaId, genre, date);
-            return Ok(movies);
+            try
+            {
+                var movies = await _movieService.FilterMoviesAsync(cinemaId, genre, date);
+                return Ok(movies);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = $"Erreur lors du filtrage des films : {ex.Message}"
+                });
+            }
         }
 
+
         /// <summary>
-        /// Crée un nouveau film (réservé aux administrateurs et employés).
+        /// Crée un nouveau film.
+        /// Cette méthode est réservée aux administrateurs et aux employés.
         /// </summary>
-        /// <param name="movieViewModel">Les données du film à créer.</param>
-        /// <returns>Le film créé.</returns>
+        /// <param name="movieViewModel">Le ViewModel du film à créer.</param>
+        /// <returns>Le film nouvellement créé.</returns>
         [HttpPost("create")]
         [Authorize(Roles = RoleConfigurations.AdminEmployee)]
-        public async Task<IActionResult> CreateMovie([FromBody] MovieViewModel movieViewModel)
+        public async Task<IActionResult> CreateMovie([FromBody] MovieViewModel movieViewModel, [FromForm] IFormFileCollection uploadedPosters)
         {
-           
-            var createdMovie = await _movieService.CreateMovieAsync(movieViewModel); ;
-            if (!createdMovie.IsSucceed)
+            try
             {
-                return StatusCode(createdMovie.StatusCode, createdMovie.Message);
+                string folder = "movies";
+
+                // Liste pour stocker les URLs des affiches téléchargées
+                var posterUrls = new List<string>();
+
+                // Télécharger chaque fichier et ajouter l'URL dans la liste
+                foreach (var uploadedPoster in uploadedPosters)
+                {
+                    var posterUrl = await _imageService.UploadImageAsync(uploadedPoster, folder);
+                    if (posterUrl != null)
+                    {
+                        posterUrls.Add(posterUrl);
+                    }
+                }
+
+                // Assigner les URLs des affiches dans MovieViewModel
+                movieViewModel.PosterUrls = posterUrls;
+
+                var createdMovie = await _movieService.CreateMovieAsync(movieViewModel);
+                if (!createdMovie.IsSucceed)
+                {
+                    return StatusCode(createdMovie.StatusCode, new GeneralServiceResponse
+                    {
+                        IsSucceed = false,
+                        StatusCode = createdMovie.StatusCode,
+                        Message = createdMovie.Message
+                    });
+                }
+
+                return Ok(createdMovie.Data);
             }
-
-            return Ok(createdMovie.Data);
-
+            catch (Exception ex)
+            {
+                return StatusCode(500, new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = $"Erreur lors de la création du film : {ex.Message}"
+                });
+            }
         }
 
+
+
         /// <summary>
-        /// Met à jour un film existant (réservé aux administrateurs et employés).
+        /// Modifie un film existant.
+        /// Cette méthode est réservée aux administrateurs et aux employés.
         /// </summary>
-        /// <param name="filmId">L'identifiant du film à mettre à jour.</param>
-        /// <param name="movieViewModel">Les nouvelles données du film.</param>
+        /// <param name="filmId">L'identifiant unique du film à modifier.</param>
+        /// <param name="movieViewModel">Les nouvelles données du film à mettre à jour.</param>
         /// <returns>Le film mis à jour.</returns>
         [HttpPut("{filmId}")]
         [Authorize(Roles = RoleConfigurations.AdminEmployee)]
@@ -111,32 +211,74 @@ namespace CinephoriaServer.Controllers
                 return BadRequest(ModelState);
             }
 
-            var updatedMovie = await _movieService.UpdateMovieAsync(filmId, movieViewModel);
-            if (updatedMovie == null)
+            try
             {
-                return NotFound();
+                var updatedMovie = await _movieService.UpdateMovieAsync(filmId, movieViewModel);
+                if (updatedMovie == null)
+                {
+                    return NotFound(new GeneralServiceResponse
+                    {
+                        IsSucceed = false,
+                        StatusCode = 404,
+                        Message = "Film non trouvé."
+                    });
+                }
+
+                return Ok(updatedMovie);
             }
-            return Ok(updatedMovie);
+            catch (Exception ex)
+            {
+                return StatusCode(500, new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = $"Erreur lors de la mise à jour du film {filmId} : {ex.Message}"
+                });
+            }
         }
 
+
         /// <summary>
-        /// Supprime un film existant (réservé aux administrateurs et employés).
+        /// Supprime un film existant.
+        /// Cette méthode est réservée aux administrateurs et aux employés.
         /// </summary>
-        /// <param name="filmId">L'identifiant du film à supprimer.</param>
+        /// <param name="filmId">L'identifiant unique du film à supprimer.</param>
         /// <returns>Une tâche représentant l'opération de suppression.</returns>
         [HttpDelete("{filmId}")]
         [Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> DeleteMovie(string filmId)
         {
-            await _movieService.DeleteMovieAsync(filmId);
-            return NoContent();
+            try
+            {
+                await _movieService.DeleteMovieAsync(filmId);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 404,
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = $"Erreur lors de la suppression du film {filmId} : {ex.Message}"
+                });
+            }
         }
 
+
         /// <summary>
-        /// Soumet un avis pour un film.
+        /// Permet à un utilisateur de laisser un avis sur un film.
         /// </summary>
-        /// <param name="reviewViewModel">Les données de l'avis à soumettre.</param>
-        /// <returns>L'avis soumis.</returns>
+        /// <param name="reviewViewModel">Le ViewModel de l'avis à soumettre.</param>
+        /// <returns>L'avis nouvellement créé.</returns>
         [HttpPost("reviews/submit")]
         [Authorize(Roles = RoleConfigurations.User)]
         public async Task<IActionResult> SubmitReview([FromBody] ReviewViewModel reviewViewModel)
@@ -146,28 +288,54 @@ namespace CinephoriaServer.Controllers
                 return BadRequest(ModelState);
             }
 
-            var review = await _movieService.SubmitReviewAsync(reviewViewModel);
-            return Ok(review);
+            try
+            {
+                var review = await _movieService.SubmitReviewAsync(reviewViewModel);
+                return Ok(review);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = $"Erreur lors de la soumission de la critique : {ex.Message}"
+                });
+            }
         }
 
+
         /// <summary>
-        /// Récupère les avis d'un film.
+        /// Récupère tous les avis d'un film.
         /// </summary>
         /// <param name="movieId">L'identifiant du film.</param>
-        /// <returns>Une liste d'avis sur le film.</returns>
+        /// <returns>Une liste d'avis associés au film.</returns>
         [HttpGet("{movieId}/reviews")]
         [Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> GetReviewsByMovieId(string movieId)
         {
-            var reviews = await _movieService.GetReviewsByMovieIdAsync(movieId);
-            return Ok(reviews);
+            try
+            {
+                var reviews = await _movieService.GetReviewsByMovieIdAsync(movieId);
+                return Ok(reviews);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = $"Erreur lors de la récupération des critiques pour le film {movieId} : {ex.Message}"
+                });
+            }
         }
 
+
         /// <summary>
-        /// Soumet une note pour un film.
+        /// Permet à un utilisateur de laisser une note sur un film.
         /// </summary>
-        /// <param name="movieRatingViewModel">Les informations de la note à soumettre.</param>
-        /// <returns>La note de film nouvellement soumise.</returns>
+        /// <param name="movieRatingViewModel">Le ViewModel de la note à soumettre.</param>
+        /// <returns>La note nouvellement créée.</returns>
         [HttpPost("ratings/submit")]
         [Authorize(Roles = RoleConfigurations.User)]
         public async Task<IActionResult> SubmitMovieRating([FromBody] MovieRatingViewModel movieRatingViewModel)
@@ -177,16 +345,28 @@ namespace CinephoriaServer.Controllers
                 return BadRequest(ModelState);
             }
 
-            var movieRating = await _movieService.SubmitMovieRatingAsync(movieRatingViewModel);
-            return Ok(movieRating);
+            try
+            {
+                var movieRating = await _movieService.SubmitMovieRatingAsync(movieRatingViewModel);
+                return Ok(movieRating);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = $"Erreur lors de la soumission de l'évaluation : {ex.Message}"
+                });
+            }
         }
 
+
         /// <summary>
-        /// Valide une note pour un film.
-        /// Cette action est réservée aux administrateurs et aux employés.
+        /// Valide une note sur un film, action réservée aux employés.
         /// </summary>
-        /// <param name="movieRatingId">L'identifiant de la note à valider.</param>
-        /// <returns>La note de film validée.</returns>
+        /// <param name="movieRatingId">L'identifiant unique de la note à valider.</param>
+        /// <returns>La note validée.</returns>
         [HttpPut("ratings/validate/{movieRatingId}")]
         [Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> ValidateMovieRating(int movieRatingId)
@@ -198,16 +378,30 @@ namespace CinephoriaServer.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(new { Message = ex.Message });
+                return NotFound(new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 404,
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = $"Erreur lors de la validation de l'évaluation {movieRatingId} : {ex.Message}"
+                });
             }
         }
 
+
         /// <summary>
-        /// Supprime une note sur un film.
-        /// Cette action est réservée aux administrateurs et aux employés.
+        /// Supprime une note sur un film, action réservée aux employés.
         /// </summary>
-        /// <param name="movieRatingId">L'identifiant de la note à supprimer.</param>
-        /// <returns>Une réponse indiquant que la suppression a réussi.</returns>
+        /// <param name="movieRatingId">L'identifiant unique de la note à supprimer.</param>
+        /// <returns>Une tâche représentant l'opération de suppression.</returns>
         [HttpDelete("ratings/{movieRatingId}")]
         [Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> DeleteMovieRating(int movieRatingId)
@@ -219,8 +413,23 @@ namespace CinephoriaServer.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(new { Message = ex.Message });
+                return NotFound(new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 404,
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = $"Erreur lors de la suppression de l'évaluation {movieRatingId} : {ex.Message}"
+                });
             }
         }
+
     }
 }

@@ -23,6 +23,11 @@ namespace CinephoriaServer.Configurations
             services.AddTransient<IIncidentService, IncidentService>();
             services.AddTransient<ICinemaService, CinemaService>();
             services.AddTransient<IMovieService, MovieService>();
+            services.AddTransient<IImageService, ImageService>();
+            services.AddTransient<IShowtimeService, ShowtimeService>();
+            services.AddTransient<IReservationService, ReservationService>();
+            services.AddTransient<IAdminDashboardService, AdminDashboardService>();
+
 
 
             // Injection du UoW (Unit of Work) pour Entity Framework
@@ -31,7 +36,6 @@ namespace CinephoriaServer.Configurations
 
             // MongoDB Repositories
             services.AddTransient<IMovieRepository, MovieRepository>();
-            services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IShowtimeRepository, ShowtimeRepository>();
             services.AddTransient<IIncidentRepository, IncidentRepository>();
             services.AddTransient<IAdminDashboardRepository, AdminDashboardRepository>();

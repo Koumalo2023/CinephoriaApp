@@ -26,7 +26,7 @@ namespace CinephoriaServer.Models.MongooDb
         /// <summary>
         /// Identifiant du cinema où a lieu la projection.
         /// </summary>
-        public string CinemaId { get; set; }
+        public int CinemaId { get; set; }
 
         /// <summary>
         /// Heure de début de la séance.
@@ -51,7 +51,7 @@ namespace CinephoriaServer.Models.MongooDb
         /// <summary>
         /// Qualité de la projection (ex : "4DX", "3D", "4K").
         /// </summary>
-        public string ProjectionQuality { get; set; }
+        public ProjectionQuality ProjectionQuality { get; set; }
 
         /// <summary>
         /// Prix de la séance en fonction de la qualité.

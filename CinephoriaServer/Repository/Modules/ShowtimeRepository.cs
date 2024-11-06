@@ -70,7 +70,7 @@ namespace CinephoriaServer.Repository
         public async Task<List<Showtime>> GetShowtimesByMovieAndCinemaAsync(string movieId, string cinemaId)
         {
             return await _showtimesCollection
-                .Find(s => s.MovieId == movieId && s.CinemaId == cinemaId)
+                .Find(s => s.MovieId == movieId && s.CinemaId.ToString() == cinemaId)
                 .ToListAsync();
         }
 

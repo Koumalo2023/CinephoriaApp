@@ -10,7 +10,6 @@ namespace CinephoriaServer.Repository
         IMongoRepository<Incident> Incidents { get; }
         IMongoRepository<Theater> Theaters { get; }
         IMongoRepository<Showtime> Showtimes { get; }
-        IMongoRepository<EmployeeAccount> EmployeeAccounts { get; }
         IMongoRepository<AdminDashboard> AdminDashboards { get; }
 
         Task SaveChangesAsync();

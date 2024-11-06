@@ -1,6 +1,6 @@
 ﻿using CinephoriaServer.Configurations;
-using CinephoriaServer.Models.MongooDb;
 using CinephoriaServer.Models.PostgresqlDb;
+using CinephoriaServer.Models.PostgresqlDb.Auth.ViewModels;
 using CinephoriaServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -15,10 +15,12 @@ namespace CinephoriaServer.Controllers
     {
 
         private readonly IAuthService _authService;
+        private readonly IImageService _imageService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IImageService imageService)
         {
             _authService = authService;
+            _imageService = imageService;
         }
 
         /// <summary>
@@ -26,7 +28,7 @@ namespace CinephoriaServer.Controllers
         /// </summary>
         /// <returns>Un objet GeneralServiceResponse indiquant le résultat de l'opération.</returns>
         [HttpPost("create-default-roles")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<ActionResult<GeneralServiceResponse>> CreateDefaultUsersRoleAsync()
         {
             try
@@ -56,16 +58,27 @@ namespace CinephoriaServer.Controllers
         {
             try
             {
-                var result = await _authService.RegisterAsync(registerViewModel);
+                // Récupère le rôle de l'utilisateur actuel à partir du contexte d'authentification
+                var currentUserRole = User.IsInRole("Admin") ? "Admin" : "User";
+
+                // Appelle la méthode RegisterAsync en passant le rôle de l'utilisateur actuel
+                var result = await _authService.RegisterAsync(registerViewModel, currentUserRole);
+
+                // Vérifie si l'inscription a échoué et renvoie une réponse avec le code d'erreur approprié
                 if (!result.IsSucceed)
                 {
-                    return BadRequest(result);
+                    return StatusCode(result.StatusCode, result);
                 }
-                return Ok(result);
+
+                // Renvoie une réponse 201 Created si l'inscription a réussi
+                return StatusCode(201, result);
             }
             catch (Exception ex)
             {
-                // Log the exception (not shown for brevity)
+                // Log l'exception (ici on utilise une simple sortie console pour l'exemple)
+                Console.WriteLine($"Exception lors de l'inscription de l'utilisateur : {ex.Message}");
+
+                // Retourne une réponse 500 en cas d'erreur serveur
                 return StatusCode(500, new GeneralServiceResponse
                 {
                     IsSucceed = false,
@@ -74,6 +87,7 @@ namespace CinephoriaServer.Controllers
                 });
             }
         }
+
 
         /// <summary>
         /// Valide le token JWT d'un utilisateur et renvoie ses informations ainsi qu'un nouveau token.
@@ -95,7 +109,6 @@ namespace CinephoriaServer.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception (not shown for brevity)
                 return StatusCode(500, new GeneralServiceResponse
                 {
                     IsSucceed = false,
@@ -120,15 +133,15 @@ namespace CinephoriaServer.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception (not shown for brevity)
                 return StatusCode(500, new GeneralServiceResponse
                 {
                     IsSucceed = false,
                     StatusCode = 500,
-                    Message = "An error occurred while retrieving users list: " + ex.Message
+                    Message = "Une erreur est survenue lors de la récupération de la liste des utilisateurs : " + ex.Message
                 });
             }
         }
+
 
         /// <summary>
         /// Récupère les détails d'un utilisateur spécifique via son nom d'utilisateur.
@@ -144,26 +157,35 @@ namespace CinephoriaServer.Controllers
                 var userInfo = await _authService.GetUserDetailsByUserNameAsync(userName);
                 if (userInfo == null)
                 {
-                    return NotFound("User not found.");
+                    return NotFound(new GeneralServiceResponse
+                    {
+                        IsSucceed = false,
+                        StatusCode = 404,
+                        Message = "Utilisateur introuvable."
+                    });
                 }
                 return Ok(userInfo);
             }
             catch (Exception ex)
             {
-                // Log the exception (not shown for brevity)
                 return StatusCode(500, new GeneralServiceResponse
                 {
                     IsSucceed = false,
                     StatusCode = 500,
-                    Message = "An error occurred while retrieving user details: " + ex.Message
+                    Message = "Une erreur est survenue lors de la récupération des détails de l'utilisateur : " + ex.Message
                 });
             }
         }
 
-        
+
+        /// <summary>
+        /// Met à jour un utilisateur (Admin, Employé ou Utilisateur).
+        /// </summary>
+        /// <param name="model">Modèle contenant les détails à mettre à jour.</param>
+        /// <returns>Un message de confirmation ou une réponse d'erreur.</returns>
         [HttpPut("users/update-user")]
         [Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
-        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserViewModel updateUserViewModel)
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserViewModel updateUserViewModel, [FromForm] IFormFile file)
         {
             if (!ModelState.IsValid)
             {
@@ -171,20 +193,45 @@ namespace CinephoriaServer.Controllers
                 {
                     IsSucceed = false,
                     StatusCode = 400,
-                    Message = "Invalid user data"
+                    Message = "Les informations fournies sont incorrectes"
                 });
             }
 
-            var result = await _authService.UpdateUserAsync(updateUserViewModel);
-
-            if (!result.IsSucceed)
+            try
             {
-                return StatusCode(result.StatusCode, result);
-            }
+                // Téléchargez la nouvelle image de profil, puis mettez à jour `ProfileImageUrl`
+                if (file != null)
+                {
+                    string folder = "users";
+                    var imageUrl = await _imageService.UploadImageAsync(file, folder);
+                    updateUserViewModel.ProfileImageUrl = imageUrl; 
+                }
 
-            return Ok(result);
+                var result = await _authService.UpdateUserAsync(updateUserViewModel);
+                if (!result.IsSucceed)
+                {
+                    return StatusCode(result.StatusCode, result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = "Une erreur est survenue lors de la mise à jour de l'utilisateur : " + ex.Message
+                });
+            }
         }
 
+
+        /// <summary>
+        /// Modifie le mot de passe d'un utilisateur après vérification de l'ancien mot de passe.
+        /// </summary>
+        /// <param name="changePasswordViewModel">Objet contenant les informations nécessaires au changement de mot de passe, y compris l'ancien et le nouveau mot de passe.</param>
+        /// <returns>Un GeneralServiceResponse indiquant le succès ou l'échec de l'opération de changement de mot de passe.</returns>
         [HttpPost("users/change-password")]
         [Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
         public async Task<IActionResult> ChangePassword([FromBody] UserChangePasswordViewModel changePasswordViewModel)
@@ -195,24 +242,32 @@ namespace CinephoriaServer.Controllers
                 {
                     IsSucceed = false,
                     StatusCode = 400,
-                    Message = "Invalid password data"
+                    Message = "Les informations de mot de passe sont incorrectes"
                 });
             }
 
-            var result = await _authService.ChangePasswordAsync(changePasswordViewModel);
-
-            if (!result.IsSucceed)
+            try
             {
-                return StatusCode(result.StatusCode, result);
-            }
+                var result = await _authService.ChangePasswordAsync(changePasswordViewModel);
 
-            return Ok(result);
+                if (!result.IsSucceed)
+                {
+                    return StatusCode(result.StatusCode, result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = "Une erreur est survenue lors du changement de mot de passe : " + ex.Message
+                });
+            }
         }
 
-
-
-
-        // Endpoint pour la connexion des utilisateurs et employés/admins
 
         /// <summary>
         /// Authentifie un utilisateur avec son nom d'utilisateur et son mot de passe.
@@ -222,156 +277,168 @@ namespace CinephoriaServer.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginViewModel loginViewModel)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(new GeneralServiceResponse()
+               
+                var loginResponse = await _authService.LoginAsync(loginViewModel.UserName, loginViewModel.Password);
+
+                if (loginResponse == null)
+                {
+                    return Unauthorized(new GeneralServiceResponse()
+                    {
+                        IsSucceed = false,
+                        StatusCode = 401,
+                        Message = "Les informations fournies sont incorrects"
+                    });
+                }
+
+                return Ok(loginResponse);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"An error occurred during login: {ex.Message}" });
+            }
+        }
+    
+        
+        /// <summary>
+        /// Réinitialise le mot de passe d'un utilisateur (admin ou employé).
+        /// </summary>
+        /// <param name="model">Modèle contenant l'ID de l'utilisateur et le nouveau mot de passe.</param>
+        /// <returns>Un message de confirmation ou une réponse d'erreur.</returns>
+        [HttpPost("reset-password")]
+        [Authorize(Roles = RoleConfigurations.Admin)]
+        public async Task<IActionResult> ResetEmployeePasswordAsync([FromBody] ResetPasswordViewModel model)
+        {
+            try
+            {
+                var response = await _authService.ResetEmployeePasswordAsync(model.UserId, model.NewPassword);
+                if (!response.IsSucceed)
+                {
+                    return Unauthorized(new GeneralServiceResponse()
+                    {
+                        IsSucceed = false,
+                        StatusCode = 401,
+                        Message = "Les informations fournies sont incorrects"
+                    });
+                }
+                return Ok("Mot de passe réinitialisé avec succès.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new GeneralServiceResponse
                 {
                     IsSucceed = false,
-                    StatusCode = 400,
-                    Message = "Invalid login data"
+                    StatusCode = 500,
+                    Message = "Une erreur est survenue lors de la réinitialisation du mot de passe : " + ex.Message
                 });
             }
+        }
 
-            // Appel du service pour tenter la connexion de l'utilisateur ou de l'employé
-            var loginResponse = await _authService.LoginAsync(loginViewModel.UserName, loginViewModel.Password);
 
-            if (loginResponse == null)
+
+        /// <summary>
+        /// Change le rôle d'un utilisateur (employé vers admin et réciproquement).
+        /// </summary>
+        /// <param name="model">Modèle contenant l'ID de l'utilisateur et le nouveau rôle.</param>
+        /// <returns>Un message de confirmation ou une réponse d'erreur.</returns>
+        [HttpPost("change-role")]
+        [Authorize(Roles = RoleConfigurations.Admin)]
+        public async Task<IActionResult> ChangeEmployeeRoleAsync([FromBody] UpdateRoleByIdViewModel model)
+        {
+            try
             {
-                // Si les informations de connexion sont incorrectes
-                return Unauthorized(new GeneralServiceResponse()
+                var response = await _authService.ChangeEmployeeRoleAsync(model.UserId, model.NewRole);
+                if (!response.IsSucceed)
+                {
+                    return Unauthorized(new GeneralServiceResponse()
+                    {
+                        IsSucceed = false,
+                        StatusCode = 401,
+                        Message = "Les informations fournies sont incorrects"
+                    });
+                }
+                return Ok($"Rôle changé avec succès en {model.NewRole}.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new GeneralServiceResponse
                 {
                     IsSucceed = false,
-                    StatusCode = 401,
-                    Message = "Invalid credentials"
+                    StatusCode = 500,
+                    Message = "Une erreur est survenue lors du changement de rôle : " + ex.Message
                 });
             }
-
-            return Ok(new GeneralServiceResponseData<LoginResponseViewModel>()
-            {
-                IsSucceed = true,
-                StatusCode = 200,
-                Message = "Login successful",
-                Data = loginResponse
-            });
         }
 
 
+        /// <summary>
+        /// Récupère les informations d'un utilisateur spécifique via son identifiant.
+        /// </summary>
+        /// <param name="userId">L'ID de l'utilisateur à rechercher.</param>
+        /// <returns>Un objet contenant les informations de l'utilisateur ou une réponse d'erreur.</returns>
+        [HttpGet("get-user/{userId}")]
+        [Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
+        public async Task<IActionResult> GetEmployeeByIdAsync(string userId)
+        {
+            try
+            {
+                var userInfo = await _authService.GetEmployeeByIdAsync(userId);
+                if (userInfo == null)
+                {
+                    return NotFound(new GeneralServiceResponse()
+                    {
+                        IsSucceed = false,
+                        StatusCode = 401,
+                        Message = "Utilisateur non trouvé."
+                    });
+                }
+                return Ok(userInfo);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = "Une erreur est survenue lors de la récupération des informations de l'utilisateur : " + ex.Message
+                });
+            }
+        }
 
 
-        // Endpoint pour l'enregistrement des employés/admins
-
-        [HttpPost("employees/register-employee")]
+        /// <summary>
+        /// Supprime un utilisateur (Admin, Employé ou Utilisateur).
+        /// </summary>
+        /// <param name="userId">L'ID de l'utilisateur à supprimer.</param>
+        /// <returns>Un message de confirmation ou une réponse d'erreur.</returns>
+        [HttpDelete("delete-user/{userId}")]
         [Authorize(Roles = RoleConfigurations.Admin)]
-        public async Task<IActionResult> RegisterEmployee([FromBody] EmployeeRegisterViewModel employeeRegisterViewModel)
+        public async Task<IActionResult> DeleteUserAsync(string userId)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                var response = await _authService.DeleteUserAsync(userId);
+                if (!response.IsSucceed)
+                {
+                    return StatusCode(response.StatusCode, response);
+                }
+                return Ok("Utilisateur supprimé avec succès.");
             }
-
-            var result = await _authService.RegisterEmployeeAsync(employeeRegisterViewModel);
-            if (result.IsSucceed)
+            catch (Exception ex)
             {
-                return StatusCode(result.StatusCode, new { message = result.Message });
+                return StatusCode(500, new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = "Une erreur est survenue lors de la suppression de l'utilisateur : " + ex.Message
+                });
             }
-            return StatusCode(result.StatusCode, new { message = result.Message });
         }
-       
-        //// <summary>
-        /// Modifie le rôle d'un employé.
-        /// </summary>
-        /// <param name="updateRoleViewModel">Le modèle contenant l'identifiant de l'employé et le nouveau rôle.</param>
-        /// <returns>Un objet GeneralServiceResponse indiquant le succès ou l'échec de l'opération.</returns>
-        [HttpPut("employees/change-role")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
-        public async Task<IActionResult> ChangeEmployeeRoleAsync([FromBody] UpdateRoleByIdViewModel updateRoleViewModel)
-        {
-            var response = await _authService.ChangeEmployeeRoleAsync(updateRoleViewModel);
-            return StatusCode(response.StatusCode, response);
-        }
-
-        /// <summary>
-        /// Réinitialise le mot de passe d'un employé.
-        /// </summary>
-        /// <param name="resetPasswordViewModel">Le modèle contenant l'identifiant de l'employé et le nouveau mot de passe.</param>
-        /// <returns>Un objet GeneralServiceResponse indiquant le succès ou l'échec de l'opération.</returns>
-        [HttpPost("employees/reset-password")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
-        public async Task<IActionResult> ResetEmployeePasswordAsync([FromBody] ResetPasswordByIdViewModel resetPasswordViewModel)
-        {
-            var response = await _authService.ResetEmployeePasswordAsync(resetPasswordViewModel);
-            return StatusCode(response.StatusCode, response);
-        }
-
-        [HttpPut("UpdateEmployee/{id}")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
-        public async Task<IActionResult> UpdateEmployee(string id, [FromBody] EmployeeUpdateViewModel employeeUpdateViewModel)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var response = await _authService.UpdateEmployeeAsync(id, employeeUpdateViewModel);
-
-            if (!response.IsSucceed)
-            {
-                return StatusCode(response.StatusCode, response.Message);
-            }
-
-            return Ok(response.Message);
-        }
-
-
-        /// <summary>
-        /// Récupère la liste de tous les employés.
-        /// </summary>
-        /// <returns>Un objet GeneralServiceResponseData contenant la liste des employés.</returns>
-        [HttpGet("employees")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
-        public async Task<IActionResult> GetAllEmployeesAsync()
-        {
-            var response = await _authService.GetAllEmployeesAsync();
-            return StatusCode(response.StatusCode, response);
-        }
-
-        /// <summary>
-        /// Récupère les détails d'un employé par son identifiant.
-        /// </summary>
-        /// <param name="employeeId">L'identifiant de l'employé.</param>
-        /// <returns>Un objet GeneralServiceResponse contenant les détails de l'employé.</returns>
-        [HttpGet("employees/{employeeId}")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
-        public async Task<IActionResult> GetEmployeeByIdAsync(string employeeId)
-        {
-            var response = await _authService.GetEmployeeByIdAsync(employeeId);
-
-            if (response == null)
-            {
-                // Si l'employé n'est pas trouvé, renvoie une réponse 404
-                return NotFound(new { Message = "Employee not found" });
-            }
-
-            // Si l'employé est trouvé, renvoie une réponse 200 avec les détails de l'employé
-            return Ok(new { Employee = response });
-        }
-
-        /// <summary>
-        /// Supprime un employé par son identifiant.
-        /// </summary>
-        /// <param name="employeeId">L'identifiant de l'employé à supprimer.</param>
-        /// <returns>Un objet GeneralServiceResponse indiquant le succès ou l'échec de l'opération.</returns>
-        [HttpDelete("employees/{employeeId}")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
-        public async Task<IActionResult> DeleteEmployeeAsync(string employeeId)
-        {
-            var response = await _authService.DeleteEmployeeAsync(employeeId);
-            return StatusCode(response.StatusCode, response);
-        }
-
-
-
-
 
     }
 }

@@ -12,6 +12,9 @@
         public DateTime ReleaseDate { get; set; }
         public int MinimumAge { get; set; }
         public bool IsFavorite { get; set; }
-        public string PosterUrl { get; set; }
+        /// <summary>
+        /// Liste des images déposés sur ce film.
+        /// </summary>
+        public ICollection<string> PosterUrls { get; set; } = new List<string>();
     }
 }

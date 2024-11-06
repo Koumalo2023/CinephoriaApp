@@ -43,7 +43,7 @@ namespace CinephoriaServer.Repository
         /// <param name="showtimeId">Identifiant de la séance.</param>
         /// <param name="seatNumbers">Nombre de places à réserver.</param>
         /// <returns>La réservation créée.</returns>
-        Task<Reservation> CreateReservationAsync(string userId, int showtimeId, string[] seatNumbers);
+        Task<Reservation> CreateReservationAsync(string userId, string showtimeId, string[] seatNumbers);
 
         /// <summary>
         /// Récupère le QR Code associé à une réservation pour un utilisateur mobile.
@@ -168,7 +168,7 @@ namespace CinephoriaServer.Repository
         /// <param name="showtimeId">Identifiant de la séance.</param>
         /// <param name="seatNumbers">Nombre de places à réserver.</param>
         /// <returns>La réservation créée.</returns>
-        public async Task<Reservation> CreateReservationAsync(string userId, int showtimeId, string[] seatNumbers)
+        public async Task<Reservation> CreateReservationAsync(string userId, string showtimeId, string[] seatNumbers)
         {
             // Vérifiez la disponibilité des sièges ici (logique à ajouter selon votre modèle de données)
 

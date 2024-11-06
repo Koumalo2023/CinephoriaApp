@@ -6,8 +6,8 @@ namespace CinephoriaServer.Models.PostgresqlDb
     {
         public AppUserProfile()
         {
-            CreateMap<RegisterViewModel, AppUser>();
-            CreateMap<AppUser, UserInfos>();
+            CreateMap<AppUserDto, AppUser>();
+            CreateMap<AppUser, AppUserDto>();
         }
     }
 }

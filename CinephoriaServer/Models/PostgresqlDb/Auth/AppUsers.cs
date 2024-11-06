@@ -8,22 +8,19 @@ namespace CinephoriaServer.Models.PostgresqlDb
 {
     public class AppUser : IdentityUser
     {
-        [Required]
+        // --- Informations générales ---
 
+        [Required]
         /// <summary>
         /// Prénom de l'utilisateur.
         /// </summary>
         public string FirstName { get; set; } = string.Empty;
 
+        [Required]
         /// <summary>
         /// Nom de famille de l'utilisateur.
         /// </summary>
         public string LastName { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Rôle de l'utilisateur : ADMIN, EMPLOYEE, USER.
-        /// </summary>
-        public IList<string> Roles { get; set; }=new List<string>();
 
         /// <summary>
         /// Date de création du compte.
@@ -33,20 +30,64 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// <summary>
         /// Date de mise à jour du compte.
         /// </summary>
-        public DateTime UpdatedAt { get; set; } 
+        public DateTime UpdatedAt { get; set; }
+
+        public bool HasApprovedTermsOfUse { get; set; }
+
+        // --- Propriétés héritées de EmployeeAccount ---
+
+        /// <summary>
+        /// Date d'embauche de l'employé.
+        /// Applicable aux utilisateurs de type "Employee".
+        /// </summary>
+        public DateTime? HiredDate { get; set; }
+
+        /// <summary>
+        /// Poste ou fonction de l'employé.
+        /// Applicable aux utilisateurs de type "Employee".
+        /// </summary>
+        public string? Position { get; set; }
+
+
+        /// <summary>
+        /// Image du profil des employés.
+        /// Applicable aux utilisateurs de type "Employee".
+        /// </summary>
+        public string? ProfilePictureUrl { get; set; }
+
+        /// <summary>
+        /// Liste des incidents signalés par l'employé.
+        /// Applicable uniquement pour les employés.
+        /// </summary>
+        public ICollection<Incident> ReportedIncidents { get; set; } = new List<Incident>();
+
+        
+        
+        // --- Propriétés liées à ASP.NET Identity ---
+
+        /// <summary>
+        /// Rôle(s) de l'utilisateur : ADMIN, EMPLOYEE, USER.
+        /// </summary>
+        public IList<string>? Roles { get; set; } = new List<string>();
+
+        // --- Autres propriétés liées aux utilisateurs ---
+
         /// <summary>
         /// Liste des réservations effectuées par l'utilisateur.
+        /// Applicable aux utilisateurs normaux.
         /// </summary>
         public List<Reservation> Reservations { get; set; }
 
         /// <summary>
         /// Liste des avis laissés par l'utilisateur.
+        /// Applicable aux utilisateurs normaux.
         /// </summary>
         public List<MovieRating> MovieRatings { get; set; }
 
         /// <summary>
-        /// Liste des message de contact effectuées par l'utilisateur.
+        /// Liste des messages de contact envoyés par l'utilisateur.
         /// </summary>
         public List<Contact> Contact { get; set; }
     }
+
 }

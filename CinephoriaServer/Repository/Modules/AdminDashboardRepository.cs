@@ -222,7 +222,7 @@ namespace CinephoriaServer.Repository
                 .GroupBy(s => s.CinemaId)
                 .Select(g => new CinemaReservationSummary
                 {
-                    CinemaId = g.Key,
+                    CinemaId = g.Key.ToString(),
                     TotalReservations = g.Sum(s => s.Reservations.Count)
                 })
                 .OrderByDescending(cr => cr.TotalReservations)
