@@ -35,9 +35,15 @@ namespace CinephoriaServer.Models.MongooDb
         /// </summary>
         public DateTime ReportedAt { get; set; }
 
+
         /// <summary>
         /// Date de résolution de l'incident.
         /// </summary>
         public DateTime? ResolvedAt { get; set; }
+
+        /// <summary>
+        /// Les images de l'incident.
+        /// </summary>
+        public ICollection<string> ImageUrls { get; set; } = new List<string>();
     }
 }

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CinephoriaServer.Migrations
 {
     [DbContext(typeof(CinephoriaDbContext))]
-    [Migration("20241013153830_PutAllDatabase")]
-    partial class PutAllDatabase
+    [Migration("20241106045614_AddUploadUserProfile")]
+    partial class AddUploadUserProfile
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,6 +51,12 @@ namespace CinephoriaServer.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("HasApprovedTermsOfUse")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("HiredDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -78,8 +84,14 @@ namespace CinephoriaServer.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("integer");
+                    b.Property<string>("Position")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProfilePictureUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string[]>("Roles")
+                        .HasColumnType("text[]");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
@@ -213,8 +225,9 @@ namespace CinephoriaServer.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
-                    b.Property<int>("MovieId")
-                        .HasColumnType("integer");
+                    b.Property<string>("MovieId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<float>("Rating")
                         .HasColumnType("real");
@@ -255,8 +268,9 @@ namespace CinephoriaServer.Migrations
                         .IsRequired()
                         .HasColumnType("text[]");
 
-                    b.Property<int>("ShowtimeId")
-                        .HasColumnType("integer");
+                    b.Property<string>("ShowtimeId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");

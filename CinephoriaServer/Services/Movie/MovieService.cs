@@ -35,7 +35,7 @@ namespace CinephoriaServer.Services
                 ReleaseDate = movie.ReleaseDate,
                 MinimumAge = movie.MinimumAge,
                 IsFavorite = movie.IsFavorite,
-                PosterUrl = movie.PosterUrl
+                PosterUrls = movie.PosterUrls
             }).ToList();
         }
 
@@ -56,7 +56,7 @@ namespace CinephoriaServer.Services
                 ReleaseDate = movie.ReleaseDate,
                 MinimumAge = movie.MinimumAge,
                 IsFavorite = movie.IsFavorite,
-                PosterUrl = movie.PosterUrl
+                PosterUrls = movie.PosterUrls
             }).ToList();
         }
 
@@ -82,7 +82,7 @@ namespace CinephoriaServer.Services
                 ReleaseDate = movie.ReleaseDate,
                 MinimumAge = movie.MinimumAge,
                 IsFavorite = movie.IsFavorite,
-                PosterUrl = movie.PosterUrl
+                PosterUrls = movie.PosterUrls
             };
         }
 
@@ -120,7 +120,7 @@ namespace CinephoriaServer.Services
                 ReleaseDate = movie.ReleaseDate,
                 MinimumAge = movie.MinimumAge,
                 IsFavorite = movie.IsFavorite,
-                PosterUrl = movie.PosterUrl
+                PosterUrls = movie.PosterUrls
             }).ToList();
         }
 
@@ -139,7 +139,7 @@ namespace CinephoriaServer.Services
                 ReleaseDate = movieViewModel.ReleaseDate,
                 MinimumAge = movieViewModel.MinimumAge,
                 IsFavorite = movieViewModel.IsFavorite,
-                PosterUrl = movieViewModel.PosterUrl
+                PosterUrls = movieViewModel.PosterUrls
             };
 
             await _unitOfWorkMongoDb.Movies.AddAsync(movie);
@@ -156,7 +156,7 @@ namespace CinephoriaServer.Services
                 ReleaseDate = movieViewModel.ReleaseDate,
                 MinimumAge = movieViewModel.MinimumAge,
                 IsFavorite = movieViewModel.IsFavorite,
-                PosterUrl = movieViewModel.PosterUrl
+                PosterUrls = movieViewModel.PosterUrls
             };
 
             return new GeneralServiceResponseData<object>
@@ -188,7 +188,7 @@ namespace CinephoriaServer.Services
             movie.ReleaseDate = movieViewModel.ReleaseDate;
             movie.MinimumAge = movieViewModel.MinimumAge;
             movie.IsFavorite = movieViewModel.IsFavorite;
-            movie.PosterUrl = movieViewModel.PosterUrl;
+            movie.PosterUrls = movieViewModel.PosterUrls;
 
             await _unitOfWorkMongoDb.Movies.UpdateAsync(movie);
 

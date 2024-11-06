@@ -78,6 +78,11 @@ namespace CinephoriaServer.Models.MongooDb
         public ICollection<Review> Reviews { get; set; }
 
         /// <summary>
+        /// Liste des images déposés sur ce film.
+        /// </summary>
+        public ICollection<string> PosterUrls { get; set; } = new List<string>();
+
+        /// <summary>
         /// Liste des notations associées à ce film.
         /// </summary>
         public virtual ICollection<MovieRating> MovieRatings { get; set; } = new List<MovieRating>();

@@ -1,5 +1,6 @@
 using CinephoriaBackEnd.Data;
 using CinephoriaServer.Configurations;
+using CinephoriaServer.Configurations.Extensions;
 using CinephoriaServer.Data;
 using CinephoriaServer.Models.PostgresqlDb;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,6 +13,14 @@ using MongoDB.Driver;
 using System.Reflection;
 using System.Text;
 
+
+
+// Configurer le chemin racine pour les fichiers statiques si besoin
+var options = new WebApplicationOptions
+{
+    ContentRootPath = AppContext.BaseDirectory,
+    WebRootPath = "wwwroot"
+};
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -20,8 +29,8 @@ builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
-    .AddEnvironmentVariables()  // Pour lire les variables d'environnement
-    .AddUserSecrets<Program>(optional: true);  // Utilisé en développement
+    .AddEnvironmentVariables() 
+    .AddUserSecrets<Program>(optional: true);
 
 // Configuration de la base de données
 if (builder.Environment.IsDevelopment())
@@ -99,8 +108,9 @@ builder.Services
         };
     });
 
-//Documentation swagger
 
+
+//Documentation swagger
 builder.Services.AddSwaggerGen(options =>
 {
     // Informations générales sur l'API
@@ -140,22 +150,56 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 
+    // Support de fichiers avec IFormFile
+    options.OperationFilter<SwaggerFileOperationFilter>();
+
+    // Inclusion des commentaires XML (optionnel si déjà configuré)
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     options.IncludeXmlComments(xmlPath);
 
-
     options.OrderActionsBy((apiDesc) => $"{apiDesc.HttpMethod} {apiDesc.RelativePath}");
-
 });
 
+// Ajouter la configuration de sécurité (incluant les CORS) en utilisant SecurityExtensions
+builder.Services.AddCustomSecurity(builder.Configuration);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+
+
+// Configuration Kestrel pour utiliser HTTPS avec le certificat spécifié
+builder.WebHost.ConfigureKestrel((context, options) =>
+{
+    // Charger les paramètres depuis appsettings.json
+    options.Configure(context.Configuration.GetSection("Kestrel"));
+});
+
+
 
 var app = builder.Build();
+
+
+//Exécutez la méthode de seeding d'administrateur lors du démarrage de l'application
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var userManager = services.GetRequiredService<UserManager<AppUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+        // Initialisez les rôles et utilisateurs avec SeedAdmin
+        await SeedAdmin.Initialize(services, userManager, roleManager);
+    }
+    catch (Exception ex)
+    {
+        // Loggez l'exception si nécessaire
+        Console.WriteLine("Erreur lors de l'initialisation de l'administrateur par défaut : " + ex.Message);
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -165,9 +209,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+// Appliquez la politique CORS
+app.UseCors(SecurityExtensions.DEFAULT_POLICY);
+app.UseStaticFiles();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

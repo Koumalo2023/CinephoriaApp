@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CinephoriaServer.Migrations
 {
     [DbContext(typeof(CinephoriaDbContext))]
-    [Migration("20241013115011_FirstMigration")]
-    partial class FirstMigration
+    [Migration("20241030124847_UpdateEmailConfirm")]
+    partial class UpdateEmailConfirm
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace CinephoriaServer.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("CinephoriaBackEnd.Models.AppUser", b =>
+            modelBuilder.Entity("CinephoriaServer.Models.PostgresqlDb.AppUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -33,16 +33,8 @@ namespace CinephoriaServer.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
@@ -62,9 +54,8 @@ namespace CinephoriaServer.Migrations
                     b.Property<bool>("HasApprovedTermsOfUse")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime?>("HiredDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -93,11 +84,15 @@ namespace CinephoriaServer.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("SecurityStamp")
+                    b.Property<string>("Position")
+                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Street")
+                    b.Property<string[]>("Roles")
                         .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -110,10 +105,6 @@ namespace CinephoriaServer.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
-                    b.Property<string>("ZipCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -124,6 +115,176 @@ namespace CinephoriaServer.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("CinephoriaServer.Models.PostgresqlDb.Cinema", b =>
+                {
+                    b.Property<int>("CinemaId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CinemaId"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("OpeningHours")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)");
+
+                    b.HasKey("CinemaId");
+
+                    b.ToTable("Cinemas");
+                });
+
+            modelBuilder.Entity("CinephoriaServer.Models.PostgresqlDb.Contact", b =>
+                {
+                    b.Property<int>("ContactId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ContactId"));
+
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("ContactId");
+
+                    b.HasIndex("AppUserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Contacts");
+                });
+
+            modelBuilder.Entity("CinephoriaServer.Models.PostgresqlDb.MovieRating", b =>
+                {
+                    b.Property<int>("MovieRatingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MovieRatingId"));
+
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsValidated")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("MovieId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<float>("Rating")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("MovieRatingId");
+
+                    b.HasIndex("AppUserId");
+
+                    b.ToTable("MovieRatings");
+                });
+
+            modelBuilder.Entity("CinephoriaServer.Models.PostgresqlDb.Reservation", b =>
+                {
+                    b.Property<int>("ReservationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ReservationId"));
+
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsValidated")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("QrCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string[]>("SeatNumbers")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<string>("ShowtimeId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<float>("TotalPrice")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("ReservationId");
+
+                    b.HasIndex("AppUserId");
+
+                    b.ToTable("Reservations");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -258,6 +419,42 @@ namespace CinephoriaServer.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("CinephoriaServer.Models.PostgresqlDb.Contact", b =>
+                {
+                    b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", null)
+                        .WithMany("Contact")
+                        .HasForeignKey("AppUserId");
+
+                    b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("AppUser");
+                });
+
+            modelBuilder.Entity("CinephoriaServer.Models.PostgresqlDb.MovieRating", b =>
+                {
+                    b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", "AppUser")
+                        .WithMany("MovieRatings")
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+                });
+
+            modelBuilder.Entity("CinephoriaServer.Models.PostgresqlDb.Reservation", b =>
+                {
+                    b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", "AppUser")
+                        .WithMany("Reservations")
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -269,7 +466,7 @@ namespace CinephoriaServer.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("CinephoriaBackEnd.Models.AppUser", null)
+                    b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -278,7 +475,7 @@ namespace CinephoriaServer.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("CinephoriaBackEnd.Models.AppUser", null)
+                    b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -293,7 +490,7 @@ namespace CinephoriaServer.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CinephoriaBackEnd.Models.AppUser", null)
+                    b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -302,11 +499,20 @@ namespace CinephoriaServer.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("CinephoriaBackEnd.Models.AppUser", null)
+                    b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("CinephoriaServer.Models.PostgresqlDb.AppUser", b =>
+                {
+                    b.Navigation("Contact");
+
+                    b.Navigation("MovieRatings");
+
+                    b.Navigation("Reservations");
                 });
 #pragma warning restore 612, 618
         }

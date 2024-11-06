@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
+using CinephoriaServer.Configurations;
 using CinephoriaServer.Models.MongooDb;
+using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Repository;
+using Microsoft.AspNetCore.Identity;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using static CinephoriaServer.Configurations.EnumConfig;
@@ -9,11 +12,13 @@ namespace CinephoriaServer.Services
 {
     public class IncidentService : IIncidentService
     {
+        private readonly UserManager<AppUser> _userManager;
         private readonly IUnitOfWorkMongoDb _unitOfWork;
         private readonly IMapper _mapper;
 
-        public IncidentService(IUnitOfWorkMongoDb unitOfWork, IMapper mapper)
+        public IncidentService(UserManager<AppUser> userManager, IUnitOfWorkMongoDb unitOfWork, IMapper mapper)
         {
+            _userManager = userManager;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
@@ -40,12 +45,12 @@ namespace CinephoriaServer.Services
                 Description = incidentDto.Description,
                 ReportedBy = incidentDto.ReportedBy,
                 ReportedAt = DateTime.Now,
-                Status = IncidentStatus.Pending
+                Status = IncidentStatus.Pending,
+                ImageUrls = incidentDto.ImageUrls
             };
 
-            // Vérification de l'existence de l'employé par son ID
-            var employeeExists = await _unitOfWork.ExistsAsync<EmployeeAccount>(incidentDto.ReportedBy);
-            if (!employeeExists)
+            var employeeExists = await _userManager.FindByNameAsync(incidentDto.ReportedBy);
+            if (employeeExists != null)
             {
                 throw new Exception("L'employé n'existe pas.");
             }
@@ -123,6 +128,8 @@ namespace CinephoriaServer.Services
             existingIncident.Description = incidentDto.Description;
             existingIncident.Status = incidentDto.Status;
             existingIncident.ResolvedAt = incidentDto.ResolvedAt;
+            // Mise à jour des URLs d'images si nécessaire
+            existingIncident.ImageUrls = incidentDto.ImageUrls;
 
             // Mettre à jour l'incident dans la base de données
             await _unitOfWork.Incidents.UpdateAsync(existingIncident);

@@ -1,4 +1,6 @@
-﻿namespace CinephoriaServer.Models.PostgresqlDb
+﻿using static CinephoriaServer.Configurations.EnumConfig;
+
+namespace CinephoriaServer.Models.PostgresqlDb
 {
     public class ReservationViewModel
     {
@@ -11,6 +13,11 @@
         /// Identifiant de l'utilisateur effectuant la réservation.
         /// </summary>
         public string AppUserId { get; set; }
+
+        // <summary>
+        /// Statut de la réservation : CONFIRMED, CANCELLED.
+        /// </summary>
+        public ReservationStatus Status { get; set; }
 
         /// <summary>
         /// Liste des numéros de sièges réservés.

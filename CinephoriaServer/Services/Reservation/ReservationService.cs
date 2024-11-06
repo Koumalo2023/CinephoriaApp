@@ -108,7 +108,6 @@ namespace CinephoriaServer.Services
             };
         }
 
-
         /// <summary>
         /// Crée une nouvelle réservation pour un utilisateur après avoir vérifié la disponibilité des places.
         /// </summary>

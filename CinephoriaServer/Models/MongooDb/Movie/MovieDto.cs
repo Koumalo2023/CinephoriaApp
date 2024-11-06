@@ -67,6 +67,12 @@
         /// </summary>
         public ICollection<ShowtimeDto> Showtimes { get; set; }
 
+
+        /// <summary>
+        /// Liste des images déposés sur ce film.
+        /// </summary>
+        public ICollection<string> PosterUrls { get; set; } = new List<string>();
+
         /// <summary>
         /// Liste des avis déposés sur ce film (relation un-à-plusieurs).
         /// </summary>

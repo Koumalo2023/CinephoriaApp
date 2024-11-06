@@ -16,5 +16,13 @@ namespace CinephoriaServer.Models.PostgresqlDb
         [Required]
         [EmailAddress]
         public string Email { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Position { get; set; }
+
+        /// <summary>
+        /// Photo de profile des utilisateurs
+        /// Applicable aux employés.
+        /// </summary>
+        public string ProfileImageUrl { get; set; }
     }
 }

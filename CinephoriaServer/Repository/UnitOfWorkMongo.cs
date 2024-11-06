@@ -16,7 +16,6 @@ namespace CinephoriaServer.Repository
         public IMongoRepository<Incident> Incidents { get; private set; }
         public IMongoRepository<Theater> Theaters { get; private set; }
         public IMongoRepository<Showtime> Showtimes { get; private set; }
-        public IMongoRepository<EmployeeAccount> EmployeeAccounts { get; private set; }
         public IMongoRepository<AdminDashboard> AdminDashboards { get; private set; }
 
         // Constructeur
@@ -30,7 +29,6 @@ namespace CinephoriaServer.Repository
             Theaters = new MongoRepository<Theater>(_context, "theater");
             Showtimes = new MongoRepository<Showtime>(_context, "showtime");
             Incidents = new MongoRepository<Incident>(_context, "incident");
-            EmployeeAccounts = new MongoRepository<EmployeeAccount>(_context, "employeeaccount");
             AdminDashboards = new MongoRepository<AdminDashboard>(_context, "admindashboard");
         }
 

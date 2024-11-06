@@ -48,6 +48,12 @@ namespace CinephoriaServer.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("HasApprovedTermsOfUse")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("HiredDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -75,8 +81,13 @@ namespace CinephoriaServer.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Position")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProfilePictureUrl")
+                        .HasColumnType("text");
+
                     b.Property<string[]>("Roles")
-                        .IsRequired()
                         .HasColumnType("text[]");
 
                     b.Property<string>("SecurityStamp")
@@ -254,8 +265,9 @@ namespace CinephoriaServer.Migrations
                         .IsRequired()
                         .HasColumnType("text[]");
 
-                    b.Property<int>("ShowtimeId")
-                        .HasColumnType("integer");
+                    b.Property<string>("ShowtimeId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");

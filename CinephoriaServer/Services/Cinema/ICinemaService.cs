@@ -7,45 +7,68 @@ namespace CinephoriaServer.Services
     public interface ICinemaService
     {
         /// <summary>
-        /// Crée un nouveau cinéma dans la base de données.
+        /// Crée un nouveau cinéma avec les informations fournies.
         /// </summary>
+        /// <param name="cinemaViewModel">Les détails du cinéma à créer.</param>
+        /// <returns>Un GeneralServiceResponseData contenant le résultat de la création du cinéma.</returns>
         Task<GeneralServiceResponseData<object>> CreateCinemaAsync(CinemaViewModel cinemaViewModel);
 
         /// <summary>
-        /// Modifie un cinéma existant dans la base de données.
+        /// Met à jour un cinéma existant avec de nouvelles informations.
         /// </summary>
+        /// <param name="cinemaId">L'identifiant du cinéma à mettre à jour.</param>
+        /// <param name="cinemaViewModel">Les nouvelles informations du cinéma.</param>
+        /// <returns>Un GeneralServiceResponse indiquant le succès ou l'échec de la mise à jour.</returns>
         Task<GeneralServiceResponse> UpdateCinemaAsync(int cinemaId, CinemaViewModel cinemaViewModel);
 
         /// <summary>
-        /// Supprime un cinéma de la base de données.
+        /// Supprime un cinéma spécifique par son identifiant.
         /// </summary>
+        /// <param name="cinemaId">L'identifiant du cinéma à supprimer.</param>
+        /// <returns>Un GeneralServiceResponse indiquant le succès ou l'échec de la suppression.</returns>
         Task<GeneralServiceResponse> DeleteCinemaAsync(int cinemaId);
 
         /// <summary>
-        /// Récupère les informations de tous les cinémas.
+        /// Récupère la liste de tous les cinémas.
         /// </summary>
+        /// <returns>Une liste de CinemaDto contenant les informations de chaque cinéma.</returns>
         Task<IEnumerable<CinemaDto>> GetAllCinemasAsync();
 
         /// <summary>
-        /// Crée une nouvelle salle de projection pour un cinéma spécifique.
+        /// Crée une nouvelle salle pour un cinéma spécifique.
         /// </summary>
+        /// <param name="theaterViewModel">Les informations de la salle à créer.</param>
+        /// <returns>Un GeneralServiceResponseData contenant le résultat de la création de la salle.</returns>
         Task<GeneralServiceResponseData<object>> CreateTheaterForCinemaAsync(TheaterViewModel theaterViewModel);
 
         /// <summary>
-        /// Modifie une salle de projection existante.
+        /// Met à jour une salle existante avec de nouvelles informations.
         /// </summary>
+        /// <param name="theaterId">L'identifiant de la salle à mettre à jour.</param>
+        /// <param name="theaterViewModel">Les nouvelles informations de la salle.</param>
+        /// <returns>Un GeneralServiceResponse indiquant le succès ou l'échec de la mise à jour.</returns>
         Task<GeneralServiceResponse> UpdateTheaterAsync(string theaterId, TheaterViewModel theaterViewModel);
 
         /// <summary>
-        /// Supprime une salle de projection existante.
+        /// Supprime une salle spécifique par son identifiant.
         /// </summary>
+        /// <param name="theaterId">L'identifiant de la salle à supprimer.</param>
+        /// <returns>Un GeneralServiceResponse indiquant le succès ou l'échec de la suppression.</returns>
         Task<GeneralServiceResponse> DeleteTheaterAsync(string theaterId);
 
         /// <summary>
-        /// Récupère toutes les salles d'un cinéma spécifique.
+        /// Récupère la liste des salles d'un cinéma spécifique.
         /// </summary>
+        /// <param name="cinemaId">L'identifiant du cinéma pour lequel les salles doivent être récupérées.</param>
+        /// <returns>Une liste de TheaterDto contenant les informations de chaque salle.</returns>
         Task<IEnumerable<TheaterDto>> GetTheatersByCinemaAsync(int cinemaId);
 
+        /// <summary>
+        /// Récupère les détails d'une salle spécifique par son identifiant.
+        /// </summary>
+        /// <param name="theaterId">L'identifiant de la salle à récupérer.</param>
+        /// <returns>Un GeneralServiceResponseData contenant les informations de la salle.</returns>
         Task<GeneralServiceResponseData<object>> GetTheaterByIdAsync(string theaterId);
+
     }
 }

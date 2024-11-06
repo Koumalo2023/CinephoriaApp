@@ -2,6 +2,6 @@
 {
     public class CorsOption
     {
-        public string Url { get; set; }
+        public string[] AllowedOrigins { get; set; } = Array.Empty<string>();
     }
 }

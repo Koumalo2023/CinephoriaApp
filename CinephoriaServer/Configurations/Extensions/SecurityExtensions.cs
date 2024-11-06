@@ -24,10 +24,18 @@ namespace CinephoriaServer.Configurations.Extensions
             {
                 options.AddPolicy(DEFAULT_POLICY, buildercors =>
                 {
-                    buildercors
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowAnyOrigin();
+                    if (corsOption.AllowedOrigins.Length > 0)
+                    {
+                        buildercors
+                            .WithOrigins(corsOption.AllowedOrigins)
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowCredentials();
+                    }
+                    else
+                    {
+                        buildercors.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                    }
                 });
             });
         }
