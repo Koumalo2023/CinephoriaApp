@@ -23,7 +23,7 @@ namespace CinephoriaServer.Controllers
         /// <param name="model">Le modèle contenant les détails de la séance à créer.</param>
         /// <returns>Un GeneralServiceResponseData indiquant le statut de la création de la séance.</returns>
         [HttpPost("create")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> CreateShowtime([FromBody] ShowtimeViewModel model)
         {
             if (!ModelState.IsValid)
@@ -76,7 +76,7 @@ namespace CinephoriaServer.Controllers
         /// <param name="cinemaId">L'identifiant du cinéma où le film est diffusé.</param>
         /// <returns>Un GeneralServiceResponseData contenant une liste de séances correspondant aux critères spécifiés.</returns>
         [HttpGet("movie/{movieId}/cinema/{cinemaId}")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> GetShowtimesForMovieInCinema(string movieId, int cinemaId)
         {
             try
@@ -110,7 +110,7 @@ namespace CinephoriaServer.Controllers
         /// <param name="userId">L'identifiant de l'utilisateur pour lequel récupérer les séances.</param>
         /// <returns>Un GeneralServiceResponseData contenant une liste de séances accessibles par l'utilisateur.</returns>
         [HttpGet("user/{userId}/reservations")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> GetShowtimesForAuthenticatedUser(string userId)
         {
             try
@@ -145,7 +145,7 @@ namespace CinephoriaServer.Controllers
         /// <param name="model">Le modèle contenant les nouvelles informations de la séance.</param>
         /// <returns>Un GeneralServiceResponseData indiquant le statut de la mise à jour.</returns>
         [HttpPut("{showtimeId}")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> UpdateShowtime(string showtimeId, [FromBody] ShowtimeViewModel model)
         {
             if (!ModelState.IsValid)
@@ -194,7 +194,7 @@ namespace CinephoriaServer.Controllers
         /// <param name="showtimeId">L'identifiant de la séance à supprimer.</param>
         /// <returns>Un GeneralServiceResponseData indiquant le statut de la suppression.</returns>
         [HttpDelete("{showtimeId}")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> DeleteShowtime(string showtimeId)
         {
             try
@@ -233,7 +233,7 @@ namespace CinephoriaServer.Controllers
         /// <param name="userId">L'identifiant de l'utilisateur pour lequel récupérer les séances.</param>
         /// <returns>Un GeneralServiceResponseData contenant une liste de séances pour aujourd'hui et le futur.</returns>
         [HttpGet("user/{userId}/upcoming")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> GetUserShowtimesForTodayAndFuture(string userId)
         {
             try
@@ -270,7 +270,7 @@ namespace CinephoriaServer.Controllers
         /// <param name="showtimeId">L'identifiant optionnel de la séance à exclure de la vérification.</param>
         /// <returns>Un GeneralServiceResponseData contenant un booléen indiquant si la séance se chevauche ou non.</returns>
         [HttpGet("theater/{theaterId}/overlap")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> CheckShowtimeOverlap(string theaterId, [FromQuery] DateTime startTime, [FromQuery] DateTime endTime, [FromQuery] string? showtimeId = null)
         {
             try

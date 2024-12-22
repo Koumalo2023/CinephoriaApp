@@ -17,68 +17,135 @@ namespace CinephoriaServer.Services
             _unitOfWorkMongoDb = unitOfWorkMongoDb;
         }
 
-        public async Task<GeneralServiceResponseData<object>> CreateCinemaAsync(CinemaViewModel cinemaViewModel)
+        public async Task<GeneralServiceResponse> CreateCinemaAsync(CinemaViewModel cinemaViewModel)
         {
-            // Création d'un objet cinéma à partir du ViewModel
-            var cinema = new Cinema
+            try
             {
-                Name = cinemaViewModel.Name,
-                Address = cinemaViewModel.Address,
-                PhoneNumber = cinemaViewModel.PhoneNumber,
-                City = cinemaViewModel.City,
-                Country = cinemaViewModel.Country,
-                OpeningHours = cinemaViewModel.OpeningHours
-            };
+                // Création d'un objet cinéma à partir du ViewModel
+                var cinema = new Cinema
+                {
+                    Name = cinemaViewModel.Name,
+                    Address = cinemaViewModel.Address,
+                    PhoneNumber = cinemaViewModel.PhoneNumber,
+                    City = cinemaViewModel.City,
+                    Country = cinemaViewModel.Country,
+                    OpeningHours = cinemaViewModel.OpeningHours
+                };
 
-            // Ajouter le cinéma à la base de données
-            await _unitOfWorkPostgres.Cinemas.CreateAsync(cinema);
-            await _unitOfWorkPostgres.CompleteAsync();
+                // Ajouter le cinéma à la base de données
+                await _unitOfWorkPostgres.Cinemas.CreateAsync(cinema);
+                await _unitOfWorkPostgres.CompleteAsync();
 
-            // Retourner une réponse de succès avec l'ID du cinéma créé
-            return new GeneralServiceResponseData<object>
+                // Retourner une réponse de succès avec l'ID du cinéma créé
+                return new GeneralServiceResponse
+                {
+                    IsSucceed = true,
+                    StatusCode = 201,
+                    Message = "Cinéma créé avec succès."
+                };
+            }
+            catch (Exception ex)
             {
-                IsSucceed = true,
-                StatusCode = 201,
-                Message = "Cinéma créé avec succès.",
-                Data = new { Id = cinema.CinemaId }
-            };
+                // Affiche le message d'erreur dans la console pour le suivi des erreurs
+                Console.WriteLine($"Erreur lors de la création du cinéma : {ex.Message}");
+
+                // Retourne une réponse d'erreur avec les détails de l'exception
+                return new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = $"Erreur lors de la création du cinéma : {ex.Message}"
+                };
+            }
         }
 
         public async Task<GeneralServiceResponse> UpdateCinemaAsync(int cinemaId, CinemaViewModel cinemaViewModel)
         {
-            var existingCinema = await _unitOfWorkPostgres.Cinemas.GetByIdAsync(cinemaId);
-
-            if (existingCinema == null)
+            try
             {
-                return new GeneralServiceResponse { IsSucceed = false, StatusCode = 404, Message = "Cinéma non trouvé." };
+                // Récupération du cinéma existant
+                var existingCinema = await _unitOfWorkPostgres.Cinemas.GetByIdAsync(cinemaId);
+
+                // Si le cinéma n'existe pas
+                if (existingCinema == null)
+                {
+                    return new GeneralServiceResponse
+                    {
+                        IsSucceed = false,
+                        StatusCode = 404,
+                        Message = "Cinéma non trouvé."
+                    };
+                }
+
+                // Mise à jour des informations du cinéma
+                existingCinema.Name = cinemaViewModel.Name ?? existingCinema.Name;
+                existingCinema.Address = cinemaViewModel.Address ?? existingCinema.Address;
+                existingCinema.PhoneNumber = cinemaViewModel.PhoneNumber ?? existingCinema.PhoneNumber;
+                existingCinema.City = cinemaViewModel.City ?? existingCinema.City;
+                existingCinema.Country = cinemaViewModel.Country ?? existingCinema.Country;
+                existingCinema.OpeningHours = cinemaViewModel.OpeningHours ?? existingCinema.OpeningHours;
+
+                // Enregistrement des changements
+                _unitOfWorkPostgres.Cinemas.Update(existingCinema);
+                await _unitOfWorkPostgres.CompleteAsync();
+
+                return new GeneralServiceResponse
+                {
+                    IsSucceed = true,
+                    StatusCode = 200,
+                    Message = "Cinéma mis à jour avec succès."
+                };
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la mise à jour du cinéma {cinemaId} : {ex.Message}");
 
-            existingCinema.Name = cinemaViewModel.Name ?? existingCinema.Name;
-            existingCinema.Address = cinemaViewModel.Address ?? existingCinema.Address;
-            existingCinema.PhoneNumber = cinemaViewModel.PhoneNumber ?? existingCinema.PhoneNumber;
-            existingCinema.City = cinemaViewModel.City ?? existingCinema.City;
-            existingCinema.Country = cinemaViewModel.Country ?? existingCinema.Country;
-            existingCinema.OpeningHours = cinemaViewModel.OpeningHours ?? existingCinema.OpeningHours;
-
-            _unitOfWorkPostgres.Cinemas.Update(existingCinema);
-            await _unitOfWorkPostgres.CompleteAsync();
-
-            return new GeneralServiceResponse { IsSucceed = true, StatusCode = 200, Message = "Cinéma mis à jour avec succès." };
+                return new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = $"Erreur lors de la mise à jour du cinéma : {ex.Message}"
+                };
+            }
         }
 
         public async Task<GeneralServiceResponse> DeleteCinemaAsync(int cinemaId)
         {
-            var existingCinema = await _unitOfWorkPostgres.Cinemas.GetByIdAsync(cinemaId);
-
-            if (existingCinema == null)
+            try
             {
-                return new GeneralServiceResponse { IsSucceed = false, StatusCode = 404, Message = "Cinéma non trouvé." };
+                var existingCinema = await _unitOfWorkPostgres.Cinemas.GetByIdAsync(cinemaId);
+
+                if (existingCinema == null)
+                {
+                    return new GeneralServiceResponse
+                    {
+                        IsSucceed = false,
+                        StatusCode = 404,
+                        Message = "Cinéma non trouvé."
+                    };
+                }
+
+                _unitOfWorkPostgres.Cinemas.Delete(existingCinema);
+                await _unitOfWorkPostgres.CompleteAsync();
+
+                return new GeneralServiceResponse
+                {
+                    IsSucceed = true,
+                    StatusCode = 200,
+                    Message = "Cinéma supprimé avec succès."
+                };
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la suppression du cinéma {cinemaId} : {ex.Message}");
 
-            _unitOfWorkPostgres.Cinemas.Delete(existingCinema);
-            await _unitOfWorkPostgres.CompleteAsync();
-
-            return new GeneralServiceResponse { IsSucceed = true, StatusCode = 200, Message = "Cinéma supprimé avec succès." };
+                return new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = $"Erreur lors de la suppression du cinéma : {ex.Message}"
+                };
+            }
         }
 
         public async Task<IEnumerable<CinemaDto>> GetAllCinemasAsync()
@@ -86,7 +153,7 @@ namespace CinephoriaServer.Services
             var cinemas = await _unitOfWorkPostgres.Cinemas.GetAllAsync();
             return cinemas.Select(c => new CinemaDto
             {
-                Id = c.CinemaId,
+                CinemaId = c.CinemaId,
                 Name = c.Name,
                 Address = c.Address,
                 PhoneNumber = c.PhoneNumber,
@@ -95,55 +162,51 @@ namespace CinephoriaServer.Services
             }).ToList();
         }
 
-        public async Task<GeneralServiceResponseData<object>> CreateTheaterForCinemaAsync(TheaterViewModel theaterViewModel)
+        public async Task<GeneralServiceResponse> CreateTheaterForCinemaAsync(TheaterViewModel theaterViewModel)
         {
-            // Vérifier si le cinéma existe dans PostgreSQL
-            var cinemaExists = await _unitOfWorkPostgres.Cinemas.GetByIdAsync(theaterViewModel.CinemaId);
-            if (cinemaExists == null)
+            try
             {
-                return new GeneralServiceResponseData<object>
+                var cinemaExists = await _unitOfWorkPostgres.Cinemas.GetByIdAsync(theaterViewModel.CinemaId);
+                if (cinemaExists == null)
                 {
-                    IsSucceed = false,
-                    StatusCode = 404,
-                    Message = "Cinéma non trouvé."
+                    return new GeneralServiceResponse
+                    {
+                        IsSucceed = false,
+                        StatusCode = 404,
+                        Message = "Cinéma non trouvé."
+                    };
+                }
+
+                var theater = new Theater
+                {
+                    Id = ObjectId.GenerateNewId(),
+                    Name = theaterViewModel.Name,
+                    SeatCount = theaterViewModel.SeatCount,
+                    CinemaId = theaterViewModel.CinemaId,
+                    IsOperational = theaterViewModel.IsOperational,
+                    ProjectionQuality = theaterViewModel.ProjectionQuality
+                };
+
+                await _unitOfWorkMongoDb.Theaters.AddAsync(theater);
+                await _unitOfWorkMongoDb.SaveChangesAsync();
+
+                return new GeneralServiceResponse
+                {
+                    IsSucceed = true,
+                    StatusCode = 201,
+                    Message = "Salle de projection créée avec succès."
                 };
             }
-
-            
-
-            // Création d'une salle de projection à partir du ViewModel (MongoDB)
-            var theater = new Theater
+            catch (Exception ex)
             {
-                Id = ObjectId.GenerateNewId(),
-                Name = theaterViewModel.Name,
-                SeatCount = theaterViewModel.SeatCount,
-                CinemaId = theaterViewModel.CinemaId,
-                IsOperational = theaterViewModel.IsOperational,
-                ProjectionQuality = theaterViewModel.ProjectionQuality
-            };
-
-            // Ajouter la salle dans MongoDB
-            await _unitOfWorkMongoDb.Theaters.AddAsync(theater);
-            await _unitOfWorkMongoDb.SaveChangesAsync();
-
-            var result = new TheaterDto
-            {
-                Id = theaterViewModel.Id.ToString(),
-                Name = theaterViewModel.Name,
-                SeatCount = theaterViewModel.SeatCount,
-                CinemaId = theaterViewModel.CinemaId,
-                IsOperational = theaterViewModel.IsOperational,
-                ProjectionQuality = theaterViewModel.ProjectionQuality
-            };
-
-            // Retourner une réponse de succès
-            return new GeneralServiceResponseData<object>
-            {
-                IsSucceed = true,
-                StatusCode = 201,
-                Message = "Salle de projection créée avec succès.",
-                Data = result
-            };
+                Console.WriteLine($"Erreur lors de la création de la salle de projection : {ex.Message}");
+                return new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = $"Erreur lors de la création de la salle de projection : {ex.Message}"
+                };
+            }
         }
 
         public async Task<GeneralServiceResponseData<object>> GetTheaterByIdAsync(string theaterId)
@@ -182,69 +245,81 @@ namespace CinephoriaServer.Services
 
         public async Task<GeneralServiceResponse> UpdateTheaterAsync(string theaterId, TheaterViewModel theaterViewModel)
         {
-            // Vérifie si la salle de projection existe déjà dans la base de données
-            var existingTheater = await _unitOfWorkMongoDb.Theaters.GetByIdAsync(theaterId);
-
-            // Si la salle n'est pas trouvée, renvoie une erreur 404
-            if (existingTheater == null)
+            try
             {
+                var existingTheater = await _unitOfWorkMongoDb.Theaters.GetByIdAsync(theaterId);
+                if (existingTheater == null)
+                {
+                    return new GeneralServiceResponse
+                    {
+                        IsSucceed = false,
+                        StatusCode = 404,
+                        Message = "Salle de projection non trouvée."
+                    };
+                }
+
+                existingTheater.Name = theaterViewModel.Name ?? existingTheater.Name;
+                existingTheater.SeatCount = theaterViewModel.SeatCount > 0 ? theaterViewModel.SeatCount : existingTheater.SeatCount;
+                existingTheater.IsOperational = theaterViewModel.IsOperational;
+                existingTheater.ProjectionQuality = theaterViewModel.ProjectionQuality != EnumConfig.ProjectionQuality.Standard2D ? theaterViewModel.ProjectionQuality : existingTheater.ProjectionQuality;
+
+                await _unitOfWorkMongoDb.Theaters.UpdateAsync(existingTheater);
+                await _unitOfWorkMongoDb.SaveChangesAsync();
+
+                return new GeneralServiceResponse
+                {
+                    IsSucceed = true,
+                    StatusCode = 200,
+                    Message = "Salle de projection mise à jour avec succès."
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la mise à jour de la salle de projection : {ex.Message}");
                 return new GeneralServiceResponse
                 {
                     IsSucceed = false,
-                    StatusCode = 404,
-                    Message = "Salle de projection non trouvée."
+                    StatusCode = 500,
+                    Message = $"Erreur lors de la mise à jour de la salle de projection : {ex.Message}"
                 };
             }
-
-            // Mise à jour des champs de la salle de projection uniquement si les nouvelles valeurs sont fournies
-            if (!string.IsNullOrEmpty(theaterViewModel.Name))
-            {
-                existingTheater.Name = theaterViewModel.Name;
-            }
-
-            // Mise à jour du nombre de sièges si une valeur est fournie
-            if (theaterViewModel.SeatCount > 0)
-            {
-                existingTheater.SeatCount = theaterViewModel.SeatCount;
-            }
-
-            // Mise à jour du statut opérationnel si la valeur est précisée
-            existingTheater.IsOperational = theaterViewModel.IsOperational;
-
-            // Mise à jour de la qualité de projection si elle est spécifiée (EnumConfig.ProjectionQuality)
-            if (theaterViewModel.ProjectionQuality != EnumConfig.ProjectionQuality.Standard2D)
-            {
-                existingTheater.ProjectionQuality = theaterViewModel.ProjectionQuality;
-            }
-
-            // Appel de la méthode UpdateAsync pour mettre à jour l'objet dans la base de données MongoDB
-            await _unitOfWorkMongoDb.Theaters.UpdateAsync(existingTheater);
-
-            // Sauvegarde des changements
-            await _unitOfWorkMongoDb.SaveChangesAsync();
-
-            // Retourne une réponse de succès
-            return new GeneralServiceResponse
-            {
-                IsSucceed = true,
-                StatusCode = 200,
-                Message = "Salle de projection mise à jour avec succès."
-            };
         }
 
         public async Task<GeneralServiceResponse> DeleteTheaterAsync(string theaterId)
         {
-            var existingTheater = await _unitOfWorkMongoDb.Theaters.GetByIdAsync(theaterId);
-
-            if (existingTheater == null)
+            try
             {
-                return new GeneralServiceResponse { IsSucceed = false, StatusCode = 404, Message = "Salle de projection non trouvée." };
+                var existingTheater = await _unitOfWorkMongoDb.Theaters.GetByIdAsync(theaterId);
+                if (existingTheater == null)
+                {
+                    return new GeneralServiceResponse
+                    {
+                        IsSucceed = false,
+                        StatusCode = 404,
+                        Message = "Salle de projection non trouvée."
+                    };
+                }
+
+                await _unitOfWorkMongoDb.Theaters.DeleteAsync(existingTheater.Id.ToString());
+                await _unitOfWorkMongoDb.SaveChangesAsync();
+
+                return new GeneralServiceResponse
+                {
+                    IsSucceed = true,
+                    StatusCode = 200,
+                    Message = "Salle de projection supprimée avec succès."
+                };
             }
-
-            _unitOfWorkMongoDb.Theaters.DeleteAsync(existingTheater.Id.ToString());
-            await _unitOfWorkMongoDb.SaveChangesAsync();
-
-            return new GeneralServiceResponse { IsSucceed = true, StatusCode = 200, Message = "Salle de projection supprimée avec succès." };
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la suppression de la salle de projection : {ex.Message}");
+                return new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 500,
+                    Message = $"Erreur lors de la suppression de la salle de projection : {ex.Message}"
+                };
+            }
         }
 
         public async Task<IEnumerable<TheaterDto>> GetTheatersByCinemaAsync(int cinemaId)
@@ -259,6 +334,7 @@ namespace CinephoriaServer.Services
                 IsOperational = theater.IsOperational
             }).ToList();
         }
+
 
     }
 

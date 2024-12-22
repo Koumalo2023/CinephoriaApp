@@ -42,7 +42,7 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="movieViewModel">Le ViewModel du film à créer.</param>
         /// <returns>Le film nouvellement créé.</returns>
-        Task<GeneralServiceResponseData<object>> CreateMovieAsync(MovieViewModel movieViewModel);
+        Task<GeneralServiceResponse> CreateMovieAsync(MovieViewModel movieViewModel);
 
         /// <summary>
         /// Modifie un film existant.
@@ -51,7 +51,7 @@ namespace CinephoriaServer.Services
         /// <param name="filmId">L'identifiant unique du film à modifier.</param>
         /// <param name="movieViewModel">Les nouvelles données du film à mettre à jour.</param>
         /// <returns>Le film mis à jour.</returns>
-        Task<MovieViewModel> UpdateMovieAsync(string filmId, MovieViewModel movieViewModel);
+        Task<GeneralServiceResponse> UpdateMovieAsync(string filmId, MovieViewModel movieViewModel);
 
         /// <summary>
         /// Supprime un film existant.
@@ -59,7 +59,7 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="filmId">L'identifiant unique du film à supprimer.</param>
         /// <returns>Une tâche représentant l'opération de suppression.</returns>
-        Task DeleteMovieAsync(string filmId);
+        Task<GeneralServiceResponse> DeleteMovieAsync(string filmId);
 
         /// <summary>
         /// Permet à un utilisateur de laisser un avis sur un film.
@@ -95,6 +95,8 @@ namespace CinephoriaServer.Services
         /// <param name="movieRatingId">L'identifiant unique de la note à supprimer.</param>
         /// <returns>Une tâche représentant l'opération de suppression.</returns>
         Task DeleteMovieRatingAsync(int movieRatingId);
+
+        Task<bool> AddPosterToMovieAsync(string movieId, string imageUrl);
     }
 
 }

@@ -1,4 +1,5 @@
-﻿namespace CinephoriaServer.Models.MongooDb
+﻿
+namespace CinephoriaServer.Models.MongooDb
 {
     public class MovieDto
     {
@@ -57,10 +58,6 @@
         /// </summary>
         public double AverageRating { get; set; }
 
-        /// <summary>
-        /// Affiche du film sous forme de lien ou d'URI.
-        /// </summary>
-        public string PosterUrl { get; set; }
 
         /// <summary>
         /// Liste des séances associées à ce film (relation un-à-plusieurs).
@@ -71,7 +68,7 @@
         /// <summary>
         /// Liste des images déposés sur ce film.
         /// </summary>
-        public ICollection<string> PosterUrls { get; set; } = new List<string>();
+        public ICollection<string>? PosterUrls { get; set; }
 
         /// <summary>
         /// Liste des avis déposés sur ce film (relation un-à-plusieurs).

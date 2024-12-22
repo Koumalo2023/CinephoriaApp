@@ -89,7 +89,7 @@ namespace CinephoriaServer.Controllers
         /// <param name="reservationId">Identifiant de la réservation</param>
         /// <returns>QR Code sous forme d'image PNG</returns>
         [HttpGet("reservations/{reservationId}/qrcode")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
         public async Task<IActionResult> GetReservationQrCodeAsync(int reservationId)
         {
             try
@@ -124,7 +124,7 @@ namespace CinephoriaServer.Controllers
         /// </summary>
         /// <param name="qrCode">Le QR Code de la réservation</param>
         [HttpPost("reservations/validate")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> ValidateReservationAsync([FromBody] string qrCode)
         {
             if (string.IsNullOrEmpty(qrCode))
@@ -173,7 +173,7 @@ namespace CinephoriaServer.Controllers
         /// </summary>
         /// <param name="userId">Identifiant de l'utilisateur</param>
         [HttpGet("users/{userId}/reservations")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> GetReservationsByUserAsync(string userId)
         {
             if (string.IsNullOrEmpty(userId))
@@ -218,7 +218,7 @@ namespace CinephoriaServer.Controllers
         /// </summary>
         /// <param name="reservationDto">Données de la réservation à créer</param>
         [HttpPost("reservations")]
-        [Authorize(Roles = RoleConfigurations.User)]
+        //[Authorize(Roles = RoleConfigurations.User)]
         public async Task<IActionResult> CreateReservationAsync(string userId, [FromBody] ReservationViewModel reservationViewModel)
         {
             if (reservationViewModel == null)
@@ -268,7 +268,7 @@ namespace CinephoriaServer.Controllers
         /// </summary>
         /// <param name="reservationId">Identifiant de la réservation</param>
         [HttpGet("reservations/{reservationId}")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
         public async Task<IActionResult> GetReservationByIdAsync(int reservationId)
         {
             try
@@ -302,7 +302,7 @@ namespace CinephoriaServer.Controllers
         /// </summary>
         /// <param name="showtimeId">Identifiant de la séance</param>
         [HttpGet("showtimes/{showtimeId}/reservations")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> GetReservationsByShowtimeAsync(string showtimeId)
         {
             try
@@ -336,7 +336,7 @@ namespace CinephoriaServer.Controllers
         /// </summary>
         /// <param name="reservationId">Identifiant de la réservation à supprimer</param>
         [HttpDelete("reservations/{reservationId}")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
         public async Task<IActionResult> DeleteReservationAsync(int reservationId)
         {
             try

@@ -11,7 +11,7 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="cinemaViewModel">Les détails du cinéma à créer.</param>
         /// <returns>Un GeneralServiceResponseData contenant le résultat de la création du cinéma.</returns>
-        Task<GeneralServiceResponseData<object>> CreateCinemaAsync(CinemaViewModel cinemaViewModel);
+        Task<GeneralServiceResponse> CreateCinemaAsync(CinemaViewModel cinemaViewModel);
 
         /// <summary>
         /// Met à jour un cinéma existant avec de nouvelles informations.
@@ -39,7 +39,7 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="theaterViewModel">Les informations de la salle à créer.</param>
         /// <returns>Un GeneralServiceResponseData contenant le résultat de la création de la salle.</returns>
-        Task<GeneralServiceResponseData<object>> CreateTheaterForCinemaAsync(TheaterViewModel theaterViewModel);
+        Task<GeneralServiceResponse> CreateTheaterForCinemaAsync(TheaterViewModel theaterViewModel);
 
         /// <summary>
         /// Met à jour une salle existante avec de nouvelles informations.

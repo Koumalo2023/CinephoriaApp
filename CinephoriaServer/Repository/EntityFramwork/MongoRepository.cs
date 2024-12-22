@@ -67,6 +67,39 @@ namespace CinephoriaServer.Repository.EntityFramwork
             return await _collection.Find(filter).ToListAsync();
         }
 
+        public async Task<List<T>> FilterMovieAsync(
+            FilterDefinition<T> filter,
+            int page = 1,
+            int pageSize = 10,
+            SortDefinition<T> sort = null)
+        {
+            try
+            {
+                // Calculer le décalage pour la pagination
+                var skip = (page - 1) * pageSize;
+
+                // Appliquer le filtre, le tri et la pagination
+                var query = _collection.Find(filter)
+                                       .Skip(skip)
+                                       .Limit(pageSize);
+
+                // Appliquer le tri s'il est fourni
+                if (sort != null)
+                {
+                    query = query.Sort(sort);
+                }
+
+                return await query.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                // Gérer l'exception (par exemple, journaliser l'erreur)
+                Console.WriteLine($"Une erreur est survenue : {ex.Message}");
+                throw; // Vous pouvez relancer ou gérer l'exception selon le besoin
+            }
+        }
+
+
         // Méthode pour trouver des éléments en utilisant une expression lambda
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> filter)
         {

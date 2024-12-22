@@ -63,11 +63,6 @@ namespace CinephoriaServer.Models.MongooDb
         public double AverageRating { get; set; }
 
         /// <summary>
-        /// Affiche du film sous forme de lien ou d'URI.
-        /// </summary>
-        public string PosterUrl { get; set; }
-
-        /// <summary>
         /// Liste des séances associées à ce film (relation un-à-plusieurs).
         /// </summary>
         public ICollection<Showtime> Showtimes { get; set; }
@@ -80,7 +75,7 @@ namespace CinephoriaServer.Models.MongooDb
         /// <summary>
         /// Liste des images déposés sur ce film.
         /// </summary>
-        public ICollection<string> PosterUrls { get; set; } = new List<string>();
+        public ICollection<string>? PosterUrls { get; set; } = new List<string>();
 
         /// <summary>
         /// Liste des notations associées à ce film.
