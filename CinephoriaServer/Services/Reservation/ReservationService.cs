@@ -151,7 +151,7 @@ namespace CinephoriaServer.Services
                 SeatNumbers = model.SeatNumbers,
                 TotalPrice = model.TotalPrice,
                 QrCode = qrCodeBase64,
-                Status = ReservationStatus.CONFIRMED,
+                Status = ReservationStatus.Confirmed,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now
             };
@@ -188,7 +188,7 @@ namespace CinephoriaServer.Services
         public async Task<GeneralServiceResponseData<object>> ValidateReservationAsync(string qrCode)
         {
             var reservation = await _unitOfWorkPostgres.Reservations
-                .FindAsync(r => r.QrCode == qrCode && r.Status == ReservationStatus.CONFIRMED);
+                .FindAsync(r => r.QrCode == qrCode && r.Status == ReservationStatus.Confirmed);
 
             var validReservation = reservation.FirstOrDefault();
             if (validReservation == null)

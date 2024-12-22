@@ -10,10 +10,12 @@ namespace CinephoriaServer.Controllers
     public class ImageController : ControllerBase
     {
         private readonly IImageService _imageService;
+        private readonly IMovieService _movieService;
 
-        public ImageController(IImageService imageService)
+        public ImageController(IImageService imageService, IMovieService movieService)
         {
             _imageService = imageService;
+            _movieService = movieService;
         }
 
         
@@ -44,13 +46,27 @@ namespace CinephoriaServer.Controllers
         [HttpPost("upload-movie-poster/{movieId}")]
         public async Task<IActionResult> UploadMoviePoster(string movieId, [FromForm] IFormFile file)
         {
-            string folder = "movies";
-            var imageUrl = await _imageService.UploadImageAsync(file, folder);
-            if (imageUrl == null) return BadRequest("Erreur lors du téléchargement de l'image.");
+            try
+            {
+                string folder = "movies";
+                var imageUrl = await _imageService.UploadImageAsync(file, folder);
+                if (imageUrl == null) return BadRequest("Erreur lors du téléchargement de l'image.");
 
-            // Mettre à jour la collection PosterUrls du film pour ajouter `imageUrl`
-            return Ok(new { Url = imageUrl });
+                // Mettre à jour le film en ajoutant l'URL de l'image
+                var updated = await _movieService.AddPosterToMovieAsync(movieId, imageUrl);
+                if (!updated)
+                {
+                    return NotFound("Film introuvable.");
+                }
+
+                return Ok(new { Url = imageUrl });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Erreur lors de l'ajout de l'affiche : {ex.Message}");
+            }
         }
+
 
         // Suppression d'une image (exemple générique)
         [HttpDelete("delete-image")]

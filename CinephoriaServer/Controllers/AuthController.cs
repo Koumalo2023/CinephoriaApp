@@ -123,7 +123,7 @@ namespace CinephoriaServer.Controllers
         /// </summary>
         /// <returns>Une liste d'objets UserInfoViewModel contenant les informations de tous les utilisateurs.</returns>
         [HttpGet("users")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployee)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<ActionResult<IEnumerable<UserInfos>>> GetUsersListAsync()
         {
             try
@@ -149,7 +149,7 @@ namespace CinephoriaServer.Controllers
         /// <param name="userName">Le nom d'utilisateur de l'utilisateur à rechercher.</param>
         /// <returns>Un UserInfoViewModel contenant les informations de l'utilisateur, ou null si l'utilisateur n'existe pas.</returns>
         [HttpGet("user/{userName}")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
         public async Task<ActionResult<UserInfos?>> GetUserDetailsByUserNameAsync(string userName)
         {
             try
@@ -184,7 +184,7 @@ namespace CinephoriaServer.Controllers
         /// <param name="model">Modèle contenant les détails à mettre à jour.</param>
         /// <returns>Un message de confirmation ou une réponse d'erreur.</returns>
         [HttpPut("users/update-user")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserViewModel updateUserViewModel, [FromForm] IFormFile file)
         {
             if (!ModelState.IsValid)
@@ -233,7 +233,7 @@ namespace CinephoriaServer.Controllers
         /// <param name="changePasswordViewModel">Objet contenant les informations nécessaires au changement de mot de passe, y compris l'ancien et le nouveau mot de passe.</param>
         /// <returns>Un GeneralServiceResponse indiquant le succès ou l'échec de l'opération de changement de mot de passe.</returns>
         [HttpPost("users/change-password")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
         public async Task<IActionResult> ChangePassword([FromBody] UserChangePasswordViewModel changePasswordViewModel)
         {
             if (!ModelState.IsValid)
@@ -311,7 +311,7 @@ namespace CinephoriaServer.Controllers
         /// <param name="model">Modèle contenant l'ID de l'utilisateur et le nouveau mot de passe.</param>
         /// <returns>Un message de confirmation ou une réponse d'erreur.</returns>
         [HttpPost("reset-password")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<IActionResult> ResetEmployeePasswordAsync([FromBody] ResetPasswordViewModel model)
         {
             try
@@ -347,7 +347,7 @@ namespace CinephoriaServer.Controllers
         /// <param name="model">Modèle contenant l'ID de l'utilisateur et le nouveau rôle.</param>
         /// <returns>Un message de confirmation ou une réponse d'erreur.</returns>
         [HttpPost("change-role")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<IActionResult> ChangeEmployeeRoleAsync([FromBody] UpdateRoleByIdViewModel model)
         {
             try
@@ -382,7 +382,7 @@ namespace CinephoriaServer.Controllers
         /// <param name="userId">L'ID de l'utilisateur à rechercher.</param>
         /// <returns>Un objet contenant les informations de l'utilisateur ou une réponse d'erreur.</returns>
         [HttpGet("get-user/{userId}")]
-        [Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
+        //[Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
         public async Task<IActionResult> GetEmployeeByIdAsync(string userId)
         {
             try
@@ -417,7 +417,7 @@ namespace CinephoriaServer.Controllers
         /// <param name="userId">L'ID de l'utilisateur à supprimer.</param>
         /// <returns>Un message de confirmation ou une réponse d'erreur.</returns>
         [HttpDelete("delete-user/{userId}")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<IActionResult> DeleteUserAsync(string userId)
         {
             try

@@ -148,21 +148,22 @@ namespace CinephoriaServer.Repository
         /// <returns>Une liste filtrée des films selon les critères fournis.</returns>
         public async Task<List<Movie>> FilterMoviesAsync(int? cinemaId, string genre, DateTime? date)
         {
-            var filter = Builders<Movie>.Filter.Empty;
+            var filterBuilder = Builders<Movie>.Filter;
+            var filter = filterBuilder.Empty;
 
             if (cinemaId.HasValue)
             {
-                filter &= Builders<Movie>.Filter.Eq(m => m.CinemaId, cinemaId.Value);
+                filter &= filterBuilder.Eq(m => m.CinemaId, cinemaId.Value);
             }
 
             if (!string.IsNullOrEmpty(genre))
             {
-                filter &= Builders<Movie>.Filter.Eq(m => m.Genre, genre);
+                //filter &= filterBuilder.Eq(m => m.Genre, genre);
             }
 
             if (date.HasValue)
             {
-                filter &= Builders<Movie>.Filter.Eq(m => m.ReleaseDate.Date, date.Value.Date);
+                filter &= filterBuilder.Gte(m => m.ReleaseDate, date.Value);
             }
 
             return await _movieCollection.Find(filter).ToListAsync();

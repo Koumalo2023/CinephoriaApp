@@ -17,41 +17,22 @@ namespace CinephoriaServer.Controllers
         {
             _cinemaService = cinemaService;
         }
-
         /// <summary>
         /// Crée un nouveau cinéma avec les informations fournies.
         /// </summary>
         /// <param name="cinemaViewModel">Les détails du cinéma à créer.</param>
-        /// <returns>Un GeneralServiceResponseData contenant le résultat de la création du cinéma.</returns>
+        /// <returns>Un objet avec le résultat de la création du cinéma.</returns>
         [HttpPost]
         [Route("create")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<IActionResult> CreateCinema([FromBody] CinemaViewModel cinemaViewModel)
         {
-            try
+            var response = await _cinemaService.CreateCinemaAsync(cinemaViewModel);
+            if (!response.IsSucceed)
             {
-                var response = await _cinemaService.CreateCinemaAsync(cinemaViewModel);
-                if (!response.IsSucceed)
-                {
-                    return StatusCode(response.StatusCode, new GeneralServiceResponse
-                    {
-                        IsSucceed = false,
-                        StatusCode = response.StatusCode,
-                        Message = response.Message
-                    });
-                }
-
-                return Ok(response.Data);
+                return StatusCode(response.StatusCode, response.Message);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = $"Erreur lors de la création du cinéma : {ex.Message}"
-                });
-            }
+            return Ok(response);
         }
 
         /// <summary>
@@ -59,73 +40,38 @@ namespace CinephoriaServer.Controllers
         /// </summary>
         /// <param name="cinemaId">L'identifiant du cinéma à mettre à jour.</param>
         /// <param name="cinemaViewModel">Les nouvelles informations du cinéma.</param>
-        /// <returns>Un GeneralServiceResponse indiquant le succès ou l'échec de la mise à jour.</returns>
+        /// <returns>Une réponse indiquant le succès ou l'échec de la mise à jour.</returns>
         [HttpPut]
         [Route("update/{cinemaId}")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<IActionResult> UpdateCinema(int cinemaId, [FromBody] CinemaViewModel cinemaViewModel)
         {
-            try
+            var response = await _cinemaService.UpdateCinemaAsync(cinemaId, cinemaViewModel);
+            if (!response.IsSucceed)
             {
-                var response = await _cinemaService.UpdateCinemaAsync(cinemaId, cinemaViewModel);
-                if (!response.IsSucceed)
-                {
-                    return StatusCode(response.StatusCode, new GeneralServiceResponse
-                    {
-                        IsSucceed = false,
-                        StatusCode = response.StatusCode,
-                        Message = response.Message
-                    });
-                }
-
-                return Ok(response.Message);
+                return StatusCode(response.StatusCode, response.Message);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = $"Erreur lors de la mise à jour du cinéma : {ex.Message}"
-                });
-            }
+            return Ok(response.Message);
         }
 
         /// <summary>
         /// Supprime un cinéma spécifique par son identifiant.
         /// </summary>
         /// <param name="cinemaId">L'identifiant du cinéma à supprimer.</param>
-        /// <returns>Un GeneralServiceResponse indiquant le succès ou l'échec de la suppression.</returns>
+        /// <returns>Une réponse indiquant le succès ou l'échec de la suppression.</returns>
         [HttpDelete]
         [Route("delete/{cinemaId}")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<IActionResult> DeleteCinema(int cinemaId)
         {
-            try
+            var response = await _cinemaService.DeleteCinemaAsync(cinemaId);
+            if (!response.IsSucceed)
             {
-                var response = await _cinemaService.DeleteCinemaAsync(cinemaId);
-                if (!response.IsSucceed)
-                {
-                    return StatusCode(response.StatusCode, new GeneralServiceResponse
-                    {
-                        IsSucceed = false,
-                        StatusCode = response.StatusCode,
-                        Message = response.Message
-                    });
-                }
-
-                return Ok(response.Message);
+                return StatusCode(response.StatusCode, response.Message);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = $"Erreur lors de la suppression du cinéma : {ex.Message}"
-                });
-            }
+            return Ok(response.Message);
         }
+
 
         /// <summary>
         /// Récupère la liste de tous les cinémas.
@@ -133,7 +79,7 @@ namespace CinephoriaServer.Controllers
         /// <returns>Une liste de CinemaDto contenant les informations de chaque cinéma.</returns>
         [HttpGet]
         [Route("all")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<IActionResult> GetAllCinemas()
         {
             try
@@ -151,6 +97,8 @@ namespace CinephoriaServer.Controllers
                 });
             }
         }
+
+
 
         /// <summary>
         /// Crée une nouvelle salle pour un cinéma spécifique.
@@ -186,113 +134,60 @@ namespace CinephoriaServer.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Crée une nouvelle salle pour un cinéma spécifique.
+        /// </summary>
+        /// <param name="theaterViewModel">Les informations de la salle à créer.</param>
+        /// <returns>Un objet avec le résultat de la création de la salle.</returns>
+        [HttpPost]
+        [Route("{cinemaId}/theater/create")]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
+        public async Task<IActionResult> CreateTheater(int cinemaId, [FromBody] TheaterViewModel theaterViewModel)
+        {
+            var response = await _cinemaService.CreateTheaterForCinemaAsync(theaterViewModel);
+            if (!response.IsSucceed)
+            {
+                return StatusCode(response.StatusCode, response.Message);
+            }
+            return Ok(response);
+        }
+
         /// <summary>
         /// Met à jour une salle existante avec de nouvelles informations.
         /// </summary>
         /// <param name="theaterId">L'identifiant de la salle à mettre à jour.</param>
         /// <param name="theaterViewModel">Les nouvelles informations de la salle.</param>
-        /// <returns>Un GeneralServiceResponse indiquant le succès ou l'échec de la mise à jour.</returns>
-        [HttpPost]
-        [Route("{cinemaId}/theater/create")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
-        public async Task<IActionResult> CreateTheater(int cinemaId, [FromBody] TheaterViewModel theaterViewModel)
+        /// <returns>Un message indiquant le succès ou l'échec de la mise à jour.</returns>
+        [HttpPut]
+        [Route("theater/update/{theaterId}")]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
+        public async Task<IActionResult> UpdateTheater(string theaterId, [FromBody] TheaterViewModel theaterViewModel)
         {
-            try
+            var response = await _cinemaService.UpdateTheaterAsync(theaterId, theaterViewModel);
+            if (!response.IsSucceed)
             {
-                var response = await _cinemaService.CreateTheaterForCinemaAsync(theaterViewModel);
-                if (!response.IsSucceed)
-                {
-                    return StatusCode(response.StatusCode, new GeneralServiceResponse
-                    {
-                        IsSucceed = false,
-                        StatusCode = response.StatusCode,
-                        Message = response.Message
-                    });
-                }
-
-                return Ok(response.Data);
+                return StatusCode(response.StatusCode, response.Message);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = $"Erreur lors de la création du théâtre : {ex.Message}"
-                });
-            }
+            return Ok(response.Message);
         }
 
         /// <summary>
         /// Supprime une salle spécifique par son identifiant.
         /// </summary>
         /// <param name="theaterId">L'identifiant de la salle à supprimer.</param>
-        /// <returns>Un GeneralServiceResponse indiquant le succès ou l'échec de la suppression.</returns>
-        [HttpPut]
-        [Route("theater/update/{theaterId}")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
-        public async Task<IActionResult> UpdateTheater(string theaterId, [FromBody] TheaterViewModel theaterViewModel)
-        {
-            try
-            {
-                var response = await _cinemaService.UpdateTheaterAsync(theaterId, theaterViewModel);
-                if (!response.IsSucceed)
-                {
-                    return StatusCode(response.StatusCode, new GeneralServiceResponse
-                    {
-                        IsSucceed = false,
-                        StatusCode = response.StatusCode,
-                        Message = response.Message
-                    });
-                }
-
-                return Ok(response.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = $"Erreur lors de la mise à jour du théâtre : {ex.Message}"
-                });
-            }
-        }
-
-        /// <summary>
-        /// Récupère la liste des salles d'un cinéma spécifique.
-        /// </summary>
-        /// <param name="cinemaId">L'identifiant du cinéma pour lequel les salles doivent être récupérées.</param>
-        /// <returns>Une liste de TheaterDto contenant les informations de chaque salle.</returns>
+        /// <returns>Un message indiquant le succès ou l'échec de la suppression.</returns>
         [HttpDelete]
         [Route("theater/delete/{theaterId}")]
-        [Authorize(Roles = RoleConfigurations.Admin)]
+        //[Authorize(Roles = RoleConfigurations.Admin)]
         public async Task<IActionResult> DeleteTheater(string theaterId)
         {
-            try
+            var response = await _cinemaService.DeleteTheaterAsync(theaterId);
+            if (!response.IsSucceed)
             {
-                var response = await _cinemaService.DeleteTheaterAsync(theaterId);
-                if (!response.IsSucceed)
-                {
-                    return StatusCode(response.StatusCode, new GeneralServiceResponse
-                    {
-                        IsSucceed = false,
-                        StatusCode = response.StatusCode,
-                        Message = response.Message
-                    });
-                }
-
-                return Ok(response.Message);
+                return StatusCode(response.StatusCode, response.Message);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = $"Erreur lors de la suppression du théâtre : {ex.Message}"
-                });
-            }
+            return Ok(response.Message);
         }
 
         /// <summary>

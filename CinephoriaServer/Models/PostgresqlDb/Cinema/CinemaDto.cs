@@ -7,7 +7,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// <summary>
         /// Identifiant unique du cinéma.
         /// </summary>
-        public int Id { get; set; }
+        public int CinemaId { get; set; }
 
         /// <summary>
         /// Nom du cinéma.

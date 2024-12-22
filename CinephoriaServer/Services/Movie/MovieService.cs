@@ -4,6 +4,7 @@ using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Repository;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using static CinephoriaServer.Configurations.EnumConfig;
 
 namespace CinephoriaServer.Services
 {
@@ -35,7 +36,7 @@ namespace CinephoriaServer.Services
                 ReleaseDate = movie.ReleaseDate,
                 MinimumAge = movie.MinimumAge,
                 IsFavorite = movie.IsFavorite,
-                PosterUrls = movie.PosterUrls
+                PosterUrls = movie.PosterUrls?.ToList() ?? new List<string>()
             }).ToList();
         }
 
@@ -47,6 +48,7 @@ namespace CinephoriaServer.Services
 
             return movies.Select(movie => new MovieViewModel
             {
+                Id = movie.Id.ToString(),
                 Title = movie.Title,
                 Description = movie.Description,
                 Genre = movie.Genre,
@@ -86,31 +88,69 @@ namespace CinephoriaServer.Services
             };
         }
 
-        // Filtre les films selon les critères fournis
-        public async Task<List<MovieViewModel>> FilterMoviesAsync(int? cinemaId, string genre, DateTime? date)
+        public async Task<List<MovieViewModel>> FilterMoviesAsync(int? cinemaId, string? genres, DateTime? date)
         {
             var filterBuilder = Builders<Movie>.Filter;
-            var filter = filterBuilder.Empty;
+            var filters = new List<FilterDefinition<Movie>>();
 
+            // Filtrer par CinemaId si fourni
             if (cinemaId.HasValue)
             {
-                filter &= filterBuilder.Eq(m => m.CinemaId, cinemaId.Value);
+                filters.Add(filterBuilder.Eq(m => m.CinemaId, cinemaId.Value));
             }
 
-            if (!string.IsNullOrEmpty(genre))
+            // Filtrer par Genres si fourni
+            if (!string.IsNullOrWhiteSpace(genres))
             {
-                filter &= filterBuilder.Eq(m => m.Genre, genre);
+                var genreList = genres.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                      .Select(g => g.Trim())
+                                      .ToList();
+
+                if (genreList.Any())
+                {
+                    filters.Add(filterBuilder.In(m => m.Genre, genreList));
+                }
             }
 
+            // Filtrer les films par les séances qui ont lieu à la date spécifiée
             if (date.HasValue)
             {
-                filter &= filterBuilder.Gte(m => m.ReleaseDate, date.Value);
+                var showtimeFilterBuilder = Builders<Showtime>.Filter;
+                var showtimeDateFilter = showtimeFilterBuilder.Gte(s => s.StartTime, date.Value.Date) &
+                                         showtimeFilterBuilder.Lt(s => s.StartTime, date.Value.Date.AddDays(1));
+
+                if (cinemaId.HasValue)
+                {
+                    showtimeDateFilter &= showtimeFilterBuilder.Eq(s => s.CinemaId, cinemaId.Value);
+                }
+
+                var showtimes = await _unitOfWorkMongoDb.Showtimes.FilterAsync(showtimeDateFilter);
+
+                // Récupérer les MovieIds des séances trouvées et convertir en ObjectId
+                var movieIdsForDate = showtimes.Select(s => s.MovieId).Distinct().ToList();
+
+                // Convertir les MovieId (string) en ObjectId
+                if (movieIdsForDate.Any())
+                {
+                    filters.Add(filterBuilder.In(m => m.Id, movieIdsForDate.Select(id => ObjectId.Parse(id)).ToList()));
+                }
+                else
+                {
+                    // Si aucune séance n'est trouvée pour cette date, retourner une liste vide
+                    return new List<MovieViewModel>();
+                }
             }
 
-            var movies = await _unitOfWorkMongoDb.Movies.FilterAsync(filter);
+            // Combiner les filtres avec un "AND" si des filtres existent, sinon utiliser "Empty"
+            var filter = filters.Count > 0 ? filterBuilder.And(filters) : filterBuilder.Empty;
 
+            // Appliquer le filtre à la collection MongoDB
+            var movies = await _unitOfWorkMongoDb.Movies.FilterMovieAsync(filter);
+
+            // Mapper les résultats vers les ViewModels
             return movies.Select(movie => new MovieViewModel
             {
+                Id = movie.Id.ToString(),
                 Title = movie.Title,
                 Description = movie.Description,
                 Genre = movie.Genre,
@@ -124,8 +164,88 @@ namespace CinephoriaServer.Services
             }).ToList();
         }
 
+
+
+        // Filtre les films selon les critères fournis
+        //public async Task<List<MovieViewModel>> FilterMoviesAsync(int? cinemaId, string? genres, DateTime? date)
+        //{
+        //    var filterBuilder = Builders<Movie>.Filter;
+        //    var filters = new List<FilterDefinition<Movie>>();
+
+        //    // Filtrer par CinemaId si fourni
+        //    if (cinemaId.HasValue)
+        //    {
+        //        filters.Add(filterBuilder.Eq(m => m.CinemaId, cinemaId.Value));
+        //    }
+
+        //    // Filtrer par Genres si fourni
+        //    if (!string.IsNullOrWhiteSpace(genres))
+        //    {
+        //        var genreList = genres.Split(',', StringSplitOptions.RemoveEmptyEntries)
+        //                              .Select(g => g.Trim())
+        //                              .ToList();
+
+        //        if (genreList.Any())
+        //        {
+        //            filters.Add(filterBuilder.In(m => m.Genre, genreList));
+        //        }
+        //    }
+
+        //    // Filtrer les films par les séances qui ont lieu à la date spécifiée
+        //    if (date.HasValue)
+        //    {
+        //        // Récupérer les séances de la date spécifiée
+        //        var showtimeFilterBuilder = Builders<Showtime>.Filter;
+        //        var showtimeDateFilter = showtimeFilterBuilder.Gte(s => s.StartTime, date.Value.Date) &
+        //                                 showtimeFilterBuilder.Lt(s => s.StartTime, date.Value.Date.AddDays(1));
+
+        //        if (cinemaId.HasValue)
+        //        {
+        //            showtimeDateFilter &= showtimeFilterBuilder.Eq(s => s.CinemaId, cinemaId.Value);
+        //        }
+
+        //        var showtimes = await _unitOfWorkMongoDb.Showtimes.FilterAsync(showtimeDateFilter);
+
+        //        // Récupérer les MovieIds des séances trouvées
+        //        var movieIdsForDate = showtimes.Select(s => s.MovieId).Distinct().ToList();
+
+        //        if (movieIdsForDate.Any())
+        //        {
+        //            filters.Add(filterBuilder.In(m => m.Id, movieIdsForDate));
+        //        }
+        //        else
+        //        {
+        //            // Si aucune séance n'est trouvée pour cette date, retourner une liste vide
+        //            return new List<MovieViewModel>();
+        //        }
+        //    }
+
+        //    // Combiner les filtres avec un "AND" si des filtres existent, sinon utiliser "Empty"
+        //    var filter = filters.Count > 0 ? filterBuilder.And(filters) : filterBuilder.Empty;
+
+        //    // Appliquer le filtre à la collection MongoDB
+        //    var movies = await _unitOfWorkMongoDb.Movies.FilterMovieAsync(filter);
+
+        //    // Mapper les résultats vers les ViewModels
+        //    return movies.Select(movie => new MovieViewModel
+        //    {
+        //        Id = movie.Id.ToString(),
+        //        Title = movie.Title,
+        //        Description = movie.Description,
+        //        Genre = movie.Genre,
+        //        Duration = movie.Duration,
+        //        Director = movie.Director,
+        //        CinemaId = movie.CinemaId,
+        //        ReleaseDate = movie.ReleaseDate,
+        //        MinimumAge = movie.MinimumAge,
+        //        IsFavorite = movie.IsFavorite,
+        //        PosterUrls = movie.PosterUrls
+        //    }).ToList();
+        //}
+
+
         // Crée un nouveau film
-        public async Task<GeneralServiceResponseData<object>> CreateMovieAsync(MovieViewModel movieViewModel)
+        public async Task<GeneralServiceResponse> CreateMovieAsync(MovieViewModel movieViewModel)
         {
             var movie = new Movie
             {
@@ -144,41 +264,41 @@ namespace CinephoriaServer.Services
 
             await _unitOfWorkMongoDb.Movies.AddAsync(movie);
 
-            var result = new MovieDto
-            {
-                Id = movieViewModel.Id.ToString(),
-                Title = movieViewModel.Title,
-                Description = movieViewModel.Description,
-                Genre = movieViewModel.Genre,
-                Duration = movieViewModel.Duration,
-                Director = movieViewModel.Director,
-                CinemaId = movieViewModel.CinemaId,
-                ReleaseDate = movieViewModel.ReleaseDate,
-                MinimumAge = movieViewModel.MinimumAge,
-                IsFavorite = movieViewModel.IsFavorite,
-                PosterUrls = movieViewModel.PosterUrls
-            };
-
-            return new GeneralServiceResponseData<object>
+            return new GeneralServiceResponse
             {
                 IsSucceed = true,
                 StatusCode = 201,
-                Message = "Salle de projection créée avec succès.",
-                Data = result
+                Message = "Film créé avec succès."
             };
         }
 
+        public async Task<bool> AddPosterToMovieAsync(string movieId, string imageUrl)
+        {
+            var movie = await _unitOfWorkMongoDb.Movies.GetByIdAsync(movieId);
+            if (movie == null) return false;
+
+            movie.PosterUrls.Add(imageUrl);
+            await _unitOfWorkMongoDb.Movies.UpdateAsync(movie);
+
+            return true;
+        }
+
+  
         // Modifie un film existant
-        public async Task<MovieViewModel> UpdateMovieAsync(string filmId, MovieViewModel movieViewModel)
+        public async Task<GeneralServiceResponse> UpdateMovieAsync(string filmId, MovieViewModel movieViewModel)
         {
             var movie = await _unitOfWorkMongoDb.Movies.GetByIdAsync(filmId);
 
             if (movie == null)
             {
-                throw new Exception("Le film spécifié n'existe pas.");
+                return new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 404,
+                    Message = "Le film spécifié n'existe pas."
+                };
             }
 
-            movie.Id = ObjectId.GenerateNewId();
             movie.Title = movieViewModel.Title;
             movie.Description = movieViewModel.Description;
             movie.Genre = movieViewModel.Genre;
@@ -192,21 +312,40 @@ namespace CinephoriaServer.Services
 
             await _unitOfWorkMongoDb.Movies.UpdateAsync(movie);
 
-            return movieViewModel;
+            return new GeneralServiceResponse
+            {
+                IsSucceed = true,
+                StatusCode = 200,
+                Message = "Film mis à jour avec succès."
+            };
         }
 
+
         // Supprime un film existant
-        public async Task DeleteMovieAsync(string filmId)
+        public async Task<GeneralServiceResponse> DeleteMovieAsync(string filmId)
         {
             var movieExists = await _unitOfWorkMongoDb.ExistsAsync<Movie>(filmId);
 
             if (!movieExists)
             {
-                throw new Exception("Le film spécifié n'existe pas.");
+                return new GeneralServiceResponse
+                {
+                    IsSucceed = false,
+                    StatusCode = 404,
+                    Message = "Le film spécifié n'existe pas."
+                };
             }
 
             await _unitOfWorkMongoDb.Movies.DeleteAsync(filmId);
+
+            return new GeneralServiceResponse
+            {
+                IsSucceed = true,
+                StatusCode = 204,
+                Message = "Film supprimé avec succès."
+            };
         }
+
 
         // Soumet un avis pour un film
         public async Task<Review> SubmitReviewAsync(ReviewViewModel reviewViewModel)

@@ -17,6 +17,7 @@ namespace CinephoriaServer.Repository.EntityFramwork
         Task UpdatePartialAsync(string id, UpdateDefinition<T> updates);
         Task<T> FindOneAsync(FilterDefinition<T> filter);
         Task<bool> ExistsAsync(FilterDefinition<T> filter);
+        Task<List<T>> FilterMovieAsync(FilterDefinition<T> filter,int page = 1, int pageSize = 10,SortDefinition<T> sort = null);
     }
 
 }

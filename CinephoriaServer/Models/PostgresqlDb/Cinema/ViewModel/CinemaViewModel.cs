@@ -1,7 +1,14 @@
-﻿namespace CinephoriaServer.Models.PostgresqlDb
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace CinephoriaServer.Models.PostgresqlDb
 {
     public class CinemaViewModel
     {
+        /// <summary>
+        /// Identifiant unique du cinéma.
+        /// </summary>
+        public int CinemaId { get; set; }
         /// <summary>
         /// Nom du cinéma.
         /// </summary>
