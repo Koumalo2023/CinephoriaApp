@@ -10,8 +10,9 @@ namespace CinephoriaServer.Repository
         private readonly Dictionary<Type, object> _writeRepositories = new();
 
         // Repositories spécifiques
-        private ICinemaRepository _cinemas;
+        private ICinemaRepository _cinemas; 
         private IMovieRepository _movies;
+        private IMovieRatingRepository _movieRatings;
         private ITheaterRepository _theaters;
         private ISeatRepository _seats;
         private IShowtimeRepository _showtimes;
@@ -27,6 +28,7 @@ namespace CinephoriaServer.Repository
         // Propriétés pour accéder aux repositories spécifiques
         public ICinemaRepository Cinemas => _cinemas ??= new CinemaRepository(_context);
         public IMovieRepository Movies => _movies ??= new MovieRepository(_context);
+        public IMovieRatingRepository MovieRatings => _movieRatings ??= new MovieRatingRepository(_context);
         public ITheaterRepository Theaters => _theaters ??= new TheaterRepository(_context);
         public ISeatRepository Seats => _seats ??= new SeatRepository(_context);
         public IShowtimeRepository Showtimes => _showtimes ??= new ShowtimeRepository(_context);

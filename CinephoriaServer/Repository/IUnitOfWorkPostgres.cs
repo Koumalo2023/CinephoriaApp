@@ -8,6 +8,7 @@ namespace CinephoriaServer.Repository
         // Propriétés pour les repositories spécifiques
         ICinemaRepository Cinemas { get; }
         IMovieRepository Movies { get; }
+        IMovieRatingRepository MovieRatings { get; }
         ITheaterRepository Theaters { get; }
         ISeatRepository Seats { get; }
         IShowtimeRepository Showtimes { get; }

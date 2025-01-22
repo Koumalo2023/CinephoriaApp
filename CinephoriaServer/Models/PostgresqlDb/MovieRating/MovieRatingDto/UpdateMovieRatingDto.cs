@@ -17,9 +17,5 @@
         /// </summary>
         public string Comment { get; set; }
 
-        /// <summary>
-        /// Indique si l'avis a été approuvé par un employé.
-        /// </summary>
-        public bool IsValidated { get; set; }
     }
 }
