@@ -18,8 +18,8 @@ namespace CinephoriaServer.Repository
             builder.Property(r => r.ShowtimeId)
                    .IsRequired();
 
-            builder.Property(r => r.SeatNumbers)
-                   .IsRequired(); // Si c'est requis
+            builder.Property(r => r.NumberOfSeats)
+                   .IsRequired();
 
             builder.Property(r => r.TotalPrice)
                    .IsRequired();

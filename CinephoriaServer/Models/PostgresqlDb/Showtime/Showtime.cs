@@ -1,0 +1,86 @@
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using static CinephoriaServer.Configurations.EnumConfig;
+using CinephoriaServer.Configurations.Extensions;
+
+namespace CinephoriaServer.Models.PostgresqlDb
+{
+    public class Showtime : BaseEntity
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        /// <summary>
+        /// Identifiant unique de la séance.
+        /// </summary>
+        public int ShowtimeId { get; set; }
+
+        [Required]
+        [ForeignKey("Movie")]
+        /// <summary>
+        /// Identifiant du film projeté durant cette séance.
+        /// </summary>
+        public int MovieId { get; set; }
+
+        [Required]
+        [ForeignKey("Theater")]
+        /// <summary>
+        /// Identifiant de la salle où a lieu la projection.
+        /// </summary>
+        public int TheaterId { get; set; }
+
+        [Required]
+        /// <summary>
+        /// Heure de début de la séance.
+        /// </summary>
+        public DateTime StartTime { get; set; }
+
+        /// <summary>
+        /// Identifiant du cinema où a lieu la projection.
+        /// </summary>
+        public int CinemaId { get; set; }
+
+        /// <summary>
+        /// Proprié de navigation vers le Cinema.
+        /// </summary>
+        public Cinema Cinema { get; set; }
+
+        [Required]
+        /// <summary>
+        /// Qualité de la projection (4DX, 3D, etc.).
+        /// </summary>
+        public ProjectionQuality Quality { get; set; }
+
+        /// <summary>
+        /// Nombre de sièges disponibles (calculé à partir des sièges réservés).
+        /// </summary>
+        public int AvailableSeats => Theater?.Seats?.Count(s => s.IsAvailable) ?? 0;
+
+        [Required]
+        /// <summary>
+        /// Heure de fin de la séance.
+        /// </summary>
+        public DateTime EndTime { get; set; }
+
+        [Required]
+        [Range(0, double.MaxValue, ErrorMessage = "Le prix doit être positif.")]
+        /// <summary>
+        /// Prix de la séance en fonction de la qualité.
+        /// </summary>
+        public decimal Price { get; set; }
+
+        /// <summary>
+        /// Navigation vers le film projeté (relation plusieurs-à-un).
+        /// </summary>
+        public Movie Movie { get; set; }
+
+        /// <summary>
+        /// Navigation vers la salle où se déroule la séance (relation plusieurs-à-un).
+        /// </summary>
+        public Theater Theater { get; set; }
+
+        /// <summary>
+        /// Liste des réservations associées à cette séance.
+        /// </summary>
+        public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+    }
+}

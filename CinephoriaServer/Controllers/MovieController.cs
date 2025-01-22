@@ -1,371 +1,293 @@
 ﻿using CinephoriaServer.Configurations;
-using CinephoriaServer.Models.MongooDb;
 using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CinephoriaServer.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class MovieController : ControllerBase
     {
         private readonly IMovieService _movieService;
+        private readonly ILogger<MovieController> _logger;
         private readonly IImageService _imageService;
 
-        public MovieController(IMovieService movieService, IImageService imageService)
+        public MovieController(IMovieService movieService, ILogger<MovieController> logger, IImageService imageService)
         {
             _movieService = movieService;
+            _logger = logger;
             _imageService = imageService;
         }
 
+        /// <summary>
+        /// Récupère la liste des derniers films ajoutés.
+        /// </summary>
+        /// <returns>Une liste de films.</returns>
+        [HttpGet("recent")]
+        public async Task<IActionResult> GetRecentMovies()
+        {
+            try
+            {
+                var movies = await _movieService.GetRecentMoviesAsync();
+                return Ok(new { Message = "Liste des derniers films récupérée avec succès.", Data = movies });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Une erreur inattendue s'est produite lors de la récupération des derniers films.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+            }
+        }
 
 
         /// <summary>
-        /// Récupère tous les films disponibles.
+        /// Récupère la liste de tous les films.
         /// </summary>
-        /// <returns>Une liste de tous les films disponibles.</returns>
+        /// <returns>Une liste de films.</returns>
         [HttpGet("all")]
-        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
         public async Task<IActionResult> GetAllMovies()
         {
             try
             {
                 var movies = await _movieService.GetAllMoviesAsync();
-                return Ok(movies);
+                return Ok(new { Message = "Liste de tous les films récupérée avec succès.", Data = movies });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = $"Erreur lors de la récupération des films : {ex.Message}"
-                });
+                _logger.LogError(ex, "Une erreur inattendue s'est produite lors de la récupération de tous les films.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
             }
         }
 
 
         /// <summary>
-        /// Récupère tous les films disponibles dans un cinéma spécifique.
+        /// Récupère les détails d'un film en fonction de son identifiant.
         /// </summary>
-        /// <param name="cinemaId">Identifiant du cinéma.</param>
-        /// <returns>Une liste de films disponibles dans le cinéma spécifié.</returns>
-        [HttpGet("cinema/{cinemaId}")]
-        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
-        public async Task<IActionResult> GetMoviesByCinema(int cinemaId)
+        /// <param name="movieId">L'identifiant du film.</param>
+        /// <returns>Un objet Movie contenant les détails du film.</returns>
+        [HttpGet("movie/{movieId}")]
+        public async Task<IActionResult> GetMovieDetails(int movieId)
         {
             try
             {
-                var movies = await _movieService.GetMoviesByCinemaAsync(cinemaId);
-                return Ok(movies);
+                var movieDetails = await _movieService.GetMovieDetailsAsync(movieId);
+                return Ok(new { Message = "Détails du film récupérés avec succès.", Data = movieDetails });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = $"Erreur lors de la récupération des films pour le cinéma {cinemaId} : {ex.Message}"
-                });
+                _logger.LogError(ex, "Une erreur inattendue s'est produite lors de la récupération des détails du film.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
             }
         }
-
 
         /// <summary>
-        /// Récupère les détails d'un film spécifique, y compris les séances disponibles.
+        /// Récupère la liste des séances disponibles pour un film spécifique.
         /// </summary>
-        /// <param name="filmId">L'identifiant unique du film.</param>
-        /// <returns>Les détails du film, y compris les séances associées.</returns>
-        [HttpGet("{filmId}")]
-        //[Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
-        public async Task<IActionResult> GetMovieById(string filmId)
+        /// <param name="movieId">L'identifiant du film.</param>
+        /// <returns>Une liste de séances.</returns>
+        [HttpGet("{movieId}/sessions")]
+        public async Task<IActionResult> GetMovieSessions(int movieId)
         {
             try
             {
-                var movie = await _movieService.GetMovieByIdAsync(filmId);
-                if (movie == null)
-                {
-                    return NotFound(new GeneralServiceResponse
-                    {
-                        IsSucceed = false,
-                        StatusCode = 404,
-                        Message = "Film non trouvé."
-                    });
-                }
-
-                return Ok(movie);
+                var sessions = await _movieService.GetMovieSessionsAsync(movieId);
+                return Ok(new { Message = "Séances du film récupérées avec succès.", Data = sessions });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = $"Erreur lors de la récupération du film {filmId} : {ex.Message}"
-                });
+                _logger.LogError(ex, "Une erreur inattendue s'est produite lors de la récupération des séances du film.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
             }
         }
-
 
         /// <summary>
-        /// Filtre les films par cinéma, genre ou jour spécifique.
-        /// Si un paramètre n'est pas fourni, il n'est pas pris en compte dans le filtrage.
+        /// Soumet un avis sur un film de la part d'un utilisateur.
         /// </summary>
-        /// <param name="cinemaId">L'identifiant du cinéma.</param>
-        /// <param name="genre">Le genre du film.</param>
-        /// <param name="date">Le jour spécifique des séances.</param>
-        /// <returns>Une liste filtrée des films selon les critères fournis.</returns>
-        [HttpGet("filter")]
-        //[Authorize(Roles = RoleConfigurations.AdminEmployeeUser)]
-        public async Task<IActionResult> FilterMovies([FromQuery] int? cinemaId, [FromQuery] string genre = null, [FromQuery] DateTime? date = null)
+        /// <param name="reviewDto">Les données de l'avis.</param>
+        /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
+        [HttpPost("review")]
+        public async Task<IActionResult> SubmitMovieReview([FromBody] MovieReviewDto reviewDto)
         {
             try
             {
-                var movies = await _movieService.FilterMoviesAsync(cinemaId, genre, date);
-                return Ok(movies);
+                await _movieService.SubmitMovieReviewAsync(reviewDto);
+                return Ok(new { Message = "Avis soumis avec succès." });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = $"Erreur lors du filtrage des films : {ex.Message}"
-                });
+                _logger.LogError(ex, "Une erreur inattendue s'est produite lors de la soumission de l'avis.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
             }
         }
 
+        /// <summary>
+        /// Filtre les films en fonction du cinéma, du genre et de la date.
+        /// </summary>
+        /// <param name="filterDto">Les critères de filtrage.</param>
+        /// <returns>Une liste de films correspondant aux critères.</returns>
+        [HttpPost("filter")]
+        public async Task<IActionResult> FilterMovies([FromBody] FilterMoviesRequestDto filterDto)
+        {
+            try
+            {
+                var movies = await _movieService.FilterMoviesAsync(filterDto.CinemaId, filterDto.Genre, filterDto.Date);
+                return Ok(new { Message = "Films filtrés récupérés avec succès.", Data = movies });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Une erreur inattendue s'est produite lors du filtrage des films.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+            }
+        }
 
         /// <summary>
         /// Crée un nouveau film.
-        /// Cette méthode est réservée aux administrateurs et aux employés.
         /// </summary>
-        /// <param name="movieViewModel">Le ViewModel du film à créer.</param>
-        /// <returns>Le film nouvellement créé.</returns>
+        /// <param name="createMovieDto">Les données du film à créer.</param>
+        /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
         [HttpPost("create")]
-        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
-        public async Task<IActionResult> CreateMovie([FromBody] MovieViewModel movieViewModel)
-        {
-            var response = await _movieService.CreateMovieAsync(movieViewModel);
-
-            if (!response.IsSucceed)
-            {
-                return StatusCode(response.StatusCode, response);
-            }
-
-            return StatusCode(response.StatusCode, response);
-        }
-
-
-
-        /// <summary>
-        /// Modifie un film existant.
-        /// Cette méthode est réservée aux administrateurs et aux employés.
-        /// </summary>
-        /// <param name="filmId">L'identifiant unique du film à modifier.</param>
-        /// <param name="movieViewModel">Les nouvelles données du film à mettre à jour.</param>
-        /// <returns>Le film mis à jour.</returns>
-        [HttpPut("{filmId}")]
-        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
-        public async Task<IActionResult> UpdateMovie(string filmId, [FromBody] MovieViewModel movieViewModel)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var response = await _movieService.UpdateMovieAsync(filmId, movieViewModel);
-
-            if (!response.IsSucceed)
-            {
-                return StatusCode(response.StatusCode, response);
-            }
-
-            return Ok(response);
-        }
-
-
-        /// <summary>
-        /// Supprime un film existant.
-        /// Cette méthode est réservée aux administrateurs et aux employés.
-        /// </summary>
-        /// <param name="filmId">L'identifiant unique du film à supprimer.</param>
-        /// <returns>Une tâche représentant l'opération de suppression.</returns>
-        [HttpDelete("{filmId}")]
-        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
-        public async Task<IActionResult> DeleteMovie(string filmId)
-        {
-            var response = await _movieService.DeleteMovieAsync(filmId);
-
-            if (!response.IsSucceed)
-            {
-                return StatusCode(response.StatusCode, response);
-            }
-
-            return NoContent();
-        }
-
-
-
-        /// <summary>
-        /// Permet à un utilisateur de laisser un avis sur un film.
-        /// </summary>
-        /// <param name="reviewViewModel">Le ViewModel de l'avis à soumettre.</param>
-        /// <returns>L'avis nouvellement créé.</returns>
-        [HttpPost("reviews/submit")]
-        //[Authorize(Roles = RoleConfigurations.User)]
-        public async Task<IActionResult> SubmitReview([FromBody] ReviewViewModel reviewViewModel)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            try
-            {
-                var review = await _movieService.SubmitReviewAsync(reviewViewModel);
-                return Ok(review);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = $"Erreur lors de la soumission de la critique : {ex.Message}"
-                });
-            }
-        }
-
-
-        /// <summary>
-        /// Récupère tous les avis d'un film.
-        /// </summary>
-        /// <param name="movieId">L'identifiant du film.</param>
-        /// <returns>Une liste d'avis associés au film.</returns>
-        [HttpGet("{movieId}/reviews")]
-        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
-        public async Task<IActionResult> GetReviewsByMovieId(string movieId)
+        public async Task<IActionResult> CreateMovie([FromBody] CreateMovieDto createMovieDto)
         {
             try
             {
-                var reviews = await _movieService.GetReviewsByMovieIdAsync(movieId);
-                return Ok(reviews);
+                await _movieService.CreateMovieAsync(createMovieDto);
+                return StatusCode(StatusCodes.Status201Created, new { Message = "Film créé avec succès." });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new GeneralServiceResponse
+                _logger.LogError(ex, "Une erreur inattendue s'est produite lors de la création du film.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+            }
+        }
+
+
+        // Upload affiche de film
+        [HttpPost("upload-movie-poster/{movieId}")]
+        public async Task<IActionResult> UploadMoviePoster(int movieId, [FromForm] IFormFile file)
+        {
+            try
+            {
+                string folder = "movies";
+                var imageUrl = await _imageService.UploadImageAsync(file, folder);
+                if (imageUrl == null)
                 {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = $"Erreur lors de la récupération des critiques pour le film {movieId} : {ex.Message}"
-                });
+                    throw new ApiException("Erreur lors du téléchargement de l'image.", StatusCodes.Status400BadRequest);
+                }
+
+                await _movieService.AddPosterToMovieAsync(movieId, imageUrl);
+                return Ok(new { Message = "Affiche du film téléchargée avec succès.", Url = imageUrl });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Une erreur inattendue s'est produite lors du téléchargement de l'affiche du film.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
             }
         }
 
 
         /// <summary>
-        /// Permet à un utilisateur de laisser une note sur un film.
+        /// Supprime l'image d'un film en fonction de son identifiant.
         /// </summary>
-        /// <param name="movieRatingViewModel">Le ViewModel de la note à soumettre.</param>
-        /// <returns>La note nouvellement créée.</returns>
-        [HttpPost("ratings/submit")]
-        //[Authorize(Roles = RoleConfigurations.User)]
-        public async Task<IActionResult> SubmitMovieRating([FromBody] MovieRatingViewModel movieRatingViewModel)
+        /// <param name="movieId">L'identifiant du film à supprimer.</param>
+        /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
+        [HttpDelete("delete-movie-poster/{movieId}")]
+        public async Task<IActionResult> DeleteMoviePoster(int movieId, [FromQuery] string posterUrl)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             try
             {
-                var movieRating = await _movieService.SubmitMovieRatingAsync(movieRatingViewModel);
-                return Ok(movieRating);
+                await _movieService.RemovePosterFromMovieAsync(movieId, posterUrl);
+                return Ok(new { Message = "Affiche du film supprimée avec succès." });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = $"Erreur lors de la soumission de l'évaluation : {ex.Message}"
-                });
+                _logger.LogError(ex, "Une erreur inattendue s'est produite lors de la suppression de l'affiche du film.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
             }
         }
 
 
         /// <summary>
-        /// Valide une note sur un film, action réservée aux employés.
+        /// Met à jour les informations d'un film existant.
         /// </summary>
-        /// <param name="movieRatingId">L'identifiant unique de la note à valider.</param>
-        /// <returns>La note validée.</returns>
-        [HttpPut("ratings/validate/{movieRatingId}")]
-        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
-        public async Task<IActionResult> ValidateMovieRating(int movieRatingId)
+        /// <param name="updateMovieDto">Les nouvelles données du film.</param>
+        /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
+        [HttpPut]
+        public async Task<IActionResult> UpdateMovie([FromBody] UpdateMovieDto updateMovieDto)
         {
             try
             {
-                var validatedMovieRating = await _movieService.ValidateMovieRatingAsync(movieRatingId);
-                return Ok(validatedMovieRating);
+                await _movieService.UpdateMovieAsync(updateMovieDto);
+                return Ok(new { Message = "Film mis à jour avec succès." });
             }
-            catch (KeyNotFoundException ex)
+            catch (ApiException ex)
             {
-                return NotFound(new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 404,
-                    Message = ex.Message
-                });
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = $"Erreur lors de la validation de l'évaluation {movieRatingId} : {ex.Message}"
-                });
+                _logger.LogError(ex, "Une erreur inattendue s'est produite lors de la mise à jour du film.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
             }
         }
-
 
         /// <summary>
-        /// Supprime une note sur un film, action réservée aux employés.
+        /// Supprime un film en fonction de son identifiant.
         /// </summary>
-        /// <param name="movieRatingId">L'identifiant unique de la note à supprimer.</param>
-        /// <returns>Une tâche représentant l'opération de suppression.</returns>
-        [HttpDelete("ratings/{movieRatingId}")]
-        //[Authorize(Roles = RoleConfigurations.AdminEmployee)]
-        public async Task<IActionResult> DeleteMovieRating(int movieRatingId)
+        /// <param name="movieId">L'identifiant du film à supprimer.</param>
+        /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
+        [HttpDelete("movie/{movieId}")]
+        public async Task<IActionResult> DeleteMovie(int movieId)
         {
             try
             {
-                await _movieService.DeleteMovieRatingAsync(movieRatingId);
-                return NoContent();
+                await _movieService.DeleteMovieAsync(movieId);
+                return Ok(new { Message = "Film supprimé avec succès." });
             }
-            catch (KeyNotFoundException ex)
+            catch (ApiException ex)
             {
-                return NotFound(new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 404,
-                    Message = ex.Message
-                });
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = $"Erreur lors de la suppression de l'évaluation {movieRatingId} : {ex.Message}"
-                });
+                _logger.LogError(ex, "Une erreur inattendue s'est produite lors de la suppression du film.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
             }
         }
-
     }
 }

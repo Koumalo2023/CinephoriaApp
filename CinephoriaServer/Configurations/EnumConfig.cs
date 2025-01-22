@@ -5,9 +5,9 @@
 
         public enum UserRole
         {
-            Admin,
-            Eemployee,
-            User
+            User,
+            Employee,
+            Admin
         }
 
         public enum ReservationStatus
@@ -35,7 +35,7 @@
         }
 
 
-        public enum MovieGenreStatus
+        public enum MovieGenre
         {
 
             Action,

@@ -37,13 +37,17 @@ if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddDbContext<CinephoriaDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSql"),
-        npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()));
+        npgsqlOptions => npgsqlOptions.EnableRetryOnFailure())
+               .EnableSensitiveDataLogging() // Active l'affichage des valeurs sensibles dans les logs
+               .LogTo(Console.WriteLine, LogLevel.Information)); // Journalisation dans la console
 }
 else
 {
     builder.Services.AddDbContext<CinephoriaDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSqlProd"),
-        npgsqlOptions => npgsqlOptions.EnableRetryOnFailure()));
+        npgsqlOptions => npgsqlOptions.EnableRetryOnFailure())
+               .EnableSensitiveDataLogging() // Active l'affichage des valeurs sensibles dans les logs  en production
+               .LogTo(Console.WriteLine, LogLevel.Warning)); // Journalisation des avertissements et erreurs en production
 }
 
 //Configuration de MongoDB
@@ -82,6 +86,18 @@ builder.Services.Configure<IdentityOptions>(options =>
 // Gérer les injections de dépendances
 builder.Services.AddDbServiceInjection();
 
+// Exiger la confirmation d'email
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("EmailConfirmed", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => c.Type == "EmailConfirmed" && c.Value == "true")));
+});
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.SignIn.RequireConfirmedEmail = true;
+}); 
 
 //Configuration d'AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -182,6 +198,23 @@ builder.WebHost.ConfigureKestrel((context, options) =>
 var app = builder.Build();
 
 
+
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+// Appliquez la politique CORS
+app.UseCors(SecurityExtensions.DEFAULT_POLICY);
+app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseStaticFiles();
+app.UseAuthorization();
+app.MapControllers();
+
 //Exécutez la méthode de seeding d'administrateur lors du démarrage de l'application
 using (var scope = app.Services.CreateScope())
 {
@@ -200,19 +233,4 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine("Erreur lors de l'initialisation de l'administrateur par défaut : " + ex.Message);
     }
 }
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-// Appliquez la politique CORS
-app.UseCors(SecurityExtensions.DEFAULT_POLICY);
-app.UseStaticFiles();
-app.UseAuthorization();
-app.MapControllers();
-
 app.Run();

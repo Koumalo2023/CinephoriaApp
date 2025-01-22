@@ -1,6 +1,4 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson;
-using CinephoriaServer.Models.PostgresqlDb;
 
 namespace CinephoriaServer.Models.MongooDb
 {
@@ -45,6 +43,6 @@ namespace CinephoriaServer.Models.MongooDb
         /// <summary>
         /// Liste des réservations par film avec les détails associés.
         /// </summary>
-        public List<ReservationDto> Reservations { get; set; }
+        //public List<ReservationDto> Reservations { get; set; }
     }
 }

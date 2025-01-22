@@ -1,7 +1,5 @@
-﻿using CinephoriaServer.Models.MongooDb;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using static CinephoriaServer.Configurations.EnumConfig;
 
 namespace CinephoriaServer.Models.PostgresqlDb
@@ -11,12 +9,14 @@ namespace CinephoriaServer.Models.PostgresqlDb
         // --- Informations générales ---
 
         [Required]
+        [StringLength(50, ErrorMessage = "Le prénom ne peut pas dépasser 50 caractères.")]
         /// <summary>
         /// Prénom de l'utilisateur.
         /// </summary>
         public string FirstName { get; set; } = string.Empty;
 
         [Required]
+        [StringLength(50, ErrorMessage = "Le nom de famille ne peut pas dépasser 50 caractères.")]
         /// <summary>
         /// Nom de famille de l'utilisateur.
         /// </summary>
@@ -25,14 +25,17 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// <summary>
         /// Date de création du compte.
         /// </summary>
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         /// <summary>
         /// Date de mise à jour du compte.
         /// </summary>
-        public DateTime UpdatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        public bool HasApprovedTermsOfUse { get; set; }
+        /// <summary>
+        /// Indique si l'utilisateur a approuvé les conditions d'utilisation.
+        /// </summary>
+        public bool HasApprovedTermsOfUse { get; set; } = false;
 
         // --- Propriétés héritées de EmployeeAccount ---
 
@@ -42,13 +45,14 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// </summary>
         public DateTime? HiredDate { get; set; }
 
+        [StringLength(100, ErrorMessage = "Le poste ne peut pas dépasser 100 caractères.")]
         /// <summary>
         /// Poste ou fonction de l'employé.
         /// Applicable aux utilisateurs de type "Employee".
         /// </summary>
         public string? Position { get; set; }
 
-
+        [Url(ErrorMessage = "L'URL de l'image de profil n'est pas valide.")]
         /// <summary>
         /// Image du profil des employés.
         /// Applicable aux utilisateurs de type "Employee".
@@ -61,14 +65,19 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// </summary>
         public ICollection<Incident> ReportedIncidents { get; set; } = new List<Incident>();
 
-        
-        
+
+        /// <summary>
+        /// Liste des incidents resolus par l'employé.
+        /// Applicable uniquement pour les employés.
+        /// </summary>
+        public ICollection<Incident> ResolvedByIncidents { get; set; } = new List<Incident>();
+
         // --- Propriétés liées à ASP.NET Identity ---
 
         /// <summary>
-        /// Rôle(s) de l'utilisateur : ADMIN, EMPLOYEE, USER.
+        /// Rôle(s) de l'utilisateur : Admin, Employee, User.
         /// </summary>
-        public IList<string>? Roles { get; set; } = new List<string>();
+        public UserRole Role { get; set; }
 
         // --- Autres propriétés liées aux utilisateurs ---
 
@@ -76,18 +85,13 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// Liste des réservations effectuées par l'utilisateur.
         /// Applicable aux utilisateurs normaux.
         /// </summary>
-        public List<Reservation> Reservations { get; set; }
+        public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
 
         /// <summary>
         /// Liste des avis laissés par l'utilisateur.
         /// Applicable aux utilisateurs normaux.
         /// </summary>
-        public List<MovieRating> MovieRatings { get; set; }
-
-        /// <summary>
-        /// Liste des messages de contact envoyés par l'utilisateur.
-        /// </summary>
-        public List<Contact> Contact { get; set; }
+        public ICollection<MovieRating> MovieRatings { get; set; } = new List<MovieRating>();
     }
 
 }

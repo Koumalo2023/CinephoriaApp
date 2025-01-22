@@ -35,17 +35,17 @@ namespace CinephoriaServer.Repository
 
             builder.Property(c => c.OpeningHours)
                    .IsRequired()
-                   .HasMaxLength(50);
+                   .HasMaxLength(500);
 
             // Relation un-à-plusieurs avec Showtime
-            builder.HasMany<Showtime>()
-                   .WithOne()
+            builder.HasMany(c => c.Showtimes)
+                   .WithOne(s => s.Cinema)
                    .HasForeignKey(s => s.CinemaId)
                    .OnDelete(DeleteBehavior.Cascade);
 
             // Relation un-à-plusieurs avec Theater
-            builder.HasMany<Theater>()
-                   .WithOne()
+            builder.HasMany(c => c.Theaters)
+                   .WithOne(t => t.Cinema)
                    .HasForeignKey(t => t.CinemaId)
                    .OnDelete(DeleteBehavior.Cascade);
         }

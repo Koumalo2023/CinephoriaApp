@@ -1,4 +1,5 @@
-﻿using CinephoriaServer.Models.MongooDb;
+﻿using CinephoriaServer.Configurations.Extensions;
+using CinephoriaServer.Models.MongooDb;
 using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Repository;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -9,9 +10,13 @@ namespace CinephoriaBackEnd.Data
     public class CinephoriaDbContext : IdentityDbContext<AppUser>
     {
         #region Common 
-        public DbSet<MovieRating> MovieRatings => Set<MovieRating>();
+        public DbSet<Seat> Seats => Set<Seat>();
+        public DbSet<Movie> Movies => Set<Movie>();
+        public DbSet<Theater> Theaters => Set<Theater>();
+        public DbSet<Incident> Incidents => Set<Incident>();
+        public DbSet<Showtime> Showtimes => Set<Showtime>();
         public DbSet<Cinema> Cinemas => Set<Cinema>();
-        public DbSet<Contact> Contacts => Set<Contact>();
+        public DbSet<MovieRating> MovieRatings => Set<MovieRating>();
         public DbSet<Reservation> Reservations => Set<Reservation>();
 
         #endregion
@@ -24,19 +29,42 @@ namespace CinephoriaBackEnd.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.ApplyConfiguration(new SeatConfig());
+            modelBuilder.ApplyConfiguration(new MovieConfig());
+            modelBuilder.ApplyConfiguration(new TheaterConfig());
+            modelBuilder.ApplyConfiguration(new IncidentConfig());
+            modelBuilder.ApplyConfiguration(new ShowtimeConfig());
             modelBuilder.ApplyConfiguration(new CinemaConfig());
-            modelBuilder.ApplyConfiguration(new ContactConfig());
             modelBuilder.ApplyConfiguration(new MovieRatingConfig());
             modelBuilder.ApplyConfiguration(new ReservationConfig());
 
 
-            modelBuilder.Ignore<Movie>();
-            modelBuilder.Ignore<Incident>();
-            modelBuilder.Ignore<Review>();
-            modelBuilder.Ignore<Theater>();
-            modelBuilder.Ignore<Showtime>();
             modelBuilder.Ignore<AdminDashboard>();
 
+        }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker
+                .Entries()
+                .Where(e => e.Entity is BaseEntity && (
+                        e.State == EntityState.Added
+                        || e.State == EntityState.Modified));
+
+            foreach (var entityEntry in entries)
+            {
+                var entity = (BaseEntity)entityEntry.Entity;
+                var now = DateTime.UtcNow;
+
+                if (entityEntry.State == EntityState.Added)
+                {
+                    entity.CreatedAt = now;
+                }
+
+                entity.UpdatedAt = now;
+            }
+
+            return await base.SaveChangesAsync(cancellationToken);
         }
     }
 }

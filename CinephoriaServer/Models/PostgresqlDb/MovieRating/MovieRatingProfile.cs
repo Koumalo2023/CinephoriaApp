@@ -6,8 +6,10 @@ namespace CinephoriaServer.Models.PostgresqlDb
     {
         public MovieRatingProfile()
         {
-            CreateMap<MovieRating, MovieRatingDto>()
-                .ReverseMap();
+            // Showtime mappings
+            CreateMap<Showtime, ShowtimeDto>();
+            CreateMap<CreateShowtimeDto, Showtime>();
+            CreateMap<UpdateShowtimeDto, Showtime>();
         }
     }
 }

@@ -28,6 +28,7 @@ namespace CinephoriaServer.Configurations
                     CreatedAt = DateTime.UtcNow,
                     HiredDate = DateTime.UtcNow,
                     PhoneNumber = "062598631457",
+                    EmailConfirmed = true
                 };
 
                 // Créez l'utilisateur avec un mot de passe par défaut
