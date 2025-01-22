@@ -150,10 +150,28 @@ namespace CinephoriaServer.Controllers
             }
         }
 
-
-
-
-
-
+        /// <summary>
+        /// Met à jour un avis existant.
+        /// </summary>
+        /// <param name="updateMovieRatingDto">Les données mises à jour de l'avis.</param>
+        /// <returns>Une réponse indiquant si l'avis a été mis à jour avec succès.</returns>
+        [Authorize]
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateReview([FromBody] UpdateMovieRatingDto updateMovieRatingDto)
+        {
+            try
+            {
+                await _movieRatingService.UpdateReviewAsync(updateMovieRatingDto);
+                return Ok(new { Message = "Avis mis à jour avec succès." });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+            }
+        }
     }
 }

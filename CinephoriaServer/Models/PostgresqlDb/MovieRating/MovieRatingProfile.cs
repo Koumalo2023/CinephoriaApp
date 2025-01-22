@@ -30,7 +30,6 @@ namespace CinephoriaServer.Models.PostgresqlDb
                 .ForMember(dest => dest.MovieRatingId, opt => opt.MapFrom(src => src.MovieRatingId))
                 .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating))
                 .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
-                .ForMember(dest => dest.IsValidated, opt => opt.MapFrom(src => src.IsValidated))
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
         }
     }

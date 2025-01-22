@@ -39,5 +39,12 @@ namespace CinephoriaServer.Services
         /// <param name="reviewId">L'identifiant de l'avis.</param>
         /// <returns>Les détails de l'avis sous forme de DTO.</returns>
         Task<MovieRatingDto> GetReviewDetailsAsync(int reviewId);
+
+        /// <summary>
+        /// Met à jour un avis existant.
+        /// </summary>
+        /// <param name="updateMovieRatingDto">Les données mises à jour de l'avis.</param>
+        /// <returns>Une réponse indiquant le succès de l'opération.</returns>
+        Task<string> UpdateReviewAsync(UpdateMovieRatingDto updateMovieRatingDto);
     }
 }

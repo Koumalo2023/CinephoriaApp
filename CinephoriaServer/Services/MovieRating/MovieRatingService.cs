@@ -136,6 +136,27 @@ namespace CinephoriaServer.Services
             return reviewDto;
         }
 
+        /// <summary>
+        /// Met à jour un avis existant.
+        /// </summary>
+        /// <param name="updateMovieRatingDto">Les données mises à jour de l'avis.</param>
+        /// <returns>Une réponse indiquant le succès de l'opération.</returns>
+        public async Task<string> UpdateReviewAsync(UpdateMovieRatingDto updateMovieRatingDto)
+        {
+            if (updateMovieRatingDto.MovieRatingId <= 0)
+            {
+                throw new ApiException("L'identifiant de l'avis doit être un nombre positif.", StatusCodes.Status400BadRequest);
+            }
 
+            var review = await _unitOfWork.MovieRatings.GetByIdAsync(updateMovieRatingDto.MovieRatingId);
+            if (review == null) throw new ApiException("Avis introuvable.", StatusCodes.Status404NotFound);
+
+            _mapper.Map(updateMovieRatingDto, review);
+            await _unitOfWork.MovieRatings.UpdateAsync(review);
+            await _unitOfWork.CompleteAsync();
+
+            _logger.LogInformation("Avis avec l'ID {ReviewId} mis à jour avec succès.", updateMovieRatingDto.MovieRatingId);
+            return "Avis mis à jour avec succès.";
+        }
     }
 }
