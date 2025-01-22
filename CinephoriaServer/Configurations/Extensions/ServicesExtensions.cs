@@ -1,6 +1,7 @@
 ﻿using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Repository;
 using CinephoriaServer.Services;
+using DnsClient;
 using Microsoft.AspNetCore.Identity;
 
 namespace CinephoriaServer.Configurations
@@ -25,7 +26,8 @@ namespace CinephoriaServer.Configurations
             services.AddTransient<IIncidentService, IncidentService>();
             services.AddTransient<ITheaterService, TheaterService>();
             services.AddTransient<ICinemaService, CinemaService>();
-            services.AddTransient<IMovieService, MovieService>();
+            services.AddTransient<IMovieService, MovieService>(); 
+            services.AddTransient<IMovieRatingService, MovieRatingService>();
             services.AddTransient<IImageService, ImageService>();
             services.AddTransient<IShowtimeService, ShowtimeService>();
             services.AddTransient<IReservationService, ReservationService>();
