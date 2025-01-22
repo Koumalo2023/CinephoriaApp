@@ -51,7 +51,49 @@ namespace CinephoriaServer.Services
             return "Séance créée avec succès.";
         }
 
+        public async Task<string> UpdateShowtimeAsync(UpdateShowtimeDto updateShowtimeDto)
+        {
+            // Récupérer la séance existante
+            var showtime = await _showtimeRepository.GetByIdAsync(updateShowtimeDto.ShowtimeId);
+            if (showtime == null)
+            {
+                throw new ApiException("Séance non trouvée.", StatusCodes.Status404NotFound);
+            }
 
+            // Vérifier si la qualité de projection ou l'heure de début a changé
+            bool needsPriceRecalculation = showtime.Quality != updateShowtimeDto.Quality ||
+                                           showtime.StartTime != updateShowtimeDto.StartTime;
+
+            
+            _mapper.Map(updateShowtimeDto, showtime);
+
+            // Recalculer le prix si nécessaire
+            if (needsPriceRecalculation || updateShowtimeDto.PriceAdjustment != 0 || updateShowtimeDto.IsPromotion)
+            {
+                
+                var basePrice = CalculateBasePrice(updateShowtimeDto.Quality);
+
+
+                var finalPrice = basePrice + updateShowtimeDto.PriceAdjustment;
+
+
+                if (updateShowtimeDto.IsPromotion)
+                {
+                    finalPrice *= 0.9m;
+                }
+
+
+                showtime.Price = finalPrice;
+            }
+
+            showtime.UpdatedAt = DateTime.UtcNow;
+
+            // Enregistrer les modifications dans la base de données
+            await _showtimeRepository.UpdateSessionAsync(showtime);
+
+            _logger.LogInformation("Séance avec l'ID {ShowtimeId} mise à jour avec succès.", updateShowtimeDto.ShowtimeId);
+            return "Séance mise à jour avec succès.";
+        }
 
 
         private decimal CalculateBasePrice(ProjectionQuality quality)

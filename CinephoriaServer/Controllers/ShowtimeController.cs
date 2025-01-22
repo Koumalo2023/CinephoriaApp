@@ -41,6 +41,30 @@ namespace CinephoriaServer.Controllers
             }
         }
 
+        /// <summary>
+        /// Met à jour les informations d'une séance existante (réservé aux administrateurs et employés).
+        /// </summary>
+        /// <param name="updateShowtimeDto">Les données mises à jour de la séance.</param>
+        /// <returns>Une réponse indiquant si la séance a été mise à jour avec succès.</returns>
+        [Authorize(Roles = "Admin,Employee")]
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateShowtime([FromBody] UpdateShowtimeDto updateShowtimeDto)
+        {
+            try
+            {
+                await _showtimeService.UpdateShowtimeAsync(updateShowtimeDto);
+                return Ok(new { Message = "Séance mise à jour avec succès." });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+            }
+        }
+
 
     }
 }
