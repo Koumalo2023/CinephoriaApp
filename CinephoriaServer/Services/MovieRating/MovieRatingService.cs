@@ -49,6 +49,30 @@ namespace CinephoriaServer.Services
 
             _logger.LogInformation("Avis soumis avec succès pour le film avec l'ID {MovieId}.", createMovieRatingDto.MovieId);
             return "Avis soumis avec succès.";
+
+        }
+
+        /// <summary>
+        /// Valide un avis sur un film (réservé aux administrateurs et aux employés).
+        /// </summary>
+        /// <param name="reviewId">L'identifiant de l'avis à valider.</param>
+        /// <returns>Une réponse indiquant le succès de l'opération.</returns>
+        public async Task<string> ValidateReviewAsync(int reviewId)
+        {
+            if (reviewId <= 0)
+            {
+                throw new ApiException("L'identifiant de l'avis doit être un nombre positif.", StatusCodes.Status400BadRequest);
+            }
+
+            var review = await _unitOfWork.MovieRatings.GetByIdAsync(reviewId);
+            if (review == null) throw new ApiException("Avis introuvable.", StatusCodes.Status404NotFound);
+
+            review.IsValidated = true;
+            await _unitOfWork.MovieRatings.UpdateAsync(review);
+            await _unitOfWork.CompleteAsync();
+
+            _logger.LogInformation("Avis avec l'ID {ReviewId} validé avec succès.", reviewId);
+            return "Avis validé avec succès.";
         }
 
     }

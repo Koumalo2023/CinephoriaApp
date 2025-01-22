@@ -51,5 +51,32 @@ namespace CinephoriaServer.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
             }
         }
+
+
+        /// <summary>
+        /// Valide un avis sur un film (réservé aux administrateurs).
+        /// </summary>
+        /// <param name="reviewId">L'identifiant de l'avis à valider.</param>
+        /// <returns>Une réponse indiquant si l'avis a été validé avec succès.</returns>
+        [Authorize(Roles = "Admin, Employee")]
+        [HttpPut("validate/{reviewId}")]
+        public async Task<IActionResult> ValidateReview(int reviewId)
+        {
+            try
+            {
+                await _movieRatingService.ValidateReviewAsync(reviewId);
+                return Ok(new { Message = "Avis validé avec succès." });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+            }
+        }
+
+
     }
 }
