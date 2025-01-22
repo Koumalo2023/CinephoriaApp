@@ -111,5 +111,28 @@ namespace CinephoriaServer.Controllers
             }
         }
 
+        /// <summary>
+        /// Récupère les détails d'une séance spécifique.
+        /// </summary>
+        /// <param name="showtimeId">L'identifiant de la séance.</param>
+        /// <returns>Les détails de la séance sous forme de DTO.</returns>
+        [HttpGet("{showtimeId}")]
+        public async Task<IActionResult> GetShowtimeDetails(int showtimeId)
+        {
+            try
+            {
+                var showtimeDetails = await _showtimeService.GetShowtimeDetailsAsync(showtimeId);
+                return Ok(showtimeDetails);
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+            }
+        }
+
     }
 }

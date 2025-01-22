@@ -32,5 +32,12 @@ namespace CinephoriaServer.Services
         /// <returns>Une liste de séances sous forme de DTO.</returns>
         Task<List<ShowtimeDto>> GetAllShowtimesAsync();
 
+        /// <summary>
+        /// Récupère les détails d'une séance spécifique.
+        /// </summary>
+        /// <param name="showtimeId">L'identifiant de la séance.</param>
+        /// <returns>Les détails de la séance sous forme de DTO.</returns>
+        Task<ShowtimeDto> GetShowtimeDetailsAsync(int showtimeId);
+
     }
 }

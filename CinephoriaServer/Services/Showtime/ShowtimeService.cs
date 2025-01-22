@@ -54,7 +54,7 @@ namespace CinephoriaServer.Services
         public async Task<string> UpdateShowtimeAsync(UpdateShowtimeDto updateShowtimeDto)
         {
             // Récupérer la séance existante
-            var showtime = await _showtimeRepository.GetByIdAsync(updateShowtimeDto.ShowtimeId);
+            var showtime = await _unitOfWork.Showtimes.GetByIdAsync(updateShowtimeDto.ShowtimeId);
             if (showtime == null)
             {
                 throw new ApiException("Séance non trouvée.", StatusCodes.Status404NotFound);
@@ -107,12 +107,11 @@ namespace CinephoriaServer.Services
                 throw new ApiException("L'identifiant de la séance doit être un nombre positif.", StatusCodes.Status400BadRequest);
             }
 
-            await _showtimeRepository.DeleteSessionAsync(showtimeId);
+            await _unitOfWork.Showtimes.DeleteSessionAsync(showtimeId);
 
             _logger.LogInformation("Séance avec l'ID {ShowtimeId} supprimée avec succès.", showtimeId);
             return "Séance supprimée avec succès.";
         }
-
 
         /// <summary>
         /// Récupère la liste de toutes les séances.
@@ -120,14 +119,52 @@ namespace CinephoriaServer.Services
         /// <returns>Une liste de séances sous forme de DTO.</returns>
         public async Task<List<ShowtimeDto>> GetAllShowtimesAsync()
         {
-            var showtimes = await _showtimeRepository.GetAllAsync();
+
+            // Récupérer les séances
+            var showtimes = await _unitOfWork.Showtimes.GetAllAsync();
+
+            // Vérifier que les séances ne sont pas null
+            if (showtimes == null)
+            {
+                _logger.LogWarning("Aucune séance trouvée.");
+                return new List<ShowtimeDto>(); // Retourner une liste vide au lieu de null
+            }
+
+            // Mapper les séances vers des DTO
             var showtimeDtos = _mapper.Map<List<ShowtimeDto>>(showtimes);
+
+            // Vérifier que le mapping a réussi
+            if (showtimeDtos == null)
+            {
+                _logger.LogError("Erreur lors du mapping des séances.");
+                throw new Exception("Erreur lors du mapping des séances.");
+            }
 
             _logger.LogInformation("{Count} séances récupérées.", showtimeDtos.Count);
             return showtimeDtos;
         }
 
+        /// <summary>
+        /// Récupère les détails d'une séance spécifique.
+        /// </summary>
+        /// <param name="showtimeId">L'identifiant de la séance.</param>
+        /// <returns>Les détails de la séance sous forme de DTO.</returns>
+        public async Task<ShowtimeDto> GetShowtimeDetailsAsync(int showtimeId)
+        {
+            if (showtimeId <= 0)
+            {
+                throw new ApiException("L'identifiant de la séance doit être un nombre positif.", StatusCodes.Status400BadRequest);
+            }
 
+            var showtime = await _unitOfWork.Showtimes.GetByIdAsync(showtimeId);
+            if (showtime == null)
+            {
+                throw new ApiException("Séance non trouvée.", StatusCodes.Status404NotFound);
+            }
+
+            var showtimeDto = _mapper.Map<ShowtimeDto>(showtime);
+            return showtimeDto;
+        }
 
 
 
