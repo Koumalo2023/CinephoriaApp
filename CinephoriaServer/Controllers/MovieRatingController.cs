@@ -102,5 +102,28 @@ namespace CinephoriaServer.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Récupère la liste des avis associés à un film.
+        /// </summary>
+        /// <param name="movieId">L'identifiant du film.</param>
+        /// <returns>Une liste d'avis sous forme de DTO.</returns>
+        [HttpGet("movie/{movieId}")]
+        public async Task<IActionResult> GetMovieReviews(int movieId)
+        {
+            try
+            {
+                var reviews = await _movieRatingService.GetMovieReviewsAsync(movieId);
+                return Ok(reviews);
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+            }
+        }
     }
 }

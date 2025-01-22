@@ -25,5 +25,12 @@ namespace CinephoriaServer.Services
         /// <param name="reviewId">L'identifiant de l'avis à supprimer.</param>
         /// <returns>Une réponse indiquant le succès de l'opération.</returns>
         Task<string> DeleteReviewAsync(int reviewId);
+
+        /// <summary>
+        /// Récupère la liste des avis associés à un film.
+        /// </summary>
+        /// <param name="movieId">L'identifiant du film.</param>
+        /// <returns>Une liste d'avis sous forme de DTO.</returns>
+        Task<List<MovieRatingDto>> GetMovieReviewsAsync(int movieId);
     }
 }

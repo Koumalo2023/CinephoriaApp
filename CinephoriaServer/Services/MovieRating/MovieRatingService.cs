@@ -98,5 +98,24 @@ namespace CinephoriaServer.Services
         }
 
 
+        /// <summary>
+        /// Récupère la liste des avis associés à un film.
+        /// </summary>
+        /// <param name="movieId">L'identifiant du film.</param>
+        /// <returns>Une liste d'avis sous forme de DTO.</returns>
+        public async Task<List<MovieRatingDto>> GetMovieReviewsAsync(int movieId)
+        {
+            if (movieId <= 0)
+            {
+                throw new ApiException("L'identifiant du film doit être un nombre positif.", StatusCodes.Status400BadRequest);
+            }
+
+            var reviews = await _unitOfWork.MovieRatings.GetMovieReviewsAsync(movieId);
+            var reviewDtos = _mapper.Map<List<MovieRatingDto>>(reviews);
+
+            _logger.LogInformation("{Count} avis récupérés pour le film avec l'ID {MovieId}.", reviewDtos.Count, movieId);
+            return reviewDtos;
+        }
+
     }
 }
