@@ -49,6 +49,16 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// </summary>
         public decimal Price { get; set; }
 
+        // <summary>
+        /// Ajustement de prix (par exemple, -2.00 pour une réduction ou +3.00 pour une majoration).
+        /// </summary>
+        public decimal PriceAdjustment { get; set; }
+
+        /// <summary>
+        /// Indique si une promotion est appliquée (par exemple, 10% de réduction).
+        /// </summary>
+        public bool IsPromotion { get; set; }
+
         /// <summary>
         /// Liste des réservations associées à cette séance.
         /// </summary>

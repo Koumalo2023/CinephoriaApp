@@ -35,8 +35,13 @@ namespace CinephoriaServer.Models.PostgresqlDb
         public DateTime EndTime { get; set; }
 
         /// <summary>
-        /// Prix de la séance en fonction de la qualité.
+        /// Ajustement de prix (par exemple, -2.00 pour une réduction ou +3.00 pour une majoration).
         /// </summary>
-        public decimal Price { get; set; }
+        public decimal PriceAdjustment { get; set; } = 0.00m;
+
+        /// <summary>
+        /// Indique si une promotion est appliquée (par exemple, 10% de réduction).
+        /// </summary>
+        public bool IsPromotion { get; set; } = false;
     }
 }
