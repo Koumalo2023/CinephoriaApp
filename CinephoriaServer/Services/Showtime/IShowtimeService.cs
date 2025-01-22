@@ -26,5 +26,11 @@ namespace CinephoriaServer.Services
         /// <returns>Une réponse indiquant le succès de l'opération.</returns>
         Task<string> DeleteShowtimeAsync(int showtimeId);
 
+        /// <summary>
+        /// Récupère la liste de toutes les séances.
+        /// </summary>
+        /// <returns>Une liste de séances sous forme de DTO.</returns>
+        Task<List<ShowtimeDto>> GetAllShowtimesAsync();
+
     }
 }

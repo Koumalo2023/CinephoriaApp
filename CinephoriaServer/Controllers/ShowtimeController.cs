@@ -89,6 +89,27 @@ namespace CinephoriaServer.Controllers
             }
         }
 
+        /// <summary>
+        /// Récupère la liste de toutes les séances.
+        /// </summary>
+        /// <returns>Une liste de séances sous forme de DTO.</returns>
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllShowtimes()
+        {
+            try
+            {
+                var showtimes = await _showtimeService.GetAllShowtimesAsync();
+                return Ok(showtimes);
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+            }
+        }
 
     }
 }

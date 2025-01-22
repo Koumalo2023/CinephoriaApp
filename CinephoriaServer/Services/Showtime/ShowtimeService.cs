@@ -114,6 +114,18 @@ namespace CinephoriaServer.Services
         }
 
 
+        /// <summary>
+        /// Récupère la liste de toutes les séances.
+        /// </summary>
+        /// <returns>Une liste de séances sous forme de DTO.</returns>
+        public async Task<List<ShowtimeDto>> GetAllShowtimesAsync()
+        {
+            var showtimes = await _showtimeRepository.GetAllAsync();
+            var showtimeDtos = _mapper.Map<List<ShowtimeDto>>(showtimes);
+
+            _logger.LogInformation("{Count} séances récupérées.", showtimeDtos.Count);
+            return showtimeDtos;
+        }
 
 
 
