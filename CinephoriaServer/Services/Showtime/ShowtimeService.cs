@@ -95,6 +95,29 @@ namespace CinephoriaServer.Services
             return "Séance mise à jour avec succès.";
         }
 
+        /// <summary>
+        /// Supprime une séance existante (réservé aux administrateurs et employés).
+        /// </summary>
+        /// <param name="showtimeId">L'identifiant de la séance à supprimer.</param>
+        /// <returns>Une réponse indiquant le succès de l'opération.</returns>
+        public async Task<string> DeleteShowtimeAsync(int showtimeId)
+        {
+            if (showtimeId <= 0)
+            {
+                throw new ApiException("L'identifiant de la séance doit être un nombre positif.", StatusCodes.Status400BadRequest);
+            }
+
+            await _showtimeRepository.DeleteSessionAsync(showtimeId);
+
+            _logger.LogInformation("Séance avec l'ID {ShowtimeId} supprimée avec succès.", showtimeId);
+            return "Séance supprimée avec succès.";
+        }
+
+
+
+
+
+
 
         private decimal CalculateBasePrice(ProjectionQuality quality)
         {

@@ -19,5 +19,12 @@ namespace CinephoriaServer.Services
         /// <returns>Une réponse indiquant le succès de l'opération.</returns>
         Task<string> UpdateShowtimeAsync(UpdateShowtimeDto updateShowtimeDto);
 
+        /// <summary>
+        /// Supprime une séance existante (réservé aux administrateurs et employés).
+        /// </summary>
+        /// <param name="showtimeId">L'identifiant de la séance à supprimer.</param>
+        /// <returns>Une réponse indiquant le succès de l'opération.</returns>
+        Task<string> DeleteShowtimeAsync(int showtimeId);
+
     }
 }

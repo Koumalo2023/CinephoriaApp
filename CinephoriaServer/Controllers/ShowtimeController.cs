@@ -65,6 +65,30 @@ namespace CinephoriaServer.Controllers
             }
         }
 
+        /// <summary>
+        /// Supprime une séance existante (réservé aux administrateurs et employés).
+        /// </summary>
+        /// <param name="showtimeId">L'identifiant de la séance à supprimer.</param>
+        /// <returns>Une réponse indiquant si la séance a été supprimée avec succès.</returns>
+        [Authorize(Roles = "Admin,Employee")]
+        [HttpDelete("delete/{showtimeId}")]
+        public async Task<IActionResult> DeleteShowtime(int showtimeId)
+        {
+            try
+            {
+                await _showtimeService.DeleteShowtimeAsync(showtimeId);
+                return Ok(new { Message = "Séance supprimée avec succès." });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+            }
+        }
+
 
     }
 }
