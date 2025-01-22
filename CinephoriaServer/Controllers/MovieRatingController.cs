@@ -125,5 +125,35 @@ namespace CinephoriaServer.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
             }
         }
+
+
+        // <summary>
+        /// Récupère les détails d'un avis spécifique.
+        /// </summary>
+        /// <param name="reviewId">L'identifiant de l'avis.</param>
+        /// <returns>Les détails de l'avis sous forme de DTO.</returns>
+        [HttpGet("{reviewId}")]
+        public async Task<IActionResult> GetReviewDetails(int reviewId)
+        {
+            try
+            {
+                var reviewDetails = await _movieRatingService.GetReviewDetailsAsync(reviewId);
+                return Ok(reviewDetails);
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+            }
+        }
+
+
+
+
+
+
     }
 }

@@ -117,5 +117,25 @@ namespace CinephoriaServer.Services
             return reviewDtos;
         }
 
+        /// <summary>
+        /// Récupère les détails d'un avis spécifique.
+        /// </summary>
+        /// <param name="reviewId">L'identifiant de l'avis.</param>
+        /// <returns>Les détails de l'avis sous forme de DTO.</returns>
+        public async Task<MovieRatingDto> GetReviewDetailsAsync(int reviewId)
+        {
+            if (reviewId <= 0)
+            {
+                throw new ApiException("L'identifiant de l'avis doit être un nombre positif.", StatusCodes.Status400BadRequest);
+            }
+
+            var review = await _unitOfWork.MovieRatings.GetByIdAsync(reviewId);
+            if (review == null) throw new ApiException("Avis introuvable.", StatusCodes.Status404NotFound);
+
+            var reviewDto = _mapper.Map<MovieRatingDto>(review);
+            return reviewDto;
+        }
+
+
     }
 }

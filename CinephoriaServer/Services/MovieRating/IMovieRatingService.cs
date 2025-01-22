@@ -32,5 +32,12 @@ namespace CinephoriaServer.Services
         /// <param name="movieId">L'identifiant du film.</param>
         /// <returns>Une liste d'avis sous forme de DTO.</returns>
         Task<List<MovieRatingDto>> GetMovieReviewsAsync(int movieId);
+
+        /// <summary>
+        /// Récupère les détails d'un avis spécifique.
+        /// </summary>
+        /// <param name="reviewId">L'identifiant de l'avis.</param>
+        /// <returns>Les détails de l'avis sous forme de DTO.</returns>
+        Task<MovieRatingDto> GetReviewDetailsAsync(int reviewId);
     }
 }
