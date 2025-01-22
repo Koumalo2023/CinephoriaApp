@@ -11,11 +11,7 @@ namespace CinephoriaServer.Repository
         private readonly MongoDbContext _context;
 
         // Repositories pour les différentes collections
-        public IMongoRepository<Movie> Movies { get; private set; }
-        public IMongoRepository<Review> Reviews { get; private set; }
-        public IMongoRepository<Incident> Incidents { get; private set; }
-        public IMongoRepository<Theater> Theaters { get; private set; }
-        public IMongoRepository<Showtime> Showtimes { get; private set; }
+        
         public IMongoRepository<AdminDashboard> AdminDashboards { get; private set; }
 
         // Constructeur
@@ -24,11 +20,7 @@ namespace CinephoriaServer.Repository
             _context = context;
 
             // Instanciation des repositories avec les noms de collections en minuscules
-            Movies = new MongoRepository<Movie>(_context, "movie");
-            Reviews = new MongoRepository<Review>(_context, "review");
-            Theaters = new MongoRepository<Theater>(_context, "theater");
-            Showtimes = new MongoRepository<Showtime>(_context, "showtime");
-            Incidents = new MongoRepository<Incident>(_context, "incident");
+            
             AdminDashboards = new MongoRepository<AdminDashboard>(_context, "admindashboard");
         }
 

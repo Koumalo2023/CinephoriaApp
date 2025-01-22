@@ -1,102 +1,89 @@
 ﻿using CinephoriaServer.Configurations;
 using CinephoriaServer.Models.MongooDb;
 using CinephoriaServer.Models.PostgresqlDb;
+using static CinephoriaServer.Configurations.EnumConfig;
 
 namespace CinephoriaServer.Services
 {
     public interface IMovieService
     {
         /// <summary>
-        /// Récupère tous les films disponibles.
+        /// Récupère la liste des derniers films ajoutés.
         /// </summary>
-        /// <returns>Une liste de tous les films disponibles.</returns>
-        Task<List<MovieViewModel>> GetAllMoviesAsync();
+        /// <returns>Une liste de films.</returns>
+        Task<List<MovieDto>> GetRecentMoviesAsync();
 
         /// <summary>
-        /// Récupère tous les films disponibles dans un cinéma spécifique.
+        /// Récupère la liste de tous les films.
         /// </summary>
-        /// <param name="cinemaId">Identifiant du cinéma.</param>
-        /// <returns>Une liste de films disponibles dans le cinéma spécifié.</returns>
-        Task<List<MovieViewModel>> GetMoviesByCinemaAsync(int cinemaId);
+        /// <returns>Une liste de films.</returns>
+        Task<List<MovieDto>> GetAllMoviesAsync();
 
         /// <summary>
-        /// Récupère les détails d'un film spécifique, y compris les séances disponibles.
+        /// Récupère les détails d'un film en fonction de son identifiant.
         /// </summary>
-        /// <param name="filmId">L'identifiant unique du film.</param>
-        /// <returns>Les détails du film, y compris les séances associées.</returns>
-        Task<MovieViewModel> GetMovieByIdAsync(string filmId);
+        /// <param name="movieId">L'identifiant du film.</param>
+        /// <returns>Un objet Movie contenant les détails du film.</returns>
+        Task<MovieDetailsDto> GetMovieDetailsAsync(int movieId);
+
 
         /// <summary>
-        /// Filtre les films par cinéma, genre ou jour spécifique.
-        /// Si un paramètre n'est pas fourni, il n'est pas pris en compte dans le filtrage.
+        /// Récupère la liste des séances disponibles pour un film spécifique.
         /// </summary>
-        /// <param name="cinemaId">L'identifiant du cinéma.</param>
-        /// <param name="genre">Le genre du film.</param>
-        /// <param name="date">Le jour spécifique des séances.</param>
-        /// <returns>Une liste filtrée des films selon les critères fournis.</returns>
-        Task<List<MovieViewModel>> FilterMoviesAsync(int? cinemaId, string genre, DateTime? date);
+        /// <param name="movieId">L'identifiant du film.</param>
+        /// <returns>Une liste de séances.</returns>
+        Task<List<ShowtimeDto>> GetMovieSessionsAsync(int movieId);
+
+        /// <summary>
+        /// Soumet un avis sur un film de la part d'un utilisateur.
+        /// </summary>
+        /// <param name="reviewDto">Les données de l'avis.</param>
+        /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
+        Task<bool> SubmitMovieReviewAsync(MovieReviewDto reviewDto);
+
+        /// <summary>
+        /// Filtre les films en fonction du cinéma, du genre et de la date.
+        /// </summary>
+        /// <param name="filterDto">Les critères de filtrage.</param>
+        /// <returns>Une liste de films correspondant aux critères.</returns>
+        Task<List<MovieDto>> FilterMoviesAsync(int? cinemaId, MovieGenre? genre, DateTime? date);
 
         /// <summary>
         /// Crée un nouveau film.
-        /// Cette méthode est réservée aux administrateurs et aux employés.
         /// </summary>
-        /// <param name="movieViewModel">Le ViewModel du film à créer.</param>
-        /// <returns>Le film nouvellement créé.</returns>
-        Task<GeneralServiceResponse> CreateMovieAsync(MovieViewModel movieViewModel);
+        /// <param name="createMovieDto">Les données du film à créer.</param>
+        /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
+        Task<bool> CreateMovieAsync(CreateMovieDto createMovieDto);
 
         /// <summary>
-        /// Modifie un film existant.
-        /// Cette méthode est réservée aux administrateurs et aux employés.
-        /// </summary>
-        /// <param name="filmId">L'identifiant unique du film à modifier.</param>
-        /// <param name="movieViewModel">Les nouvelles données du film à mettre à jour.</param>
-        /// <returns>Le film mis à jour.</returns>
-        Task<GeneralServiceResponse> UpdateMovieAsync(string filmId, MovieViewModel movieViewModel);
-
-        /// <summary>
-        /// Supprime un film existant.
-        /// Cette méthode est réservée aux administrateurs et aux employés.
-        /// </summary>
-        /// <param name="filmId">L'identifiant unique du film à supprimer.</param>
-        /// <returns>Une tâche représentant l'opération de suppression.</returns>
-        Task<GeneralServiceResponse> DeleteMovieAsync(string filmId);
-
-        /// <summary>
-        /// Permet à un utilisateur de laisser un avis sur un film.
-        /// </summary>
-        /// <param name="reviewViewModel">Le ViewModel de l'avis à soumettre.</param>
-        /// <returns>L'avis nouvellement créé.</returns>
-        Task<Review> SubmitReviewAsync(ReviewViewModel reviewViewModel);
-
-        /// <summary>
-        /// Récupère tous les avis d'un film.
+        /// Ajoute une affiche à un film existant.
         /// </summary>
         /// <param name="movieId">L'identifiant du film.</param>
-        /// <returns>Une liste d'avis associés au film.</returns>
-        Task<GeneralServiceResponseData<List<ReviewDto>>> GetReviewsByMovieIdAsync(string movieId);
+        /// <param name="posterUrl">L'URL de l'affiche à ajouter.</param>
+        /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
+        Task<bool> AddPosterToMovieAsync(int movieId, string posterUrl);
 
         /// <summary>
-        /// Permet à un utilisateur de laisser une note sur un film.
+        /// Supprime une affiche d'un film existant.
         /// </summary>
-        /// <param name="movieRatingViewModel">Le ViewModel de la note à soumettre.</param>
-        /// <returns>La note nouvellement créée.</returns>
-        Task<MovieRating> SubmitMovieRatingAsync(MovieRatingViewModel movieRatingViewModel);
+        /// <param name="movieId">L'identifiant du film.</param>
+        /// <param name="posterUrl">L'URL de l'affiche à supprimer.</param>
+        /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
+        Task<bool> RemovePosterFromMovieAsync(int movieId, string posterUrl);
 
         /// <summary>
-        /// Valide une note sur un film, action réservée aux employés.
+        /// Met à jour les informations d'un film existant.
         /// </summary>
-        /// <param name="movieRatingId">L'identifiant unique de la note à valider.</param>
-        /// <returns>La note validée.</returns>
-        Task<MovieRating> ValidateMovieRatingAsync(int movieRatingId);
+        /// <param name="updateMovieDto">Les nouvelles données du film.</param>
+        /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
+        Task<bool> UpdateMovieAsync(UpdateMovieDto updateMovieDto);
 
         /// <summary>
-        /// Supprime une note sur un film, action réservée aux employés.
+        /// Supprime un film en fonction de son identifiant.
         /// </summary>
-        /// <param name="movieRatingId">L'identifiant unique de la note à supprimer.</param>
-        /// <returns>Une tâche représentant l'opération de suppression.</returns>
-        Task DeleteMovieRatingAsync(int movieRatingId);
-
-        Task<bool> AddPosterToMovieAsync(string movieId, string imageUrl);
+        /// <param name="movieId">L'identifiant du film à supprimer.</param>
+        /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
+        Task<bool> DeleteMovieAsync(int movieId);
     }
 
 }

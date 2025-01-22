@@ -1,197 +1,139 @@
 ﻿using CinephoriaBackEnd.Data;
 using CinephoriaServer.Models.MongooDb;
 using CinephoriaServer.Models.PostgresqlDb;
+using CinephoriaServer.Repository.EntityFramwork;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 
 namespace CinephoriaServer.Repository
 {
-    public interface ICinemaRepository
+    public interface ICinemaRepository : IReadRepository<Cinema>, IWriteRepository<Cinema>
     {
-        #region Gestion des cinémas
+        /// <summary>
+        /// Récupère la liste de tous les cinémas disponibles.
+        /// </summary>
+        /// <returns>Une liste de cinémas.</returns>
+        Task<List<Cinema>> GetAllCinemasAsync();
 
         /// <summary>
-        /// Crée un nouveau cinéma dans la base de données.
+        /// Récupère un cinéma par son identifiant.
+        /// </summary>
+        /// <param name="cinemaId">L'identifiant du cinéma.</param>
+        /// <returns>Le cinéma correspondant, ou null s'il n'existe pas.</returns>
+        Task<Cinema> GetCinemaByIdAsync(int cinemaId);
+
+        /// <summary>
+        /// Récupère la liste des films disponibles dans un cinéma spécifique.
+        /// </summary>
+        /// <param name="cinemaId">L'identifiant du cinéma.</param>
+        /// <returns>Une liste de films.</returns>
+        Task<List<Movie>> GetMoviesByCinemaAsync(int cinemaId);
+
+        /// <summary>
+        /// Crée un nouveau cinéma.
         /// </summary>
         /// <param name="cinema">Le cinéma à créer.</param>
-        /// <returns>Le cinéma créé.</returns>
-        Task<Cinema> CreateCinemaAsync(Cinema cinema);
+        /// <returns>Une tâche asynchrone.</returns>
+        Task CreateCinemaAsync(Cinema cinema);
 
         /// <summary>
-        /// Modifie un cinéma existant dans la base de données.
+        /// Met à jour les informations d'un cinéma existant.
         /// </summary>
-        /// <param name="cinemaId">L'identifiant du cinéma à modifier.</param>
-        /// <param name="updatedCinema">Le cinéma contenant les nouvelles informations.</param>
-        /// <returns>True si la modification a réussi, sinon False.</returns>
-        Task<bool> UpdateCinemaAsync(int cinemaId, Cinema updatedCinema);
+        /// <param name="cinema">Le cinéma à mettre à jour.</param>
+        /// <returns>Une tâche asynchrone.</returns>
+        Task UpdateCinemaAsync(Cinema cinema);
 
         /// <summary>
-        /// Supprime un cinéma de la base de données.
+        /// Supprime un cinéma en fonction de son identifiant.
         /// </summary>
         /// <param name="cinemaId">L'identifiant du cinéma à supprimer.</param>
-        /// <returns>True si la suppression a réussi, sinon False.</returns>
-        Task<bool> DeleteCinemaAsync(int cinemaId);
-
-        /// <summary>
-        /// Récupère les informations de tous les cinémas (nom, adresse, téléphone, etc.).
-        /// </summary>
-        /// <returns>Une liste de cinémas avec leurs informations complètes.</returns>
-        Task<List<Cinema>> GetCinemaInformationsAsync();
-
-        #endregion
-
-        #region Gestion des salles
-
-        /// <summary>
-        /// Crée une nouvelle salle de projection pour un cinéma spécifique.
-        /// </summary>
-        /// <param name="theater">La salle à créer.</param>
-        /// <returns>La salle créée.</returns>
-        Task<Theater> CreateTheaterAsync(Theater theater);
-
-        /// <summary>
-        /// Modifie une salle de projection existante.
-        /// </summary>
-        /// <param name="theaterId">Identifiant de la salle à modifier.</param>
-        /// <param name="updatedTheater">La salle contenant les nouvelles informations.</param>
-        /// <returns>True si la modification a réussi, sinon False.</returns>
-        Task<bool> UpdateTheaterAsync(string theaterId, Theater updatedTheater);
-
-        /// <summary>
-        /// Supprime une salle de projection existante.
-        /// </summary>
-        /// <param name="theaterId">Identifiant de la salle à supprimer.</param>
-        /// <returns>True si la suppression a réussi, sinon False.</returns>
-        Task<bool> DeleteTheaterAsync(string theaterId);
-
-        /// <summary>
-        /// Récupère toutes les salles d'un cinéma spécifique.
-        /// </summary>
-        /// <param name="cinemaId">Identifiant du cinéma.</param>
-        /// <returns>Liste des salles du cinéma spécifié.</returns>
-        Task<List<Theater>> GetTheatersByCinemaIdAsync(string cinemaId);
-
-        #endregion
+        /// <returns>Une tâche asynchrone.</returns>
+        Task DeleteCinemaAsync(int cinemaId);
     }
 
-    public class CinemaRepository : ICinemaRepository
+    public class CinemaRepository : EFRepository<Cinema>, ICinemaRepository
     {
-        private readonly CinephoriaDbContext _context; // Pour les cinémas
-        private readonly IMongoCollection<Theater> _theaterCollection; // Pour MongoDB
-
-        public CinemaRepository(CinephoriaDbContext context, IMongoDatabase mongoDatabase)
-        {
-            _context = context;
-            _theaterCollection = mongoDatabase.GetCollection<Theater>("Theaters");
-        }
-
-        #region Gestion des cinémas
+        public CinemaRepository(DbContext context) : base(context) { }
 
         /// <summary>
-        /// Crée un nouveau cinéma dans la base de données.
+        /// Récupère tous les cinémas disponibles.
+        /// </summary>
+        /// <returns>Une liste de cinémas.</returns>
+        public async Task<List<Cinema>> GetAllCinemasAsync()
+        {
+            return await _context.Set<Cinema>()
+                .Include(c => c.Theaters) // Inclure les salles associées à chaque cinéma
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Récupère un cinéma par son identifiant.
+        /// </summary>
+        /// <param name="cinemaId">L'identifiant du cinéma.</param>
+        /// <returns>Le cinéma correspondant, ou null s'il n'existe pas.</returns>
+        public async Task<Cinema> GetCinemaByIdAsync(int cinemaId)
+        {
+            return await _context.Set<Cinema>()
+                .Include(c => c.Theaters) // Inclure les salles associées
+                .FirstOrDefaultAsync(c => c.CinemaId == cinemaId);
+        }
+
+        /// <summary>
+        /// Récupère la liste des films disponibles dans un cinéma spécifique.
+        /// </summary>
+        /// <param name="cinemaId">L'identifiant du cinéma.</param>
+        /// <returns>Une liste de films.</returns>
+        public async Task<List<Movie>> GetMoviesByCinemaAsync(int cinemaId)
+        {
+            return await _context.Set<Showtime>()
+                .Where(s => s.Theater.CinemaId == cinemaId) // Filtrer par cinéma
+                .Select(s => s.Movie) // Sélectionner les films associés aux séances
+                .Distinct() // Éviter les doublons
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Crée un nouveau cinéma.
         /// </summary>
         /// <param name="cinema">Le cinéma à créer.</param>
-        /// <returns>Le cinéma créé.</returns>
-        public async Task<Cinema> CreateCinemaAsync(Cinema cinema)
+        /// <returns>Une tâche asynchrone.</returns>
+        public async Task CreateCinemaAsync(Cinema cinema)
         {
-            _context.Cinemas.Add(cinema);
+            cinema.CreatedAt = DateTime.UtcNow;
+            cinema.UpdatedAt = DateTime.UtcNow;
+
+            _context.Set<Cinema>().Add(cinema);
             await _context.SaveChangesAsync();
-            return cinema;
         }
 
         /// <summary>
-        /// Modifie un cinéma existant dans la base de données.
+        /// Met à jour les informations d'un cinéma existant.
         /// </summary>
-        /// <param name="cinemaId">L'identifiant du cinéma à modifier.</param>
-        /// <param name="updatedCinema">Le cinéma contenant les nouvelles informations.</param>
-        /// <returns>True si la modification a réussi, sinon False.</returns>
-        public async Task<bool> UpdateCinemaAsync(int cinemaId, Cinema updatedCinema)
+        /// <param name="cinema">Le cinéma à mettre à jour.</param>
+        /// <returns>Une tâche asynchrone.</returns>
+        public async Task UpdateCinemaAsync(Cinema cinema)
         {
-            var cinema = await _context.Cinemas.FindAsync(cinemaId);
-            if (cinema == null)
-                return false;
+            cinema.UpdatedAt = DateTime.UtcNow;
 
-            cinema.Name = updatedCinema.Name;
-            cinema.Address = updatedCinema.Address;
-            cinema.PhoneNumber = updatedCinema.PhoneNumber;
-
+            _context.Set<Cinema>().Update(cinema);
             await _context.SaveChangesAsync();
-            return true;
         }
 
         /// <summary>
-        /// Supprime un cinéma de la base de données.
+        /// Supprime un cinéma en fonction de son identifiant.
         /// </summary>
         /// <param name="cinemaId">L'identifiant du cinéma à supprimer.</param>
-        /// <returns>True si la suppression a réussi, sinon False.</returns>
-        public async Task<bool> DeleteCinemaAsync(int cinemaId)
+        /// <returns>Une tâche asynchrone.</returns>
+        public async Task DeleteCinemaAsync(int cinemaId)
         {
-            var cinema = await _context.Cinemas.FindAsync(cinemaId);
+            var cinema = await _context.Set<Cinema>().FindAsync(cinemaId);
             if (cinema == null)
-                return false;
+            {
+                throw new ArgumentException("Cinema not found.");
+            }
 
-            _context.Cinemas.Remove(cinema);
+            _context.Set<Cinema>().Remove(cinema);
             await _context.SaveChangesAsync();
-            return true;
         }
-
-        /// <summary>
-        /// Récupère les informations de tous les cinémas (nom, adresse, téléphone, etc.).
-        /// </summary>
-        /// <returns>Une liste de cinémas avec leurs informations complètes.</returns>
-        public async Task<List<Cinema>> GetCinemaInformationsAsync()
-        {
-            return await _context.Cinemas.ToListAsync();
-        }
-
-        #endregion
-
-        #region Gestion des salles
-
-        /// <summary>
-        /// Crée une nouvelle salle de projection pour un cinéma spécifique.
-        /// </summary>
-        /// <param name="theater">La salle à créer.</param>
-        /// <returns>La salle créée.</returns>
-        public async Task<Theater> CreateTheaterAsync(Theater theater)
-        {
-            await _theaterCollection.InsertOneAsync(theater);
-            return theater;
-        }
-
-        /// <summary>
-        /// Modifie une salle de projection existante.
-        /// </summary>
-        /// <param name="theaterId">Identifiant de la salle à modifier.</param>
-        /// <param name="updatedTheater">La salle contenant les nouvelles informations.</param>
-        /// <returns>True si la modification a réussi, sinon False.</returns>
-        public async Task<bool> UpdateTheaterAsync(string theaterId, Theater updatedTheater)
-        {
-            var result = await _theaterCollection.ReplaceOneAsync(t => t.Id.ToString() == theaterId, updatedTheater);
-            return result.IsAcknowledged && result.ModifiedCount > 0;
-        }
-
-        /// <summary>
-        /// Supprime une salle de projection existante.
-        /// </summary>
-        /// <param name="theaterId">Identifiant de la salle à supprimer.</param>
-        /// <returns>True si la suppression a réussi, sinon False.</returns>
-        public async Task<bool> DeleteTheaterAsync(string theaterId)
-        {
-            var result = await _theaterCollection.DeleteOneAsync(t => t.Id.ToString() == theaterId);
-            return result.DeletedCount > 0;
-        }
-
-        /// <summary>
-        /// Récupère toutes les salles d'un cinéma spécifique.
-        /// </summary>
-        /// <param name="cinemaId">Identifiant du cinéma.</param>
-        /// <returns>Liste des salles du cinéma spécifié.</returns>
-        public async Task<List<Theater>> GetTheatersByCinemaIdAsync(string cinemaId)
-        {
-            return null /*await _theaterCollection.Find(t => t.CinemaId == cinemaId).ToListAsync()*/;
-        }
-
-        #endregion
     }
 }

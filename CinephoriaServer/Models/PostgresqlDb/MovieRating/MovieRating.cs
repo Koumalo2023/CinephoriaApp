@@ -1,52 +1,49 @@
-﻿using CinephoriaServer.Models.MongooDb;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using CinephoriaServer.Configurations.Extensions;
 
 namespace CinephoriaServer.Models.PostgresqlDb
 {
-    public class MovieRating
+    public class MovieRating : BaseEntity
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         /// <summary>
         /// Identifiant unique de l'avis.
         /// </summary>
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int MovieRatingId { get; set; }
 
+        [Required]
+        [ForeignKey("Movie")]
         /// <summary>
         /// Référence au film (movies.id).
         /// </summary>
-        [ForeignKey("Movie")]
-        public string MovieId { get; set; }
+        public int MovieId { get; set; }
+
+        [Required]
+        [ForeignKey("AppUser")]
         /// <summary>
         /// Référence à l'utilisateur qui a laissé l'avis.
         /// </summary>
-        [ForeignKey("AppUser")]
-        public string AppUserId { get; set; }
+        public string AppUserId { get; set; } = string.Empty;
+
+        [Required]
+        [Range(0, 5, ErrorMessage = "La note doit être comprise entre 0 et 5.")]
         /// <summary>
         /// Note donnée par l'utilisateur (sur 5).
         /// </summary>
         public float Rating { get; set; }
 
+        [StringLength(1000, ErrorMessage = "Le commentaire ne peut pas dépasser 1000 caractères.")]
         /// <summary>
         /// Description laissée par l'utilisateur.
         /// </summary>
-        public string Comment { get; set; }
+        public string Comment { get; set; } = string.Empty;
 
         /// <summary>
         /// Indique si l'avis a été approuvé par un employé.
         /// </summary>
-        public bool IsValidated { get; set; }
-
-        /// <summary>
-        /// Date de l'avis.
-        /// </summary>
-        public DateTime CreatedAt { get; set; }
-
-        /// <summary>
-        /// Date de mise à jour de l'avis.
-        /// </summary>
-        public DateTime UpdatedAt { get; set; }
+        public bool IsValidated { get; set; } = false;
 
         /// <summary>
         /// Utilisateur ayant laissé l'avis (navigation).
@@ -57,7 +54,5 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// Film pour lequel l'avis a été laissé (navigation).
         /// </summary>
         public Movie Movie { get; set; }
-
-
     }
 }

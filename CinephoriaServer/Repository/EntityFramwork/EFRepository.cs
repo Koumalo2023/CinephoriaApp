@@ -3,13 +3,15 @@ using System.Linq.Expressions;
 
 namespace CinephoriaServer.Repository.EntityFramwork
 {
-    public class EFRepository<TEntity> : IRepository<TEntity> where TEntity : class
+    public class EFRepository<TEntity> : IReadRepository<TEntity>, IWriteRepository<TEntity> where TEntity : class
     {
         protected readonly DbContext _context;
+        protected readonly DbSet<TEntity> _dbSet;
 
         public EFRepository(DbContext context)
         {
             _context = context;
+            _dbSet = _context.Set<TEntity>();
         }
 
         // Helper to choose between tracking and no-tracking
@@ -21,91 +23,77 @@ namespace CinephoriaServer.Repository.EntityFramwork
         // Basic queries
         public List<TEntity> GetAll(bool trackChanges = false)
         {
-            return ApplyTracking(_context.Set<TEntity>(), trackChanges).ToList();
+            return ApplyTracking(_dbSet, trackChanges).ToList();
         }
 
         public async Task<List<TEntity>> GetAllAsync(bool trackChanges = false)
         {
-            return await ApplyTracking(_context.Set<TEntity>(), trackChanges).ToListAsync();
+            return await ApplyTracking(_dbSet, trackChanges).ToListAsync();
         }
 
         public TEntity? GetById(int id, bool trackChanges = false)
         {
-            return ApplyTracking(_context.Set<TEntity>(), trackChanges).FirstOrDefault(e => EF.Property<int>(e, "Id") == id);
+            var entity = _dbSet.Find(id);
+            if (entity == null || !trackChanges) return entity;
+            _context.Entry(entity).State = EntityState.Detached;
+            return entity;
         }
 
         public async Task<TEntity?> GetByIdAsync(int id, bool trackChanges = false)
         {
-            // Récupérer le nom de la propriété clé primaire
-            var keyName = _context.Model.FindEntityType(typeof(TEntity))
-                            .FindPrimaryKey()
-                            .Properties
-                            .Select(p => p.Name)
-                            .Single();
-
-            return await ApplyTracking(_context.Set<TEntity>(), trackChanges)
-                .FirstOrDefaultAsync(e => EF.Property<int>(e, keyName) == id);
+            var entity = await _dbSet.FindAsync(id);
+            if (entity == null || !trackChanges) return entity;
+            _context.Entry(entity).State = EntityState.Detached;
+            return entity;
         }
-
-
 
         // Filtered queries
         public IEnumerable<TEntity> Find(Expression<Func<TEntity, bool>> predicate, bool trackChanges = false)
         {
-            return ApplyTracking(_context.Set<TEntity>().Where(predicate), trackChanges).ToList();
+            return ApplyTracking(_dbSet.Where(predicate), trackChanges).ToList();
         }
 
         public async Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, bool trackChanges = false)
         {
-            return await ApplyTracking(_context.Set<TEntity>().Where(predicate), trackChanges).ToListAsync();
+            return await ApplyTracking(_dbSet.Where(predicate), trackChanges).ToListAsync();
         }
 
         // Basic commands
         public void Create(TEntity entity)
         {
-            _context.Set<TEntity>().Add(entity);
-            _context.SaveChanges();
+            _dbSet.Add(entity);
         }
 
         public async Task CreateAsync(TEntity entity)
         {
-            await _context.Set<TEntity>().AddAsync(entity);
+            await _dbSet.AddAsync(entity);
+        }
+
+        public async Task UpdateAsync<TEntity>(TEntity entity) where TEntity : class
+        {
+            _context.Set<TEntity>().Update(entity);
             await _context.SaveChangesAsync();
         }
 
         public void Update(TEntity entity)
         {
-            _context.Set<TEntity>().Update(entity);
-            _context.SaveChanges();
-        }
-
-        public async Task UpdateAsync(TEntity entity)
-        {
-            _context.Set<TEntity>().Update(entity);
-            await _context.SaveChangesAsync();
+            _dbSet.Update(entity);
         }
 
         public void Delete(TEntity entity)
         {
-            _context.Set<TEntity>().Remove(entity);
-            _context.SaveChanges();
-        }
-
-        public async Task DeleteAsync(TEntity entity)
-        {
-            _context.Set<TEntity>().Remove(entity);
-            await _context.SaveChangesAsync();
+            _dbSet.Remove(entity);
         }
 
         // Other utilities
         public int Count()
         {
-            return _context.Set<TEntity>().Count();
+            return _dbSet.Count();
         }
 
         public async Task<int> CountAsync()
         {
-            return await _context.Set<TEntity>().CountAsync();
+            return await _dbSet.CountAsync();
         }
     }
 }

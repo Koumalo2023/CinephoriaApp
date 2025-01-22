@@ -16,18 +16,21 @@ namespace CinephoriaServer.Configurations
             services.AddTransient<UserManager<AppUser>>();
             services.AddTransient<SignInManager<AppUser>>();
 
+            services.AddTransient<EmailService>();
+
 
             // injection des Services
             services.AddTransient<IAuthService, AuthService>();
-            services.AddTransient<IContactService, ContactService>();
+            services.AddTransient<ISeatService, SeatService>();
             services.AddTransient<IIncidentService, IncidentService>();
+            services.AddTransient<ITheaterService, TheaterService>();
             services.AddTransient<ICinemaService, CinemaService>();
             services.AddTransient<IMovieService, MovieService>();
             services.AddTransient<IImageService, ImageService>();
             services.AddTransient<IShowtimeService, ShowtimeService>();
             services.AddTransient<IReservationService, ReservationService>();
             services.AddTransient<IAdminDashboardService, AdminDashboardService>();
-
+            services.AddTransient<IRoleService, RoleService>();
 
 
             // Injection du UoW (Unit of Work) pour Entity Framework
@@ -35,15 +38,11 @@ namespace CinephoriaServer.Configurations
             services.AddTransient<IUnitOfWorkMongoDb, UnitOfWorkMongoDb>();
 
             // MongoDB Repositories
-            services.AddTransient<IMovieRepository, MovieRepository>();
-            services.AddTransient<IShowtimeRepository, ShowtimeRepository>();
-            services.AddTransient<IIncidentRepository, IncidentRepository>();
+            
             services.AddTransient<IAdminDashboardRepository, AdminDashboardRepository>();
 
-            // PostgreSQL Repositories
-            services.AddTransient<IContactRepository, ContactRepository>();
-            services.AddTransient<ICinemaRepository, CinemaRepository>();
-            services.AddTransient<IReservationRepository, ReservationRepository>();
+
+
         }
     }
 

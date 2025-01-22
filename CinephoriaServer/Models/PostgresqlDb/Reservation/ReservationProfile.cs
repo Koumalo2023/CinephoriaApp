@@ -6,9 +6,10 @@ namespace CinephoriaServer.Models.PostgresqlDb
     {
         public ReservationProfile()
         {
-            // Mapping entre l'entité Reservation et ReservationDto
-            CreateMap<Reservation, ReservationDto>()
-                .ReverseMap();
+            // Reservation mappings
+            CreateMap<Reservation, ReservationDto>();
+            CreateMap<CreateReservationDto, Reservation>();
+            CreateMap<UpdateReservationDto, Reservation>();
         }
     }
 }

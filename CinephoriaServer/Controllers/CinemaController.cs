@@ -7,214 +7,129 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CinephoriaServer.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class CinemaController : ControllerBase
+    [Route("api/[controller]")]
+    public class CinemasController : ControllerBase
     {
         private readonly ICinemaService _cinemaService;
 
-        public CinemaController(ICinemaService cinemaService)
+        public CinemasController(ICinemaService cinemaService)
         {
             _cinemaService = cinemaService;
         }
-        /// <summary>
-        /// Crée un nouveau cinéma avec les informations fournies.
-        /// </summary>
-        /// <param name="cinemaViewModel">Les détails du cinéma à créer.</param>
-        /// <returns>Un objet avec le résultat de la création du cinéma.</returns>
-        [HttpPost]
-        [Route("create")]
-        //[Authorize(Roles = RoleConfigurations.Admin)]
-        public async Task<IActionResult> CreateCinema([FromBody] CinemaViewModel cinemaViewModel)
-        {
-            var response = await _cinemaService.CreateCinemaAsync(cinemaViewModel);
-            if (!response.IsSucceed)
-            {
-                return StatusCode(response.StatusCode, response.Message);
-            }
-            return Ok(response);
-        }
 
         /// <summary>
-        /// Met à jour un cinéma existant avec de nouvelles informations.
+        /// Crée un nouveau cinéma.
         /// </summary>
-        /// <param name="cinemaId">L'identifiant du cinéma à mettre à jour.</param>
-        /// <param name="cinemaViewModel">Les nouvelles informations du cinéma.</param>
-        /// <returns>Une réponse indiquant le succès ou l'échec de la mise à jour.</returns>
-        [HttpPut]
-        [Route("update/{cinemaId}")]
-        //[Authorize(Roles = RoleConfigurations.Admin)]
-        public async Task<IActionResult> UpdateCinema(int cinemaId, [FromBody] CinemaViewModel cinemaViewModel)
+        /// <param name="createCinemaDto">Les données du cinéma à créer.</param>
+        /// <returns>Le cinéma créé.</returns>
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateCinema([FromBody] CreateCinemaDto createCinemaDto)
         {
-            var response = await _cinemaService.UpdateCinemaAsync(cinemaId, cinemaViewModel);
-            if (!response.IsSucceed)
+            try
             {
-                return StatusCode(response.StatusCode, response.Message);
+                var cinemaDto = await _cinemaService.CreateCinemaAsync(createCinemaDto);
+                return StatusCode(StatusCodes.Status201Created, new { Message = "Cinéma créé avec succès.", Data = cinemaDto });
             }
-            return Ok(response.Message);
-        }
-
-        /// <summary>
-        /// Supprime un cinéma spécifique par son identifiant.
-        /// </summary>
-        /// <param name="cinemaId">L'identifiant du cinéma à supprimer.</param>
-        /// <returns>Une réponse indiquant le succès ou l'échec de la suppression.</returns>
-        [HttpDelete]
-        [Route("delete/{cinemaId}")]
-        //[Authorize(Roles = RoleConfigurations.Admin)]
-        public async Task<IActionResult> DeleteCinema(int cinemaId)
-        {
-            var response = await _cinemaService.DeleteCinemaAsync(cinemaId);
-            if (!response.IsSucceed)
+            catch (ApiException ex)
             {
-                return StatusCode(response.StatusCode, response.Message);
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
             }
-            return Ok(response.Message);
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite lors de la création du cinéma." });
+            }
         }
-
 
         /// <summary>
         /// Récupère la liste de tous les cinémas.
         /// </summary>
-        /// <returns>Une liste de CinemaDto contenant les informations de chaque cinéma.</returns>
-        [HttpGet]
-        [Route("all")]
-        //[Authorize(Roles = RoleConfigurations.Admin)]
+        /// <returns>Une liste de cinémas.</returns>
+        [HttpGet("cinemas")]
         public async Task<IActionResult> GetAllCinemas()
         {
             try
             {
                 var cinemas = await _cinemaService.GetAllCinemasAsync();
-                return Ok(cinemas);
+                return Ok(new { Message = "Liste des cinémas récupérée avec succès.", Data = cinemas });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = $"Erreur lors de la récupération de la liste des cinémas : {ex.Message}"
-                });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite lors de la récupération des cinémas." });
             }
         }
 
-
-
         /// <summary>
-        /// Crée une nouvelle salle pour un cinéma spécifique.
+        /// Récupère un cinéma par son identifiant.
         /// </summary>
-        /// <param name="theaterViewModel">Les informations de la salle à créer.</param>
-        /// <returns>Un GeneralServiceResponseData contenant le résultat de la création de la salle.</returns>
-        [HttpGet("theater/{id}")]
-        public async Task<IActionResult> GetTheaterById(string id)
+        /// <param name="id">L'identifiant du cinéma.</param>
+        /// <returns>Le cinéma correspondant.</returns>
+        [HttpGet("cinema/{cinemaId}")]
+        public async Task<IActionResult> GetCinemaById(int cinemaId)
         {
             try
             {
-                var response = await _cinemaService.GetTheaterByIdAsync(id);
-                if (!response.IsSucceed)
-                {
-                    return StatusCode(response.StatusCode, new GeneralServiceResponse
-                    {
-                        IsSucceed = false,
-                        StatusCode = response.StatusCode,
-                        Message = response.Message
-                    });
-                }
-
-                return Ok(response.Data);
+                var cinemaDto = await _cinemaService.GetCinemaByIdAsync(cinemaId);
+                return Ok(new { Message = "Cinéma récupéré avec succès.", Data = cinemaDto });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = $"Erreur lors de la récupération du théâtre : {ex.Message}"
-                });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite lors de la récupération du cinéma." });
             }
         }
 
-
         /// <summary>
-        /// Crée une nouvelle salle pour un cinéma spécifique.
+        /// Met à jour les informations d'un cinéma existant.
         /// </summary>
-        /// <param name="theaterViewModel">Les informations de la salle à créer.</param>
-        /// <returns>Un objet avec le résultat de la création de la salle.</returns>
-        [HttpPost]
-        [Route("{cinemaId}/theater/create")]
-        //[Authorize(Roles = RoleConfigurations.Admin)]
-        public async Task<IActionResult> CreateTheater(int cinemaId, [FromBody] TheaterViewModel theaterViewModel)
-        {
-            var response = await _cinemaService.CreateTheaterForCinemaAsync(theaterViewModel);
-            if (!response.IsSucceed)
-            {
-                return StatusCode(response.StatusCode, response.Message);
-            }
-            return Ok(response);
-        }
-
-        /// <summary>
-        /// Met à jour une salle existante avec de nouvelles informations.
-        /// </summary>
-        /// <param name="theaterId">L'identifiant de la salle à mettre à jour.</param>
-        /// <param name="theaterViewModel">Les nouvelles informations de la salle.</param>
-        /// <returns>Un message indiquant le succès ou l'échec de la mise à jour.</returns>
+        /// <param name="updateCinemaDto">Les données du cinéma à mettre à jour.</param>
+        /// <returns>Le cinéma mis à jour.</returns>
         [HttpPut]
-        [Route("theater/update/{theaterId}")]
-        //[Authorize(Roles = RoleConfigurations.Admin)]
-        public async Task<IActionResult> UpdateTheater(string theaterId, [FromBody] TheaterViewModel theaterViewModel)
-        {
-            var response = await _cinemaService.UpdateTheaterAsync(theaterId, theaterViewModel);
-            if (!response.IsSucceed)
-            {
-                return StatusCode(response.StatusCode, response.Message);
-            }
-            return Ok(response.Message);
-        }
-
-        /// <summary>
-        /// Supprime une salle spécifique par son identifiant.
-        /// </summary>
-        /// <param name="theaterId">L'identifiant de la salle à supprimer.</param>
-        /// <returns>Un message indiquant le succès ou l'échec de la suppression.</returns>
-        [HttpDelete]
-        [Route("theater/delete/{theaterId}")]
-        //[Authorize(Roles = RoleConfigurations.Admin)]
-        public async Task<IActionResult> DeleteTheater(string theaterId)
-        {
-            var response = await _cinemaService.DeleteTheaterAsync(theaterId);
-            if (!response.IsSucceed)
-            {
-                return StatusCode(response.StatusCode, response.Message);
-            }
-            return Ok(response.Message);
-        }
-
-        /// <summary>
-        /// Récupère les détails d'une salle spécifique par son identifiant.
-        /// </summary>
-        /// <param name="theaterId">L'identifiant de la salle à récupérer.</param>
-        /// <returns>Un GeneralServiceResponseData contenant les informations de la salle.</returns>
-        [HttpGet]
-        [Route("{cinemaId}/theaters")]
-        public async Task<IActionResult> GetTheatersByCinema(int cinemaId)
+        public async Task<IActionResult> UpdateCinema([FromBody] UpdateCinemaDto updateCinemaDto)
         {
             try
             {
-                var theaters = await _cinemaService.GetTheatersByCinemaAsync(cinemaId);
-                return Ok(theaters);
+                var cinemaDto = await _cinemaService.UpdateCinemaAsync(updateCinemaDto);
+                return Ok(new { Message = "Cinéma mis à jour avec succès.", Data = cinemaDto });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new GeneralServiceResponse
-                {
-                    IsSucceed = false,
-                    StatusCode = 500,
-                    Message = $"Erreur lors de la récupération des théâtres pour le cinéma : {ex.Message}"
-                });
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite lors de la mise à jour du cinéma." });
             }
         }
 
+        /// <summary>
+        /// Supprime un cinéma en fonction de son identifiant.
+        /// </summary>
+        /// <param name="id">L'identifiant du cinéma à supprimer.</param>
+        /// <returns>Une réponse indiquant si la suppression a réussi.</returns>
+        [HttpDelete("cinema/{cinemaId}")]
+        public async Task<IActionResult> DeleteCinema(int cinemaId)
+        {
+            try
+            {
+                await _cinemaService.DeleteCinemaAsync(cinemaId);
+                return Ok(new { Message = "Cinéma supprimé avec succès." });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite lors de la suppression du cinéma." });
+            }
+        }
     }
-
 }

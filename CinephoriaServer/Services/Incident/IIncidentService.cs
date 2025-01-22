@@ -1,54 +1,88 @@
-﻿using CinephoriaServer.Models.MongooDb;
+﻿using CinephoriaServer.Configurations;
+using CinephoriaServer.Models.PostgresqlDb;
+using static CinephoriaServer.Configurations.EnumConfig;
 
 namespace CinephoriaServer.Services
 {
     public interface IIncidentService
     {
         /// <summary>
-        /// Crée un nouvel incident avec les informations fournies.
+        /// Signale un nouvel incident dans une salle de cinéma.
         /// </summary>
-        /// <param name="incidentDto">Les détails de l'incident à créer.</param>
-        /// <returns>L'incident créé sous forme d'IncidentDto.</returns>
-        Task<IncidentDto> CreateIncidentAsync(IncidentDto incidentDto);
+        /// <param name="theaterId">L'identifiant de la salle de cinéma.</param>
+        /// <param name="description">La description de l'incident.</param>
+        /// <param name="reportedBy">L'identifiant de l'employé ayant signalé l'incident.</param>
+        /// <param name="imageUrls">Liste des URLs des images associées à l'incident.</param>
+        /// <returns>Une réponse indiquant le succès ou l'échec de l'opération.</returns>
+        Task<string> ReportIncidentAsync(CreateIncidentDto createIncidentDto, string userId);
 
         /// <summary>
-        /// Récupère un incident spécifique par son identifiant unique.
+        /// Affiche les détails d'un incident en fonction de son identifiant.
         /// </summary>
-        /// <param name="id">L'identifiant de l'incident à récupérer.</param>
-        /// <returns>Un IncidentDto contenant les informations de l'incident, ou null s'il n'est pas trouvé.</returns>
-        Task<IncidentDto> GetIncidentByIdAsync(string id);
+        /// <param name="incidentId">L'identifiant de l'incident à afficher.</param>
+        /// <returns>Une tâche l'objet incident.</returns>
+        Task<IncidentDto> GetIncidentDetailsAsync(int incidentId);
 
         /// <summary>
-        /// Récupère la liste de tous les incidents signalés.
+        /// Récupère la liste des incidents enregistré dans une salle de cinema.
         /// </summary>
-        /// <returns>Une liste d'IncidentDto contenant les détails de chaque incident.</returns>
+        /// /// <param name="cinemaId">L'identifiant du cinéma.</param>
+        /// <returns>Une liste d'incident'.</returns>
+        Task<List<IncidentDto>> GetIncidentsByCinemaAsync(int cinemaId);
+
+        /// <summary>
+        /// Récupère la liste des incidents enregistré dans toutes les salles de cinema.
+        /// </summary>
+        /// <returns>Une liste d'incident'.</returns>
         Task<List<IncidentDto>> GetAllIncidentsAsync();
+       
+        /// <summary>
+        /// Ajoute une image à un incident existant.
+        /// </summary>
+        /// <param name="incidentId">L'identifiant de l'incident.</param>
+        /// <param name="imageUrl">L'URL de l'image à ajouter.</param>
+        /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
+        Task<string> AddImageToIncidentAsync(int incidentId, string imageUrl);
 
         /// <summary>
-        /// Supprime un incident spécifique par son identifiant.
+        /// Supprime une image d'un incident existant.
         /// </summary>
-        /// <param name="id">L'identifiant de l'incident à supprimer.</param>
-        /// <returns>Un booléen indiquant si la suppression a réussi.</returns>
-        Task<bool> DeleteIncidentAsync(string id);
+        /// <param name="incidentId">L'identifiant de l'incident.</param>
+        /// <param name="imageUrl">L'URL de l'image à supprimer.</param>
+        /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
+        Task<string> RemoveImageFromIncidentAsync(int incidentId, string imageUrl);
+
 
         /// <summary>
-        /// Met à jour un incident existant avec de nouvelles informations.
+        /// Récupère la liste des incidents associés à une salle de cinéma.
         /// </summary>
-        /// <param name="id">L'identifiant de l'incident à mettre à jour.</param>
-        /// <param name="incidentDto">Les nouvelles informations de l'incident.</param>
-        /// <returns>L'incident mis à jour sous forme d'IncidentDto.</returns>
-        Task<IncidentDto> UpdateIncidentAsync(string id, IncidentDto incidentDto);
+        /// <param name="theaterId">L'identifiant de la salle de cinéma.</param>
+        /// <returns>Une liste d'incidents sous forme de DTO.</returns>
+        Task<List<IncidentDto>> GetTheaterIncidentsAsync(int theaterId);
 
         /// <summary>
-        /// Filtre les incidents en fonction de différents critères comme l'employé, les dates et le lieu.
+        /// Met à jour le statut d'un incident.
         /// </summary>
-        /// <param name="employeeId">L'identifiant de l'employé associé aux incidents.</param>
-        /// <param name="startDate">La date de début pour filtrer les incidents.</param>
-        /// <param name="endDate">La date de fin pour filtrer les incidents.</param>
-        /// <param name="theaterId">L'identifiant du théâtre lié aux incidents.</param>
-        /// <param name="cinemaId">L'identifiant du cinéma lié aux incidents.</param>
-        /// <returns>Une liste d'IncidentDto contenant les incidents correspondant aux critères.</returns>
-        Task<List<IncidentDto>> FilterIncidentsAsync(string employeeId, DateTime? startDate, DateTime? endDate, string theaterId, string cinemaId);
+        /// <param name="incidentId">L'identifiant de l'incident.</param>
+        /// <param name="status">Le nouveau statut de l'incident.</param>
+        /// <returns>Une réponse indiquant le succès ou l'échec de l'opération.</returns>
+        Task<string> UpdateIncidentStatusAsync(int incidentId, IncidentStatus status, string userId);
 
+        /// <summary>
+        /// Met à jour les informations d'un incident existant.
+        /// </summary>
+        /// <param name="incidentId">L'identifiant de l'incident à mettre à jour.</param>
+        /// <param name="status">Le nouveau statut de l'incident.</param>
+        /// <param name="resolvedAt">La date de résolution de l'incident (optionnelle).</param>
+        /// <param name="imageUrls">La liste des URLs des images associées à l'incident.</param>
+        /// <returns>Une réponse indiquant si la mise à jour a réussi.</returns>
+        Task<string> UpdateIncidentAsync(UpdateIncidentDto updateIncidentDto);
+
+        /// <summary>
+        /// Supprime un incident en fonction de son identifiant.
+        /// </summary>
+        /// <param name="incidentId">L'identifiant de l'incident à supprimer.</param>
+        /// <returns>Une réponse indiquant le succès ou l'échec de l'opération.</returns>
+        Task<string> DeleteIncidentAsync(int incidentId);
     }
 }

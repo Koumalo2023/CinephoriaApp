@@ -1,5 +1,4 @@
 ﻿using CinephoriaBackEnd.Data;
-using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Repository.EntityFramwork;
 
 namespace CinephoriaServer.Repository
@@ -7,35 +6,84 @@ namespace CinephoriaServer.Repository
     public class UnitOfWorkPostgres : IUnitOfWorkPostgres
     {
         private readonly CinephoriaDbContext _context;
+        private readonly Dictionary<Type, object> _readRepositories = new();
+        private readonly Dictionary<Type, object> _writeRepositories = new();
 
-        // Déclaration des repositories spécifiques
-        public IRepository<Cinema> Cinemas { get; private set; }
-        public IRepository<Contact> Contacts { get; private set; }
-        public IRepository<Reservation> Reservations { get; private set; }
-        public IRepository<MovieRating> MovieRatings { get; private set; }
-        public IRepository<AppUser> Users { get; private set; }
+        // Repositories spécifiques
+        private ICinemaRepository _cinemas;
+        private IMovieRepository _movies;
+        private ITheaterRepository _theaters;
+        private ISeatRepository _seats;
+        //private IShowtimeRepository _showtimes;
+        //private IReservationRepository _reservations;
+        private IIncidentRepository _incidents;
+        private IUserRepository _users;
 
-        // Constructeur qui injecte le contexte et initialise les repositories
         public UnitOfWorkPostgres(CinephoriaDbContext context)
         {
             _context = context;
-            Cinemas = new EFRepository<Cinema>(context);
-            Contacts = new EFRepository<Contact>(context);
-            Reservations = new EFRepository<Reservation>(context);
-            MovieRatings = new EFRepository<MovieRating>(context);
-            Users = new EFRepository<AppUser>(context);
         }
 
-        // Méthode pour sauvegarder les modifications dans la base de données
+        // Propriétés pour accéder aux repositories spécifiques
+        public ICinemaRepository Cinemas => _cinemas ??= new CinemaRepository(_context);
+        public IMovieRepository Movies => _movies ??= new MovieRepository(_context);
+        public ITheaterRepository Theaters => _theaters ??= new TheaterRepository(_context);
+        public ISeatRepository Seats => _seats ??= new SeatRepository(_context);
+        //public IShowtimeRepository Showtimes => _showtimes ??= new ShowtimeRepository(_context);
+        //public IReservationRepository Reservations => _reservations ??= new ReservationRepository(_context);
+        public IIncidentRepository Incidents => _incidents ??= new IncidentRepository(_context);
+        public IUserRepository Users => _users ??= new UserRepository(_context);
+
+        // Méthodes génériques pour les repositories
+        public IReadRepository<TEntity> ReadRepository<TEntity>() where TEntity : class
+        {
+            if (_readRepositories.ContainsKey(typeof(TEntity)))
+            {
+                return (IReadRepository<TEntity>)_readRepositories[typeof(TEntity)];
+            }
+
+            var repository = new EFRepository<TEntity>(_context);
+            _readRepositories.Add(typeof(TEntity), repository);
+            return repository;
+        }
+
+        public IWriteRepository<TEntity> WriteRepository<TEntity>() where TEntity : class
+        {
+            if (_writeRepositories.ContainsKey(typeof(TEntity)))
+            {
+                return (IWriteRepository<TEntity>)_writeRepositories[typeof(TEntity)];
+            }
+
+            var repository = new EFRepository<TEntity>(_context);
+            _writeRepositories.Add(typeof(TEntity), repository);
+            return repository;
+        }
+
+        // Méthodes pour sauvegarder les changements
         public int Complete()
         {
-            return _context.SaveChanges();
+            try
+            {
+                return _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it as needed
+                throw new ApplicationException("An error occurred while saving changes to the database.", ex);
+            }
         }
 
-        // Méthode asynchrone pour sauvegarder les modifications
         public async Task<int> CompleteAsync()
         {
-            return await _context.SaveChangesAsync();
+            try
+            {
+                return await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it as needed
+                throw new ApplicationException("An error occurred while saving changes to the database.", ex);
+            }
         }
 
         // Dispose du contexte
