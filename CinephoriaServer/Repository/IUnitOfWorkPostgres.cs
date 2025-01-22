@@ -11,7 +11,7 @@ namespace CinephoriaServer.Repository
         IMovieRatingRepository MovieRatings { get; }
         ITheaterRepository Theaters { get; }
         ISeatRepository Seats { get; }
-        //IShowtimeRepository Showtimes { get; }
+        IShowtimeRepository Showtimes { get; }
         //IReservationRepository Reservations { get; }
         IIncidentRepository Incidents { get; }
         IUserRepository Users { get; }

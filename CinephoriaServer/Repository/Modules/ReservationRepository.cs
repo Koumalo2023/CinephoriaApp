@@ -10,6 +10,36 @@ namespace CinephoriaServer.Repository
     public interface IReservationRepository : IReadRepository<Reservation>, IWriteRepository<Reservation>
     {
         /// <summary>
+        /// Récupère la liste des séances disponibles pour un film spécifique.
+        /// </summary>
+        /// <param name="movieId">L'identifiant du film.</param>
+        /// <returns>Une liste de séances.</returns>
+        Task<List<Showtime>> GetMovieSessionsAsync(int movieId);
+
+        /// <summary>
+        /// Récupère la liste des sièges disponibles pour une séance spécifique.
+        /// </summary>
+        /// <param name="sessionId">L'identifiant de la séance.</param>
+        /// <returns>Une liste de sièges disponibles.</returns>
+        Task<List<Seat>> GetAvailableSeatsAsync(int sessionId);
+
+        /// <summary>
+        /// Calcule le prix total d'une réservation en fonction de la séance, des sièges sélectionnés et de la qualité de projection.
+        /// </summary>
+        /// <param name="sessionId">L'identifiant de la séance.</param>
+        /// <param name="seats">La liste des sièges sélectionnés.</param>
+        /// <param name="quality">La qualité de projection (par exemple, "4K", "IMAX").</param>
+        /// <returns>Le prix total de la réservation.</returns>
+        Task<decimal> CalculateReservationPriceAsync(int sessionId, List<string> seats, string quality);
+
+        /// <summary>
+        /// Bloque des sièges pour une réservation en attente.
+        /// </summary>
+        /// <param name="sessionId">L'identifiant de la séance.</param>
+        /// <param name="seats">La liste des sièges à bloquer.</param>
+        /// <returns>Une tâche asynchrone.</returns>
+        Task HoldSeatsAsync(int sessionId, List<string> seats);
+        /// <summary>
         /// Récupère la liste des réservations d'un utilisateur.
         /// </summary>
         /// <param name="userId">L'identifiant de l'utilisateur.</param>

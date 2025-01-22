@@ -15,7 +15,7 @@ namespace CinephoriaServer.Repository
         private IMovieRatingRepository _movieRatings;
         private ITheaterRepository _theaters;
         private ISeatRepository _seats;
-        //private IShowtimeRepository _showtimes;
+        private IShowtimeRepository _showtimes;
         //private IReservationRepository _reservations;
         private IIncidentRepository _incidents;
         private IUserRepository _users;
@@ -31,7 +31,7 @@ namespace CinephoriaServer.Repository
         public IMovieRatingRepository MovieRatings => _movieRatings ??= new MovieRatingRepository(_context);
         public ITheaterRepository Theaters => _theaters ??= new TheaterRepository(_context);
         public ISeatRepository Seats => _seats ??= new SeatRepository(_context);
-        //public IShowtimeRepository Showtimes => _showtimes ??= new ShowtimeRepository(_context);
+        public IShowtimeRepository Showtimes => _showtimes ??= new ShowtimeRepository(_context);
         //public IReservationRepository Reservations => _reservations ??= new ReservationRepository(_context);
         public IIncidentRepository Incidents => _incidents ??= new IncidentRepository(_context);
         public IUserRepository Users => _users ??= new UserRepository(_context);
