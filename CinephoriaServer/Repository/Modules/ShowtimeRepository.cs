@@ -1,79 +1,27 @@
 ﻿using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Repository.EntityFramwork;
-using MongoDB.Driver;
+using Microsoft.EntityFrameworkCore;
 
 namespace CinephoriaServer.Repository
 {
     public interface IShowtimeRepository : IReadRepository<Showtime>, IWriteRepository<Showtime>
     {
         /// <summary>
-        /// Récupère la liste des séances disponibles pour un film spécifique.
+        /// Crée une nouvelle séance (réservé aux administrateurs et employés).
         /// </summary>
-        /// <param name="movieId">L'identifiant du film.</param>
-        /// <returns>Une liste de séances.</returns>
-        Task<List<Showtime>> GetMovieSessionsAsync(int movieId);
-
-        /// <summary>
-        /// Récupère la liste des sièges disponibles pour une séance spécifique.
-        /// </summary>
-        /// <param name="sessionId">L'identifiant de la séance.</param>
-        /// <returns>Une liste de sièges disponibles.</returns>
-        Task<List<Seat>> GetAvailableSeatsAsync(int sessionId);
-
-        /// <summary>
-        /// Calcule le prix total d'une réservation en fonction de la séance, des sièges sélectionnés et de la qualité de projection.
-        /// </summary>
-        /// <param name="sessionId">L'identifiant de la séance.</param>
-        /// <param name="seats">La liste des sièges sélectionnés.</param>
-        /// <param name="quality">La qualité de projection (par exemple, "4K", "IMAX").</param>
-        /// <returns>Le prix total de la réservation.</returns>
-        Task<decimal> CalculateReservationPriceAsync(int sessionId, List<string> seats, string quality);
-
-        /// <summary>
-        /// Bloque des sièges pour une réservation en attente.
-        /// </summary>
-        /// <param name="sessionId">L'identifiant de la séance.</param>
-        /// <param name="seats">La liste des sièges à bloquer.</param>
+        /// <param name="showtime">La séance à créer.</param>
         /// <returns>Une tâche asynchrone.</returns>
-        Task HoldSeatsAsync(int sessionId, List<string> seats);
+        Task CreateSessionAsync(Showtime showtime);
 
         /// <summary>
-        /// Confirme une réservation après avoir bloqué des sièges.
+        /// Met à jour les informations d'une séance existante (réservé aux administrateurs et employés).
         /// </summary>
-        /// <param name="sessionId">L'identifiant de la séance.</param>
-        /// <param name="seats">La liste des sièges réservés.</param>
-        /// <param name="quality">La qualité de projection.</param>
-        /// <param name="reservationHoldId">L'identifiant de la réservation en attente.</param>
+        /// <param name="showtime">La séance à mettre à jour.</param>
         /// <returns>Une tâche asynchrone.</returns>
-        Task ConfirmReservationAsync(int sessionId, List<string> seats, string quality, Guid reservationHoldId);
+        Task UpdateSessionAsync(Showtime showtime);
 
         /// <summary>
-        /// Crée une nouvelle séance (réservé aux administrateurs).
-        /// </summary>
-        /// <param name="movieId">L'identifiant du film.</param>
-        /// <param name="theaterId">L'identifiant de la salle.</param>
-        /// <param name="startTime">L'heure de début de la séance.</param>
-        /// <param name="endTime">L'heure de fin de la séance.</param>
-        /// <param name="quality">La qualité de projection.</param>
-        /// <param name="price">Le prix de la séance.</param>
-        /// <returns>Une tâche asynchrone.</returns>
-        Task CreateSessionAsync(int movieId, int theaterId, DateTime startTime, DateTime endTime, string quality, decimal price);
-
-        /// <summary>
-        /// Met à jour les informations d'une séance existante (réservé aux administrateurs).
-        /// </summary>
-        /// <param name="sessionId">L'identifiant de la séance à mettre à jour.</param>
-        /// <param name="movieId">L'identifiant du film.</param>
-        /// <param name="theaterId">L'identifiant de la salle.</param>
-        /// <param name="startTime">La nouvelle heure de début.</param>
-        /// <param name="endTime">La nouvelle heure de fin.</param>
-        /// <param name="quality">La nouvelle qualité de projection.</param>
-        /// <param name="price">Le nouveau prix.</param>
-        /// <returns>Une tâche asynchrone.</returns>
-        Task UpdateSessionAsync(int sessionId, int movieId, int theaterId, DateTime startTime, DateTime endTime, string quality, decimal price);
-
-        /// <summary>
-        /// Supprime une séance existante (réservé aux administrateurs).
+        /// Supprime une séance existante (réservé aux administrateurs et employés).
         /// </summary>
         /// <param name="sessionId">L'identifiant de la séance à supprimer.</param>
         /// <returns>Une tâche asynchrone.</returns>
@@ -81,8 +29,67 @@ namespace CinephoriaServer.Repository
     }
 
 
-    //public class ShowtimeRepository : IShowtimeRepository
-    //{
-        
-    //}
+    public class ShowtimeRepository : EFRepository<Showtime>, IShowtimeRepository
+    {
+        private readonly DbContext _context;
+
+        public ShowtimeRepository(DbContext context) : base(context)
+        {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
+
+        /// <summary>
+        /// Crée une nouvelle séance (réservé aux administrateurs et employés).
+        /// </summary>
+        /// <param name="showtime">La séance à créer.</param>
+        /// <returns>Une tâche asynchrone.</returns>
+        public async Task CreateSessionAsync(Showtime showtime)
+        {
+            if (showtime == null)
+            {
+                throw new ArgumentNullException(nameof(showtime));
+            }
+
+            showtime.CreatedAt = DateTime.UtcNow;
+            showtime.UpdatedAt = DateTime.UtcNow;
+
+            _context.Set<Showtime>().Add(showtime);
+            await _context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Met à jour les informations d'une séance existante (réservé aux administrateurs et employés).
+        /// </summary>
+        /// <param name="showtime">La séance à mettre à jour.</param>
+        /// <returns>Une tâche asynchrone.</returns>
+        public async Task UpdateSessionAsync(Showtime showtime)
+        {
+            if (showtime == null)
+            {
+                throw new ArgumentNullException(nameof(showtime));
+            }
+
+            showtime.UpdatedAt = DateTime.UtcNow;
+
+            _context.Set<Showtime>().Update(showtime);
+            await _context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Supprime une séance existante (réservé aux administrateurs et employés).
+        /// </summary>
+        /// <param name="sessionId">L'identifiant de la séance à supprimer.</param>
+        /// <returns>Une tâche asynchrone.</returns>
+        public async Task DeleteSessionAsync(int sessionId)
+        {
+            var showtime = await _context.Set<Showtime>().FindAsync(sessionId);
+            if (showtime == null)
+            {
+                throw new ArgumentException("Séance non trouvée.");
+            }
+
+            _context.Set<Showtime>().Remove(showtime);
+            await _context.SaveChangesAsync();
+        }
+    }
 }
