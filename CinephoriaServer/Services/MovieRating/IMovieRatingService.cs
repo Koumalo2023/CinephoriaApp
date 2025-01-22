@@ -13,10 +13,17 @@ namespace CinephoriaServer.Services
         Task<string> SubmitMovieReviewAsync(CreateMovieRatingDto createMovieRatingDto, string userId);
 
         /// <summary>
-        /// Valide un avis sur un film (réservé aux administrateurs).
+        /// Valide un avis sur un film (réservé aux administrateurs et employées).
         /// </summary>
         /// <param name="reviewId">L'identifiant de l'avis à valider.</param>
         /// <returns>Une réponse indiquant le succès de l'opération.</returns>
         Task<string> ValidateReviewAsync(int reviewId);
+
+        /// <summary>
+        /// Supprime un avis sur un film (réservé aux administrateurs et employées).
+        /// </summary>
+        /// <param name="reviewId">L'identifiant de l'avis à supprimer.</param>
+        /// <returns>Une réponse indiquant le succès de l'opération.</returns>
+        Task<string> DeleteReviewAsync(int reviewId);
     }
 }

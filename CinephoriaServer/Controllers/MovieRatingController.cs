@@ -78,5 +78,29 @@ namespace CinephoriaServer.Controllers
         }
 
 
+        // <summary>
+        /// Supprime un avis sur un film (réservé aux administrateurs et employées).
+        /// </summary>
+        /// <param name="reviewId">L'identifiant de l'avis à supprimer.</param>
+        /// <returns>Une réponse indiquant si l'avis a été supprimé avec succès.</returns>
+        [Authorize(Roles = "Admin, Employee")]
+        [HttpDelete("delete/{reviewId}")]
+        public async Task<IActionResult> DeleteReview(int reviewId)
+        {
+            try
+            {
+                await _movieRatingService.DeleteReviewAsync(reviewId);
+                return Ok(new { Message = "Avis supprimé avec succès." });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+            }
+        }
+
     }
 }

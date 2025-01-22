@@ -75,5 +75,28 @@ namespace CinephoriaServer.Services
             return "Avis validé avec succès.";
         }
 
+        /// <summary>
+        /// Supprime un avis sur un film (réservé aux administrateurs et employées).
+        /// </summary>
+        /// <param name="reviewId">L'identifiant de l'avis à supprimer.</param>
+        /// <returns>Une réponse indiquant le succès de l'opération.</returns>
+        public async Task<string> DeleteReviewAsync(int reviewId)
+        {
+            if (reviewId <= 0)
+            {
+                throw new ApiException("L'identifiant de l'avis doit être un nombre positif.", StatusCodes.Status400BadRequest);
+            }
+
+            var review = await _unitOfWork.MovieRatings.GetByIdAsync(reviewId);
+            if (review == null) throw new ApiException("Avis introuvable.", StatusCodes.Status404NotFound);
+
+            await _unitOfWork.MovieRatings.DeleteReviewAsync(reviewId);
+            await _unitOfWork.CompleteAsync();
+
+            _logger.LogInformation("Avis avec l'ID {ReviewId} supprimé avec succès.", reviewId);
+            return "Avis supprimé avec succès.";
+        }
+
+
     }
 }
