@@ -20,7 +20,6 @@ namespace CinephoriaServer.Services
         /// <returns>Une liste de sièges disponibles.</returns>
         Task<List<SeatDto>> GetAvailableSeatsAsync(int showtimeId);
 
-
         /// <summary>
         /// Calcule le prix total d'une réservation en fonction de la séance et des sièges sélectionnés.
         /// </summary>
@@ -28,6 +27,11 @@ namespace CinephoriaServer.Services
         /// <param name="seatNumbers">La liste des numéros de sièges sélectionnés.</param>
         /// <returns>Le prix total de la réservation.</returns>
         Task<decimal> CalculateReservationPriceAsync(int showtimeId, List<string> seatNumbers);
+
+        /// <summary>
+        /// Bloque des sièges pour une réservation en attente.
+        /// </summary>
+        Task HoldSeatsAsync(int showtimeId, List<string> seatNumbers);
 
 
 

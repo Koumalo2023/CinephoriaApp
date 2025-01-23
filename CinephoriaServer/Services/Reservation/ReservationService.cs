@@ -63,6 +63,23 @@ namespace CinephoriaServer.Services
 
 
         /// <summary>
+        /// Bloque des sièges pour une réservation en attente.
+        /// </summary>
+        public async Task HoldSeatsAsync(int showtimeId, List<string> seatNumbers)
+        {
+            var showtime = await _unitOfWork.Showtimes.GetByIdAsync(showtimeId);
+            var seats = await _unitOfWork.Seats.GetSeatsByNumbersAsync(showtimeId, seatNumbers);
+
+            if (showtime == null || seats == null || !seats.Any())
+            {
+                throw new ApiException("La séance ou les sièges sélectionnés sont invalides.", StatusCodes.Status400BadRequest);
+            }
+
+            await _unitOfWork.Reservations.HoldSeatsAsync(showtime, seats);
+            _logger.LogInformation("Sièges bloqués avec succès pour la séance avec l'ID {ShowtimeId}.", showtimeId);
+        }
+
+        /// <summary>
         /// Valide un QRCode scanné pour une réservation.
         /// </summary>
         /// <param name="qrCodeData">Les données du QRCode scanné.</param>
