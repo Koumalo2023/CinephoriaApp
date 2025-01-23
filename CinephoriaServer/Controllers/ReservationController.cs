@@ -65,6 +65,29 @@ namespace CinephoriaServer.Controllers
 
 
         /// <summary>
+        /// Récupère la liste des réservations d'un utilisateur.
+        /// </summary>
+        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <returns>Une liste de réservations sous forme de DTO.</returns>
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetUserReservations(string userId)
+        {
+            try
+            {
+                var reservations = await _reservationService.GetUserReservationsAsync(userId);
+                return Ok(reservations);
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+            }
+        }
+
+        /// <summary>
         /// Valide un QRCode scanné pour une réservation.
         /// </summary>
         /// <param name="qrCodeData">Les données du QRCode scanné.</param>

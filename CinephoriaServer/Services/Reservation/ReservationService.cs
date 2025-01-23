@@ -90,6 +90,38 @@ namespace CinephoriaServer.Services
             return "Réservation créée avec succès.";
         }
 
+        /// <summary>
+        /// Récupère la liste des réservations d'un utilisateur.
+        /// </summary>
+        public async Task<List<UserReservationDto>> GetUserReservationsAsync(string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new ApiException("L'identifiant de l'utilisateur est invalide.", StatusCodes.Status400BadRequest);
+            }
+
+            // Récupérer les réservations de l'utilisateur
+            var reservations = await _unitOfWork.Reservations.GetUserReservationsAsync(userId);
+
+            if (reservations == null || !reservations.Any())
+            {
+                _logger.LogInformation("Aucune réservation trouvée pour l'utilisateur avec l'ID {UserId}.", userId);
+                return new List<UserReservationDto>(); // Retourner une liste vide au lieu de null
+            }
+
+            // Mapper les réservations vers des DTO
+            var userReservationDtos = _mapper.Map<List<UserReservationDto>>(reservations);
+
+            if (userReservationDtos == null)
+            {
+                _logger.LogError("Erreur lors du mapping des réservations.");
+                throw new ApiException("Erreur lors du traitement des réservations.", StatusCodes.Status500InternalServerError);
+            }
+
+            _logger.LogInformation("{Count} réservations récupérées pour l'utilisateur avec l'ID {UserId}.", userReservationDtos.Count, userId);
+            return userReservationDtos;
+        }
+
 
         /// <summary>
         /// Confirme une réservation après avoir bloqué des sièges.
@@ -207,7 +239,7 @@ namespace CinephoriaServer.Services
 
             // Récupérer la réservation correspondante avec une requête personnalisée
             var reservation = await _context.Reservations
-                .Include(res => res.Showtime) 
+                .Include(res => res.Showtime)
                 .FirstOrDefaultAsync(res => res.ReservationId == reservationId);
 
             if (reservation == null)
