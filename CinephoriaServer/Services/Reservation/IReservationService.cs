@@ -22,6 +22,16 @@ namespace CinephoriaServer.Services
 
 
         /// <summary>
+        /// Calcule le prix total d'une réservation en fonction de la séance et des sièges sélectionnés.
+        /// </summary>
+        /// <param name="showtimeId">L'identifiant de la séance.</param>
+        /// <param name="seatNumbers">La liste des numéros de sièges sélectionnés.</param>
+        /// <returns>Le prix total de la réservation.</returns>
+        Task<decimal> CalculateReservationPriceAsync(int showtimeId, List<string> seatNumbers);
+
+
+
+        /// <summary>
         /// Valide un QRCode scanné pour une réservation.
         /// </summary>
         /// <param name="qrCodeData">Les données du QRCode scanné.</param>

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CinephoriaBackEnd.Data;
+using CinephoriaServer.Configurations;
 using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Repository;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +42,23 @@ namespace CinephoriaServer.Services
         {
             var seats = await _unitOfWork.Seats.GetAvailableSeatsAsync(showtimeId);
             return _mapper.Map<List<SeatDto>>(seats);
+        }
+
+
+        /// <summary>
+        /// Calcule le prix total d'une réservation en fonction de la séance et des sièges sélectionnés.
+        /// </summary>
+        public async Task<decimal> CalculateReservationPriceAsync(int showtimeId, List<string> seatNumbers)
+        {
+            var showtime = await _unitOfWork.Showtimes.GetByIdAsync(showtimeId);
+            var seats = await _unitOfWork.Seats.GetSeatsByNumbersAsync(showtimeId, seatNumbers);
+
+            if (showtime == null || seats == null || !seats.Any())
+            {
+                throw new ApiException("La séance ou les sièges sélectionnés sont invalides.", StatusCodes.Status400BadRequest);
+            }
+
+            return await _unitOfWork.Reservations.CalculateReservationPriceAsync(showtime, seats);
         }
 
 
