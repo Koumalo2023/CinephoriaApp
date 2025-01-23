@@ -1,8 +1,17 @@
 ﻿
+using CinephoriaServer.Models.PostgresqlDb;
+
 namespace CinephoriaServer.Services
 {
     public interface IReservationService
     {
+
+        /// <summary>
+        /// Récupère la liste des séances disponibles pour un film spécifique.
+        /// </summary>
+        /// <param name="movieId">L'identifiant du film.</param>
+        /// <returns>Une liste de séances disponibles.</returns>
+        Task<List<ShowtimeDto>> GetMovieSessionsAsync(int movieId);
 
         /// <summary>
         /// Valide un QRCode scanné pour une réservation.

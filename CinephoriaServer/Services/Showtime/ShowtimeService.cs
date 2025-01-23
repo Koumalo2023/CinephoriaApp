@@ -9,7 +9,6 @@ namespace CinephoriaServer.Services
     public class ShowtimeService : IShowtimeService
     {
         private readonly IUnitOfWorkPostgres _unitOfWork;
-        private readonly IShowtimeRepository _showtimeRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<ShowtimeService> _logger;
 
@@ -89,7 +88,7 @@ namespace CinephoriaServer.Services
             showtime.UpdatedAt = DateTime.UtcNow;
 
             // Enregistrer les modifications dans la base de données
-            await _showtimeRepository.UpdateSessionAsync(showtime);
+            await _unitOfWork.Showtimes.UpdateSessionAsync(showtime);
 
             _logger.LogInformation("Séance avec l'ID {ShowtimeId} mise à jour avec succès.", updateShowtimeDto.ShowtimeId);
             return "Séance mise à jour avec succès.";
