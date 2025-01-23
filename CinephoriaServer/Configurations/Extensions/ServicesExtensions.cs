@@ -18,6 +18,8 @@ namespace CinephoriaServer.Configurations
             services.AddTransient<SignInManager<AppUser>>();
 
             services.AddTransient<EmailService>();
+            services.AddTransient<QRCodeService>();
+            services.AddTransient<IImageService, ImageService>();
 
 
             // injection des Services
@@ -28,7 +30,6 @@ namespace CinephoriaServer.Configurations
             services.AddTransient<ICinemaService, CinemaService>();
             services.AddTransient<IMovieService, MovieService>(); 
             services.AddTransient<IMovieRatingService, MovieRatingService>();
-            services.AddTransient<IImageService, ImageService>();
             services.AddTransient<IShowtimeService, ShowtimeService>();
             services.AddTransient<IReservationService, ReservationService>();
             services.AddTransient<IAdminDashboardService, AdminDashboardService>();
