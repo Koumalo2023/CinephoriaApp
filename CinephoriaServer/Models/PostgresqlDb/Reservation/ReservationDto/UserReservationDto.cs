@@ -2,10 +2,15 @@
 
 namespace CinephoriaServer.Models.PostgresqlDb
 {
-    public class CreateReservationDto
+    public class UserReservationDto
     {
         /// <summary>
-        /// Identifiant de l'utilisateur faisant la réservation.
+        /// Identifiant unique de la réservation.
+        /// </summary>
+        public int ReservationId { get; set; }
+
+        /// <summary>
+        /// Identifiant de l'utilisateur ayant effectué la réservation.
         /// </summary>
         public string AppUserId { get; set; }
 
@@ -15,22 +20,22 @@ namespace CinephoriaServer.Models.PostgresqlDb
         public int ShowtimeId { get; set; }
 
         /// <summary>
-        /// Liste des sièges réservés.
-        /// </summary>
-        public ICollection<string> SeatNumbers { get; set; } = new List<string>();
-
-        /// <summary>
         /// Prix total de la réservation.
         /// </summary>
         public float TotalPrice { get; set; }
 
         /// <summary>
-        /// Contenu du QR code pour validation à l'entrée.
+        /// Contenu du QR code généré pour la réservation.
         /// </summary>
         public string QrCode { get; set; }
 
         /// <summary>
-        /// Statut de la réservation : CONFIRMED, CANCELLED.
+        /// Indique si le QR code a été validé par un employé.
+        /// </summary>
+        public bool IsValidated { get; set; }
+
+        /// <summary>
+        /// Statut de la réservation (par exemple, CONFIRMED ou CANCELLED).
         /// </summary>
         public ReservationStatus Status { get; set; }
 
