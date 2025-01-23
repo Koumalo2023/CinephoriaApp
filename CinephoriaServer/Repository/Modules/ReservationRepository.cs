@@ -1,4 +1,5 @@
 ﻿using CinephoriaBackEnd.Data;
+using CinephoriaServer.Configurations;
 using CinephoriaServer.Models.MongooDb;
 using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Repository.EntityFramwork;
@@ -67,6 +68,21 @@ namespace CinephoriaServer.Repository
         /// <param name="reservationId">L'identifiant de la réservation à annuler.</param>
         /// <returns>Une tâche asynchrone.</returns>
         Task CancelReservationAsync(int reservationId);
+
+        /// <summary>
+        /// Libère les sièges réservés pour une séance spécifique.
+        /// </summary>
+        /// <param name="showtimeId">L'identifiant de la séance.</param>
+        /// <param name="seatNumbers">La liste des numéros de sièges à libérer.</param>
+        /// <returns>Une tâche asynchrone.</returns>
+        Task ReleaseSeatsAsync(int showtimeId, List<string> seatNumbers);
+
+        /// <summary>
+        /// Supprime une réservation existante.
+        /// </summary>
+        /// <param name="reservationId">L'identifiant de la réservation à supprimer.</param>
+        /// <returns>Une tâche asynchrone.</returns>
+        Task DeleteReservationAsync(int reservationId);
     }
 
 
@@ -252,6 +268,53 @@ namespace CinephoriaServer.Repository
                 seat.IsAvailable = true;
                 _context.Set<Seat>().Update(seat);
             }
+
+            // Supprimer la réservation
+            _context.Set<Reservation>().Remove(reservation);
+            await _context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Libère les sièges réservés pour une séance spécifique.
+        /// </summary>
+        public async Task ReleaseSeatsAsync(int showtimeId, List<string> seatNumbers)
+        {
+            // Récupérer les sièges correspondant aux numéros fournis
+            var seats = await _context.Set<Seat>()
+                .Where(s => s.Theater.Showtimes.Any(st => st.ShowtimeId == showtimeId) && seatNumbers.Contains(s.SeatNumber))
+                .ToListAsync();
+
+            if (seats == null || !seats.Any())
+            {
+                throw new ApiException("Aucun siège trouvé avec les numéros fournis.", StatusCodes.Status404NotFound);
+            }
+
+            // Marquer les sièges comme disponibles
+            foreach (var seat in seats)
+            {
+                seat.IsAvailable = true;
+                _context.Set<Seat>().Update(seat);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Supprime une réservation existante.
+        /// </summary>
+        public async Task DeleteReservationAsync(int reservationId)
+        {
+            var reservation = await _context.Set<Reservation>()
+                .Include(r => r.Seats)
+                .FirstOrDefaultAsync(r => r.ReservationId == reservationId);
+
+            if (reservation == null)
+            {
+                throw new ApiException("Réservation non trouvée.", StatusCodes.Status404NotFound);
+            }
+
+            // Libérer les sièges réservés
+            await ReleaseSeatsAsync(reservation.ShowtimeId, reservation.Seats.Select(s => s.SeatNumber).ToList());
 
             // Supprimer la réservation
             _context.Set<Reservation>().Remove(reservation);

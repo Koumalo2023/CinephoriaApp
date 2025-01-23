@@ -110,6 +110,33 @@ namespace CinephoriaServer.Services
         }
 
 
+        /// <summary>
+        /// Annule une réservation existante.
+        /// </summary>
+        public async Task<string> CancelReservationAsync(int reservationId)
+        {
+            if (reservationId <= 0)
+            {
+                throw new ApiException("L'identifiant de la réservation doit être un nombre positif.", StatusCodes.Status400BadRequest);
+            }
+
+            var reservation = await _unitOfWork.Reservations.GetByIdAsync(reservationId);
+            if (reservation == null)
+            {
+                throw new ApiException("Réservation non trouvée.", StatusCodes.Status404NotFound);
+            }
+
+            // Libérer les sièges réservés
+            await _unitOfWork.Reservations.ReleaseSeatsAsync(reservation.ShowtimeId, reservation.Seats.Select(s => s.SeatNumber).ToList());
+
+            // Supprimer la réservation
+            await _unitOfWork.Reservations.DeleteReservationAsync(reservationId);
+
+            _logger.LogInformation("Réservation avec l'ID {ReservationId} annulée avec succès.", reservationId);
+            return "Réservation annulée avec succès.";
+        }
+
+
 
         /// <summary>
         /// Calcule le prix total d'une réservation en fonction de la séance et des sièges sélectionnés.

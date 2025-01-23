@@ -116,5 +116,28 @@ namespace CinephoriaServer.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Annule une réservation existante.
+        /// </summary>
+        /// <param name="reservationId">L'identifiant de la réservation à annuler.</param>
+        /// <returns>Un message indiquant le succès de l'opération.</returns>
+        [HttpDelete("cancel/{reservationId}")]
+        public async Task<IActionResult> CancelReservation(int reservationId)
+        {
+            try
+            {
+                var result = await _reservationService.CancelReservationAsync(reservationId);
+                return Ok(new { Message = result });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+            }
+        }
     }
 }

@@ -28,7 +28,10 @@ namespace CinephoriaServer.Services
         /// <returns>Un message indiquant le succès de l'opération.</returns>
         Task<string> CreateReservationAsync(CreateReservationDto createReservationDto);
 
-
+        /// <summary>
+        /// Annule une réservation existante.
+        /// </summary>
+        Task<string> CancelReservationAsync(int reservationId);
 
 
         /// <summary>
