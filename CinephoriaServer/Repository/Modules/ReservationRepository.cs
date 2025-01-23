@@ -199,13 +199,6 @@ namespace CinephoriaServer.Repository
             {
                 throw new ArgumentException("La réservation doit inclure une séance et au moins un siège.");
             }
-
-            // Générer le QRCode
-            byte[] qrCodeBytes = _qrCodeService.GenerateQRCode(reservation);
-
-            // Convertir le QRCode en base64 pour le stocker dans la base de données
-            reservation.QrCode = Convert.ToBase64String(qrCodeBytes);
-
             // Enregistrer la réservation
             _context.Set<Reservation>().Add(reservation);
             await _context.SaveChangesAsync();
@@ -225,6 +218,12 @@ namespace CinephoriaServer.Repository
 
             // Marquer la réservation comme confirmée
             reservation.Status = ReservationStatus.Confirmed;
+
+            // Générer le QRCode
+            byte[] qrCodeBytes = _qrCodeService.GenerateQRCode(reservation);
+
+            // Convertir le QRCode en base64 pour le stocker dans la base de données
+            reservation.QrCode = Convert.ToBase64String(qrCodeBytes);
 
             // Enregistrer les modifications
             _context.Set<Reservation>().Update(reservation);

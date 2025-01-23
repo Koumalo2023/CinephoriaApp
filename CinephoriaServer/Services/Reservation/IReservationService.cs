@@ -20,6 +20,17 @@ namespace CinephoriaServer.Services
         /// <returns>Une liste de sièges disponibles.</returns>
         Task<List<SeatDto>> GetAvailableSeatsAsync(int showtimeId);
 
+
+        /// <summary>
+        /// Crée une nouvelle réservation.
+        /// </summary>
+        /// <param name="createReservationDto">Les données de la réservation à créer.</param>
+        /// <returns>Un message indiquant le succès de l'opération.</returns>
+        Task<string> CreateReservationAsync(CreateReservationDto createReservationDto);
+
+
+
+
         /// <summary>
         /// Calcule le prix total d'une réservation en fonction de la séance et des sièges sélectionnés.
         /// </summary>

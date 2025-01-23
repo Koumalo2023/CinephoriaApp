@@ -1,4 +1,5 @@
 ﻿using CinephoriaServer.Configurations;
+using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -91,6 +92,29 @@ namespace CinephoriaServer.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Crée une nouvelle réservation.
+        /// </summary>
+        /// <param name="createReservationDto">Les données de la réservation à créer.</param>
+        /// <returns>Un message indiquant le succès de l'opération.</returns>
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateReservation([FromBody] CreateReservationDto createReservationDto)
+        {
+            try
+            {
+                var result = await _reservationService.CreateReservationAsync(createReservationDto);
+                return Ok(new { Message = result });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+            }
+        }
 
     }
 }

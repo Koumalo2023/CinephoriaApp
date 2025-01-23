@@ -4,6 +4,7 @@ using CinephoriaServer.Configurations;
 using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Repository;
 using Microsoft.EntityFrameworkCore;
+using static CinephoriaServer.Configurations.EnumConfig;
 
 namespace CinephoriaServer.Services
 {
@@ -43,6 +44,71 @@ namespace CinephoriaServer.Services
             var seats = await _unitOfWork.Seats.GetAvailableSeatsAsync(showtimeId);
             return _mapper.Map<List<SeatDto>>(seats);
         }
+
+
+        /// <summary>
+        /// Crée une nouvelle réservation.
+        /// </summary>
+        public async Task<string> CreateReservationAsync(CreateReservationDto createReservationDto)
+        {
+            if (createReservationDto == null)
+            {
+                throw new ApiException("Les données de la réservation sont invalides.", StatusCodes.Status400BadRequest);
+            }
+
+            // Récupérer la séance
+            var showtime = await _unitOfWork.Showtimes.GetByIdAsync(createReservationDto.ShowtimeId);
+            if (showtime == null)
+            {
+                throw new ApiException("Séance non trouvée.", StatusCodes.Status404NotFound);
+            }
+
+            // Récupérer les sièges correspondant aux numéros fournis
+            var seats = await _unitOfWork.Seats.GetSeatsByNumbersAsync(createReservationDto.ShowtimeId, createReservationDto.SeatNumbers.ToList());
+            if (seats == null || !seats.Any())
+            {
+                throw new ApiException("Aucun siège trouvé avec les numéros fournis.", StatusCodes.Status404NotFound);
+            }
+
+            // Calculer le prix total de la réservation
+            var totalPrice = await _unitOfWork.Reservations.CalculateReservationPriceAsync(showtime, seats);
+
+            // Bloquer les sièges
+            await _unitOfWork.Reservations.HoldSeatsAsync(showtime, seats);
+
+            // Créer la réservation
+            var reservation = _mapper.Map<Reservation>(createReservationDto);
+            reservation.TotalPrice = (float)totalPrice;
+            reservation.Status = ReservationStatus.Pending;
+
+            await _unitOfWork.Reservations.CreateReservationAsync(reservation);
+
+            // Confirmer la réservation
+            await ConfirmReservationAsync(reservation.ReservationId);
+
+            _logger.LogInformation("Réservation créée avec succès pour l'utilisateur avec l'ID {AppUserId}.", createReservationDto.AppUserId);
+            return "Réservation créée avec succès.";
+        }
+
+
+        /// <summary>
+        /// Confirme une réservation après avoir bloqué des sièges.
+        /// </summary>
+        public async Task ConfirmReservationAsync(int reservationId)
+        {
+            var reservation = await _unitOfWork.Reservations.GetByIdAsync(reservationId);
+            if (reservation == null)
+            {
+                throw new ApiException("Réservation non trouvée.", StatusCodes.Status404NotFound);
+            }
+
+            // Marquer la réservation comme confirmée
+            reservation.Status = ReservationStatus.Confirmed;
+            await _unitOfWork.Reservations.UpdateAsync(reservation);
+
+            _logger.LogInformation("Réservation avec l'ID {ReservationId} confirmée avec succès.", reservationId);
+        }
+
 
 
         /// <summary>
