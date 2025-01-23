@@ -14,6 +14,14 @@ namespace CinephoriaServer.Services
         Task<List<ShowtimeDto>> GetMovieSessionsAsync(int movieId);
 
         /// <summary>
+        /// Récupère la liste des sièges disponibles pour une séance spécifique.
+        /// </summary>
+        /// <param name="showtimeId">L'identifiant de la séance.</param>
+        /// <returns>Une liste de sièges disponibles.</returns>
+        Task<List<SeatDto>> GetAvailableSeatsAsync(int showtimeId);
+
+
+        /// <summary>
         /// Valide un QRCode scanné pour une réservation.
         /// </summary>
         /// <param name="qrCodeData">Les données du QRCode scanné.</param>

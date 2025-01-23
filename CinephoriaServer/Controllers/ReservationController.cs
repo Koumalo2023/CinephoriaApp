@@ -39,6 +39,29 @@ namespace CinephoriaServer.Controllers
             }
         }
 
+        /// <summary>
+        /// Récupère la liste des sièges disponibles pour une séance spécifique.
+        /// </summary>
+        /// <param name="showtimeId">L'identifiant de la séance.</param>
+        /// <returns>Une liste de sièges disponibles.</returns>
+        [HttpGet("showtime/{showtimeId}/seats")]
+        public async Task<IActionResult> GetAvailableSeats(int showtimeId)
+        {
+            try
+            {
+                var seats = await _reservationService.GetAvailableSeatsAsync(showtimeId);
+                return Ok(seats);
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+            }
+        }
+
 
         /// <summary>
         /// Valide un QRCode scanné pour une réservation.

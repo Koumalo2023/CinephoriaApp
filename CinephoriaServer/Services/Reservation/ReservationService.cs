@@ -35,6 +35,16 @@ namespace CinephoriaServer.Services
 
 
         /// <summary>
+        /// Récupère la liste des sièges disponibles pour une séance spécifique.
+        /// </summary>
+        public async Task<List<SeatDto>> GetAvailableSeatsAsync(int showtimeId)
+        {
+            var seats = await _unitOfWork.Seats.GetAvailableSeatsAsync(showtimeId);
+            return _mapper.Map<List<SeatDto>>(seats);
+        }
+
+
+        /// <summary>
         /// Valide un QRCode scanné pour une réservation.
         /// </summary>
         /// <param name="qrCodeData">Les données du QRCode scanné.</param>
