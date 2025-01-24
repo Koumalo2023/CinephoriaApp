@@ -6,6 +6,7 @@ namespace CinephoriaServer.Repository
     public class UnitOfWorkPostgres : IUnitOfWorkPostgres
     {
         private readonly CinephoriaDbContext _context;
+        private readonly QRCodeService _qrCodeService;
         private readonly Dictionary<Type, object> _readRepositories = new();
         private readonly Dictionary<Type, object> _writeRepositories = new();
 
@@ -16,13 +17,14 @@ namespace CinephoriaServer.Repository
         private ITheaterRepository _theaters;
         private ISeatRepository _seats;
         private IShowtimeRepository _showtimes;
-        //private IReservationRepository _reservations;
+        private IReservationRepository _reservations;
         private IIncidentRepository _incidents;
         private IUserRepository _users;
 
-        public UnitOfWorkPostgres(CinephoriaDbContext context)
+        public UnitOfWorkPostgres(CinephoriaDbContext context, QRCodeService qrCodeService)
         {
             _context = context;
+            _qrCodeService = qrCodeService;
         }
 
         // Propriétés pour accéder aux repositories spécifiques
@@ -32,7 +34,7 @@ namespace CinephoriaServer.Repository
         public ITheaterRepository Theaters => _theaters ??= new TheaterRepository(_context);
         public ISeatRepository Seats => _seats ??= new SeatRepository(_context);
         public IShowtimeRepository Showtimes => _showtimes ??= new ShowtimeRepository(_context);
-        //public IReservationRepository Reservations => _reservations ??= new ReservationRepository(_context);
+        public IReservationRepository Reservations => _reservations ??= new ReservationRepository(_context, _qrCodeService);
         public IIncidentRepository Incidents => _incidents ??= new IncidentRepository(_context);
         public IUserRepository Users => _users ??= new UserRepository(_context);
 

@@ -7,11 +7,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
-using System.Numerics;
 using System.Security.Claims;
 using System.Text;
 using static CinephoriaServer.Configurations.EnumConfig;
-using static QRCoder.PayloadGenerator;
 
 namespace CinephoriaServer.Services
 {

@@ -1,4 +1,6 @@
-﻿namespace CinephoriaServer.Models.PostgresqlDb
+﻿using static CinephoriaServer.Configurations.EnumConfig;
+
+namespace CinephoriaServer.Models.PostgresqlDb
 {
     public class CreateReservationDto
     {
@@ -17,9 +19,6 @@
         /// </summary>
         public ICollection<string> SeatNumbers { get; set; } = new List<string>();
 
-        /// <summary>
-        /// Prix total de la réservation.
-        /// </summary>
-        public float TotalPrice { get; set; }
+        
     }
 }

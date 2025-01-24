@@ -12,7 +12,7 @@ namespace CinephoriaServer.Repository
         ITheaterRepository Theaters { get; }
         ISeatRepository Seats { get; }
         IShowtimeRepository Showtimes { get; }
-        //IReservationRepository Reservations { get; }
+        IReservationRepository Reservations { get; }
         IIncidentRepository Incidents { get; }
         IUserRepository Users { get; }
 

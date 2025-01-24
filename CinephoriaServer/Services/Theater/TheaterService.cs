@@ -78,6 +78,9 @@ namespace CinephoriaServer.Services
             await _unitOfWork.Theaters.CreateTheaterAsync(theater);
             await _unitOfWork.CompleteAsync();
 
+            // Créer les sièges pour la salle
+            await CreateSeatsForTheaterAsync(theater.TheaterId, createTheaterDto.SeatCount, theater.Name);
+
             var theaterDto = _mapper.Map<TheaterDto>(theater);
             _logger.LogInformation("Salle créée avec succès avec l'ID {TheaterId}.", theater.TheaterId);
             return theaterDto;
@@ -90,7 +93,7 @@ namespace CinephoriaServer.Services
         /// <returns>La salle mise à jour sous forme de DTO.</returns>
         public async Task<TheaterDto> UpdateTheaterAsync(UpdateTheaterDto updateTheaterDto)
         {
-            // Récupérer la salle
+            // Récupérer la salle avec ses sièges
             var theater = await _unitOfWork.Theaters.GetTheaterByIdAsync(updateTheaterDto.TheaterId);
             if (theater == null)
             {
@@ -98,9 +101,25 @@ namespace CinephoriaServer.Services
                 throw new ApiException("Salle non trouvée.", StatusCodes.Status404NotFound);
             }
 
+            // Vérifier si le nombre de sièges a changé
+            bool seatCountChanged = updateTheaterDto.SeatCount != theater.SeatCount;
+
+            // Vérifier si le nom de la salle a changé
+            bool nameChanged = updateTheaterDto.Name != theater.Name;
+
             // Appliquer les modifications
             _mapper.Map(updateTheaterDto, theater);
             theater.UpdatedAt = DateTime.UtcNow;
+
+            // Si le nombre de sièges ou le nom de la salle a changé, mettre à jour les sièges
+            if (seatCountChanged || nameChanged)
+            {
+                // Supprimer les sièges existants
+                await _unitOfWork.Seats.DeleteSeatsByTheaterIdAsync(theater.TheaterId);
+
+                // Recréer les sièges avec le nouveau nombre et le nouveau nom
+                await CreateSeatsForTheaterAsync(theater.TheaterId, updateTheaterDto.SeatCount, theater.Name);
+            }
 
             await _unitOfWork.Theaters.UpdateTheaterAsync(theater);
             await _unitOfWork.CompleteAsync();
@@ -143,6 +162,37 @@ namespace CinephoriaServer.Services
 
             _logger.LogInformation("{Count} incidents récupérés pour la salle avec l'ID {TheaterId}.", incidentDtos.Count, theaterId);
             return incidentDtos;
+        }
+
+        /// <summary>
+        /// Crée les sièges pour une salle spécifique.
+        /// </summary>
+        /// <param name="theaterId">L'identifiant de la salle.</param>
+        /// <param name="seatCount">Le nombre de sièges à créer.</param>
+        /// <returns>Une tâche asynchrone.</returns>
+        private async Task CreateSeatsForTheaterAsync(int theaterId, int seatCount, string theaterName)
+        {
+            var seats = new List<Seat>();
+
+            // Extraire la première lettre du nom de la salle (par exemple, "A" pour "Salle A")
+            var prefix = theaterName.Split(' ').Last(); // "Salle A" -> "A"
+
+            for (int i = 1; i <= seatCount; i++)
+            {
+                var seat = new Seat
+                {
+                    TheaterId = theaterId,
+                    SeatNumber = $"{prefix}{i}", // Exemple : "A1", "A2", etc.
+                    IsAccessible = true,        // Par défaut, le siège n'est pas accessible
+                    IsAvailable = true           // Par défaut, le siège est disponible
+                };
+                seats.Add(seat);
+            }
+
+            await _unitOfWork.Seats.AddSeatsAsync(seats);
+            await _unitOfWork.CompleteAsync();
+
+            _logger.LogInformation("{Count} sièges créés pour la salle avec l'ID {TheaterId}.", seatCount, theaterId);
         }
     }
 }
