@@ -43,7 +43,13 @@ namespace CinephoriaServer.Services
                 finalPrice *= 0.9m;
             }
 
+            // Mapper le DTO vers l'entité Showtime
             var showtime = _mapper.Map<Showtime>(createShowtimeDto);
+
+            // Assigner le prix calculé à l'objet Showtime
+            showtime.Price = finalPrice;
+
+            // Enregistrer la séance dans la base de données
             await _unitOfWork.Showtimes.CreateSessionAsync(showtime);
 
             _logger.LogInformation("Séance créée avec succès pour le film avec l'ID {MovieId}.", createShowtimeDto.MovieId);
@@ -63,26 +69,13 @@ namespace CinephoriaServer.Services
             bool needsPriceRecalculation = showtime.Quality != updateShowtimeDto.Quality ||
                                            showtime.StartTime != updateShowtimeDto.StartTime;
 
-            
+            // Mapper les données du DTO vers l'entité Showtime
             _mapper.Map(updateShowtimeDto, showtime);
 
             // Recalculer le prix si nécessaire
             if (needsPriceRecalculation || updateShowtimeDto.PriceAdjustment != 0 || updateShowtimeDto.IsPromotion)
             {
-                
-                var basePrice = CalculateBasePrice(updateShowtimeDto.Quality);
-
-
-                var finalPrice = basePrice + updateShowtimeDto.PriceAdjustment;
-
-
-                if (updateShowtimeDto.IsPromotion)
-                {
-                    finalPrice *= 0.9m;
-                }
-
-
-                showtime.Price = finalPrice;
+                showtime.Price = CalculateFinalPrice(updateShowtimeDto.Quality, updateShowtimeDto.PriceAdjustment, updateShowtimeDto.IsPromotion);
             }
 
             showtime.UpdatedAt = DateTime.UtcNow;
@@ -166,7 +159,6 @@ namespace CinephoriaServer.Services
         }
 
 
-
         private decimal CalculateBasePrice(ProjectionQuality quality)
         {
             return quality switch
@@ -181,6 +173,24 @@ namespace CinephoriaServer.Services
             };
 
 
+        }
+
+        private decimal CalculateFinalPrice(ProjectionQuality quality, decimal priceAdjustment, bool isPromotion)
+        {
+            var basePrice = CalculateBasePrice(quality);
+            var finalPrice = basePrice + priceAdjustment;
+
+            if (isPromotion)
+            {
+                finalPrice *= 0.9m;
+            }
+
+            if (finalPrice <= 0)
+            {
+                throw new ApiException("Le prix de la séance doit être positif.", StatusCodes.Status400BadRequest);
+            }
+
+            return finalPrice;
         }
     }
 }

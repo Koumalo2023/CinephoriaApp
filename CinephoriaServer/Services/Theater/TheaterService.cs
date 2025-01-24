@@ -183,7 +183,7 @@ namespace CinephoriaServer.Services
                 {
                     TheaterId = theaterId,
                     SeatNumber = $"{prefix}{i}", // Exemple : "A1", "A2", etc.
-                    IsAccessible = false,        // Par défaut, le siège n'est pas accessible
+                    IsAccessible = true,        // Par défaut, le siège n'est pas accessible
                     IsAvailable = true           // Par défaut, le siège est disponible
                 };
                 seats.Add(seat);
