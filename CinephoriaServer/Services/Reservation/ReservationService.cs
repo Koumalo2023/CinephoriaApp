@@ -78,10 +78,14 @@ namespace CinephoriaServer.Services
             reservation.TotalPrice = (float)await _unitOfWork.Reservations.CalculateReservationPriceAsync(showtime, seats);
             reservation.Status = ReservationStatus.Confirmed;
 
+            // Associer les sièges à la réservation
+            reservation.Seats = seats;
+
+            // Enregistrer la réservation
             await _unitOfWork.Reservations.CreateReservationAsync(reservation);
 
-            _logger.LogInformation("Réservation créée avec succès pour l'utilisateur avec l'ID {AppUserId}.", createReservationDto.AppUserId);
-            return "Réservation créée avec succès.";
+            _logger.LogInformation("Réservation créée et confirmée avec succès pour l'utilisateur avec l'ID {AppUserId}.", createReservationDto.AppUserId);
+            return "Réservation créée et confirmée avec succès.";
         }
 
         /// <summary>
@@ -118,21 +122,25 @@ namespace CinephoriaServer.Services
 
 
         /// <summary>
-        /// Confirme une réservation après avoir bloqué des sièges.
+        /// Récupère la liste de toutes les réservations d'une séance spécifique.
         /// </summary>
-        public async Task ConfirmReservationAsync(int reservationId)
+        /// <param name="showtimeId">L'identifiant de la séance.</param>
+        /// <returns>Une liste de réservations.</returns>
+        public async Task<List<ReservationDto>> GetReservationsByShowtimeAsync(int showtimeId)
         {
-            var reservation = await _unitOfWork.Reservations.GetByIdAsync(reservationId);
-            if (reservation == null)
+            // Récupérer les réservations associées à la séance
+            var reservations = await _unitOfWork.Reservations.GetReservationsByShowtimeAsync(showtimeId);
+
+            if (reservations == null || !reservations.Any())
             {
-                throw new ApiException("Réservation non trouvée.", StatusCodes.Status404NotFound);
+                _logger.LogInformation("Aucune réservation trouvée pour la séance avec l'ID {ShowtimeId}.", showtimeId);
+                return new List<ReservationDto>();
             }
 
-            // Marquer la réservation comme confirmée
-            reservation.Status = ReservationStatus.Confirmed;
-            await _unitOfWork.Reservations.UpdateAsync(reservation);
+            // Mapper les réservations vers des DTO
+            var reservationDtos = _mapper.Map<List<ReservationDto>>(reservations);
 
-            _logger.LogInformation("Réservation avec l'ID {ReservationId} confirmée avec succès.", reservationId);
+            return reservationDtos;
         }
 
 
@@ -146,7 +154,11 @@ namespace CinephoriaServer.Services
                 throw new ApiException("L'identifiant de la réservation doit être un nombre positif.", StatusCodes.Status400BadRequest);
             }
 
-            var reservation = await _unitOfWork.Reservations.GetByIdAsync(reservationId);
+            // Récupérer la réservation avec les sièges associés
+            var reservation = await _context.Set<Reservation>()
+                .Include(r => r.Seats) // Inclure les sièges associés
+                .FirstOrDefaultAsync(r => r.ReservationId == reservationId);
+
             if (reservation == null)
             {
                 throw new ApiException("Réservation non trouvée.", StatusCodes.Status404NotFound);

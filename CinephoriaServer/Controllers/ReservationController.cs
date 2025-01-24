@@ -88,6 +88,34 @@ namespace CinephoriaServer.Controllers
         }
 
         /// <summary>
+        /// Récupère la liste de toutes les réservations d'une séance spécifique.
+        /// </summary>
+        /// <param name="showtimeId">L'identifiant de la séance.</param>
+        /// <returns>Une liste de réservations.</returns>
+        [HttpGet("showtime/{showtimeId}")]
+        public async Task<ActionResult<List<ReservationDto>>> GetReservationsByShowtime(int showtimeId)
+        {
+            try
+            {
+                // Appeler le service pour récupérer les réservations
+                var reservations = await _reservationService.GetReservationsByShowtimeAsync(showtimeId);
+
+                if (reservations == null || !reservations.Any())
+                {
+                    return NotFound("Aucune réservation trouvée pour cette séance.");
+                }
+
+                return Ok(reservations);
+            }
+            catch (Exception ex)
+            {
+                
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur interne est survenue.");
+            }
+        }
+
+
+        /// <summary>
         /// Valide un QRCode scanné pour une réservation.
         /// </summary>
         /// <param name="qrCodeData">Les données du QRCode scanné.</param>

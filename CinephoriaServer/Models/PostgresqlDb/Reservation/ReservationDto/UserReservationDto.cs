@@ -43,5 +43,10 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// Nombre de sièges réservés.
         /// </summary>
         public int NumberOfSeats { get; set; }
+
+        // <summary>
+        /// liste des sièges réservés.
+        /// </summary>
+        public List<SeatDto> Seats { get; set; }
     }
 }

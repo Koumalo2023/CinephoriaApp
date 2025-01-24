@@ -1,10 +1,16 @@
 ﻿using ZXing;
-using ZXing.QrCode;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using CinephoriaServer.Models.PostgresqlDb;
+using ZXing.Common;
 
+
+
+namespace CinephoriaServer.Services
+{
+
+}
 public class QRCodeService
 {
     /// <summary>
@@ -15,32 +21,40 @@ public class QRCodeService
     public byte[] GenerateQRCode(Reservation reservation)
     {
         if (reservation == null)
-        {
             throw new ArgumentNullException(nameof(reservation));
-        }
 
-        // Créer les données à encoder dans le QR code
-        string qrCodeData = $"ReservationId:{reservation.ReservationId};ShowtimeId:{reservation.ShowtimeId};UserId:{reservation.AppUserId}";
+        var qrCodeData = $"ReservationId:{reservation.ReservationId};ShowtimeId:{reservation.ShowtimeId};UserId:{reservation.AppUserId}";
 
-        // Configurer le writer pour générer un QR code
-        var writer = new BarcodeWriter<Bitmap>
+        var writer = new BarcodeWriterPixelData
         {
             Format = BarcodeFormat.QR_CODE,
-            Options = new QrCodeEncodingOptions
+            Options = new EncodingOptions
             {
-                Width = 300,  
-                Height = 300, 
-                Margin = 1 
+                Width = 300,
+                Height = 300,
+                Margin = 1
             }
         };
 
-        // Générer le QR code en tant qu'image Bitmap
-        using (Bitmap bitmap = writer.Write(qrCodeData))
-        using (MemoryStream stream = new MemoryStream())
+        var pixelData = writer.Write(qrCodeData);
+
+        using (var bitmap = new Bitmap(pixelData.Width, pixelData.Height, System.Drawing.Imaging.PixelFormat.Format32bppRgb))
         {
-            // Convertir l'image en tableau de bytes (format PNG)
-            bitmap.Save(stream, ImageFormat.Png);
-            return stream.ToArray();
+            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.WriteOnly, bitmap.PixelFormat);
+            try
+            {
+                System.Runtime.InteropServices.Marshal.Copy(pixelData.Pixels, 0, bitmapData.Scan0, pixelData.Pixels.Length);
+            }
+            finally
+            {
+                bitmap.UnlockBits(bitmapData);
+            }
+
+            using (var memoryStream = new MemoryStream())
+            {
+                bitmap.Save(memoryStream, ImageFormat.Png);
+                return memoryStream.ToArray();
+            }
         }
     }
 }

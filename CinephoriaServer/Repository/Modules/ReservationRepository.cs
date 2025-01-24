@@ -12,11 +12,25 @@ namespace CinephoriaServer.Repository
     public interface IReservationRepository : IReadRepository<Reservation>, IWriteRepository<Reservation>
     {
         /// <summary>
+        /// Récupère une réservation avec la liste des sièges.
+        /// </summary>
+        /// <param name="reservationId">L'identifiant de la reservation.</param>
+        /// <returns>Une liste de séances.</returns>
+        Task<Reservation> GetByIdAsync(int reservationId);
+
+        /// <summary>
         /// Récupère la liste des séances disponibles pour un film spécifique.
         /// </summary>
         /// <param name="movieId">L'identifiant du film.</param>
         /// <returns>Une liste de séances.</returns>
         Task<List<Showtime>> GetMovieSessionsAsync(int movieId);
+
+        /// <summary>
+        /// Récupère la liste de toutes les réservations d'une séance spécifique.
+        /// </summary>
+        /// <param name="showtimeId">L'identifiant de la séance.</param>
+        /// <returns>Une liste de réservations.</returns>
+        Task<List<Reservation>> GetReservationsByShowtimeAsync(int showtimeId);
 
         /// <summary>
         /// Récupère la liste des sièges disponibles pour une séance spécifique.
@@ -55,19 +69,7 @@ namespace CinephoriaServer.Repository
         /// <returns>Une tâche asynchrone.</returns>
         Task CreateReservationAsync(Reservation reservation);
 
-        /// <summary>
-        /// Confirme une réservation après avoir bloqué des sièges.
-        /// </summary>
-        /// <param name="reservation">La réservation à confirmer.</param>
-        /// <returns>Une tâche asynchrone.</returns>
-        Task ConfirmReservationAsync(Reservation reservation);
 
-        /// <summary>
-        /// Annule une réservation en fonction de son identifiant.
-        /// </summary>
-        /// <param name="reservationId">L'identifiant de la réservation à annuler.</param>
-        /// <returns>Une tâche asynchrone.</returns>
-        Task CancelReservationAsync(int reservationId);
 
         /// <summary>
         /// Libère les sièges réservés pour une séance spécifique.
@@ -95,6 +97,31 @@ namespace CinephoriaServer.Repository
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _qrCodeService = qrCodeService ?? throw new ArgumentNullException(nameof(qrCodeService));
+           
+        }
+        /// <summary>
+        /// Récupère une réservation avec la liste des sièges.
+        /// </summary>
+        /// <param name="reservationId">L'identifiant de la reservation.</param>
+        /// <returns>Une liste de séances.</returns>
+        public async Task<Reservation> GetByIdAsync(int reservationId)
+        {
+            return await _context.Set<Reservation>()
+                .Include(r => r.Seats)
+                .FirstOrDefaultAsync(r => r.ReservationId == reservationId);
+        }
+
+        /// <summary>
+        /// Récupère la liste de toutes les réservations d'une séance spécifique.
+        /// </summary>
+        /// <param name="showtimeId">L'identifiant de la séance.</param>
+        /// <returns>Une liste de réservations.</returns>
+        public async Task<List<Reservation>> GetReservationsByShowtimeAsync(int showtimeId)
+        {
+            return await _context.Set<Reservation>()
+                .Include(r => r.Seats) 
+                .Where(r => r.ShowtimeId == showtimeId)
+                .ToListAsync();
         }
 
         /// <summary>
@@ -162,6 +189,58 @@ namespace CinephoriaServer.Repository
         }
 
         /// <summary>
+        /// Crée une nouvelle réservation pour une séance spécifique.
+        /// </summary>
+        /// <param name="reservation">La réservation à créer.</param>
+        /// <returns>Une tâche asynchrone.</returns>
+        public async Task CreateReservationAsync(Reservation reservation)
+        {
+            if (reservation == null)
+            {
+                throw new ArgumentNullException(nameof(reservation));
+            }
+
+            // Vérifier que la séance est valide
+            var showtime = await _context.Set<Showtime>()
+                .Include(s => s.Theater)
+                .FirstOrDefaultAsync(s => s.ShowtimeId == reservation.ShowtimeId);
+
+            if (showtime == null)
+            {
+                throw new ArgumentException("La séance spécifiée n'existe pas.");
+            }
+
+            // Charger les sièges à partir des numéros de sièges
+            var seatNumbers = reservation.Seats.Select(s => s.SeatNumber).ToList();
+            var seats = await _context.Set<Seat>()
+                .Where(s => s.TheaterId == showtime.TheaterId && seatNumbers.Contains(s.SeatNumber))
+                .ToListAsync();
+
+            if (seats == null || !seats.Any())
+            {
+                throw new ArgumentException("Aucun siège trouvé avec les numéros fournis.");
+            }
+
+
+            // Associer les sièges chargés à la réservation
+            reservation.Seats = seats;
+
+            
+            _context.Set<Reservation>().Add(reservation);
+            await _context.SaveChangesAsync();
+
+            // Générer le QRCode après l'enregistrement de la réservation
+            byte[] qrCodeBytes = _qrCodeService.GenerateQRCode(reservation);
+
+            // Convertir le QRCode en base64 pour le stocker dans la base de données
+            reservation.QrCode = Convert.ToBase64String(qrCodeBytes);
+
+            // Mettre à jour la réservation avec le QRCode généré
+            _context.Set<Reservation>().Update(reservation);
+            await _context.SaveChangesAsync();
+        }
+
+        /// <summary>
         /// Bloque des sièges pour une réservation en attente.
         /// </summary>
         /// <param name="showtime">La séance concernée.</param>
@@ -179,12 +258,16 @@ namespace CinephoriaServer.Repository
                 throw new ApiException("Séance non trouvée.", StatusCodes.Status404NotFound);
             }
 
+            // Vérifier que les sièges existent et sont disponibles
+            var unavailableSeats = seats.Where(s => !s.IsAvailable).ToList();
+            if (unavailableSeats.Any())
+            {
+                throw new ApiException($"Les sièges suivants ne sont pas disponibles : {string.Join(", ", unavailableSeats.Select(s => s.SeatNumber))}", StatusCodes.Status400BadRequest);
+            }
+
+            // Bloquer les sièges
             foreach (var seat in seats)
             {
-                if (!seat.IsAvailable)
-                {
-                    throw new ApiException($"Le siège {seat.SeatNumber} n'est pas disponible.", StatusCodes.Status400BadRequest);
-                }
                 seat.IsAvailable = false;
                 _context.Set<Seat>().Update(seat);
             }
@@ -207,82 +290,6 @@ namespace CinephoriaServer.Repository
                 .Include(r => r.Seats)
                 .Where(r => r.AppUserId == userId)
                 .ToListAsync();
-        }
-
-        /// <summary>
-        /// Crée une nouvelle réservation pour une séance spécifique.
-        /// </summary>
-        /// <param name="reservation">La réservation à créer.</param>
-        /// <returns>Une tâche asynchrone.</returns>
-        public async Task CreateReservationAsync(Reservation reservation)
-        {
-            if (reservation == null)
-            {
-                throw new ArgumentNullException(nameof(reservation));
-            }
-
-            // Vérifier que la séance et les sièges sont valides
-            if (reservation.Showtime == null || reservation.Seats == null || !reservation.Seats.Any())
-            {
-                throw new ArgumentException("La réservation doit inclure une séance et au moins un siège.");
-            }
-            // Enregistrer la réservation
-            _context.Set<Reservation>().Add(reservation);
-            await _context.SaveChangesAsync();
-        }
-
-        /// <summary>
-        /// Confirme une réservation après avoir bloqué des sièges.
-        /// </summary>
-        /// <param name="reservation">La réservation à confirmer.</param>
-        /// <returns>Une tâche asynchrone.</returns>
-        public async Task ConfirmReservationAsync(Reservation reservation)
-        {
-            if (reservation == null)
-            {
-                throw new ArgumentNullException(nameof(reservation));
-            }
-
-            // Marquer la réservation comme confirmée
-            reservation.Status = ReservationStatus.Confirmed;
-
-            // Générer le QRCode
-            byte[] qrCodeBytes = _qrCodeService.GenerateQRCode(reservation);
-
-            // Convertir le QRCode en base64 pour le stocker dans la base de données
-            reservation.QrCode = Convert.ToBase64String(qrCodeBytes);
-
-            // Enregistrer les modifications
-            _context.Set<Reservation>().Update(reservation);
-            await _context.SaveChangesAsync();
-        }
-
-        /// <summary>
-        /// Annule une réservation en fonction de son identifiant.
-        /// </summary>
-        /// <param name="reservationId">L'identifiant de la réservation à annuler.</param>
-        /// <returns>Une tâche asynchrone.</returns>
-        public async Task CancelReservationAsync(int reservationId)
-        {
-            var reservation = await _context.Set<Reservation>()
-                .Include(r => r.Seats)
-                .FirstOrDefaultAsync(r => r.ReservationId == reservationId);
-
-            if (reservation == null)
-            {
-                throw new ArgumentException("Réservation non trouvée.");
-            }
-
-            // Libérer les sièges réservés
-            foreach (var seat in reservation.Seats)
-            {
-                seat.IsAvailable = true;
-                _context.Set<Seat>().Update(seat);
-            }
-
-            // Supprimer la réservation
-            _context.Set<Reservation>().Remove(reservation);
-            await _context.SaveChangesAsync();
         }
 
         /// <summary>
@@ -337,6 +344,9 @@ namespace CinephoriaServer.Repository
 
             // Libérer les sièges réservés
             await ReleaseSeatsAsync(reservation.ShowtimeId, reservation.Seats.Select(s => s.SeatNumber).ToList());
+
+            // Rendre le QRCode null
+            reservation.QrCode = null;
 
             // Supprimer la réservation
             _context.Set<Reservation>().Remove(reservation);

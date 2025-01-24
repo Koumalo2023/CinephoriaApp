@@ -5,6 +5,12 @@ namespace CinephoriaServer.Services
 {
     public interface IReservationService
     {
+        /// <summary>
+        /// Récupère la liste de toutes les réservations d'une séance spécifique.
+        /// </summary>
+        /// <param name="showtimeId">L'identifiant de la séance.</param>
+        /// <returns>Une liste de réservations.</returns>
+        Task<List<ReservationDto>> GetReservationsByShowtimeAsync(int showtimeId);
 
         /// <summary>
         /// Récupère la liste des séances disponibles pour un film spécifique.
