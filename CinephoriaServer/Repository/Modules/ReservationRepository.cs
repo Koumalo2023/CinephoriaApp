@@ -39,7 +39,7 @@ namespace CinephoriaServer.Repository
         /// <param name="showtime">La séance concernée.</param>
         /// <param name="seats">La liste des sièges à bloquer.</param>
         /// <returns>Une tâche asynchrone.</returns>
-        Task HoldSeatsAsync(Showtime showtime, List<Seat> seats);
+        Task HoldSeatsAsync(int showtimeId, List<Seat> seats);
 
         /// <summary>
         /// Récupère la liste des réservations d'un utilisateur.
@@ -167,19 +167,30 @@ namespace CinephoriaServer.Repository
         /// <param name="showtime">La séance concernée.</param>
         /// <param name="seats">La liste des sièges à bloquer.</param>
         /// <returns>Une tâche asynchrone.</returns>
-        public async Task HoldSeatsAsync(Showtime showtime, List<Seat> seats)
+        public async Task HoldSeatsAsync(int showtimeId, List<Seat> seats)
         {
-            if (showtime == null || seats == null || !seats.Any())
+            var showtime = await _context.Set<Showtime>()
+                .Include(s => s.Theater)
+                .ThenInclude(t => t.Seats)
+                .FirstOrDefaultAsync(s => s.ShowtimeId == showtimeId);
+
+            if (showtime == null)
             {
-                throw new ArgumentException("La séance et les sièges doivent être valides.");
+                throw new ApiException("Séance non trouvée.", StatusCodes.Status404NotFound);
             }
 
-            // Marquer les sièges comme non disponibles
             foreach (var seat in seats)
             {
+                if (!seat.IsAvailable)
+                {
+                    throw new ApiException($"Le siège {seat.SeatNumber} n'est pas disponible.", StatusCodes.Status400BadRequest);
+                }
                 seat.IsAvailable = false;
                 _context.Set<Seat>().Update(seat);
             }
+
+            showtime.AvailableSeats -= seats.Count;
+            _context.Set<Showtime>().Update(showtime);
 
             await _context.SaveChangesAsync();
         }
@@ -279,22 +290,33 @@ namespace CinephoriaServer.Repository
         /// </summary>
         public async Task ReleaseSeatsAsync(int showtimeId, List<string> seatNumbers)
         {
-            // Récupérer les sièges correspondant aux numéros fournis
-            var seats = await _context.Set<Seat>()
-                .Where(s => s.Theater.Showtimes.Any(st => st.ShowtimeId == showtimeId) && seatNumbers.Contains(s.SeatNumber))
-                .ToListAsync();
+            var showtime = await _context.Set<Showtime>()
+                .Include(s => s.Theater)
+                .ThenInclude(t => t.Seats)
+                .FirstOrDefaultAsync(s => s.ShowtimeId == showtimeId);
+
+            if (showtime == null)
+            {
+                throw new ApiException("Séance non trouvée.", StatusCodes.Status404NotFound);
+            }
+
+            var seats = showtime.Theater.Seats
+                .Where(s => seatNumbers.Contains(s.SeatNumber))
+                .ToList();
 
             if (seats == null || !seats.Any())
             {
                 throw new ApiException("Aucun siège trouvé avec les numéros fournis.", StatusCodes.Status404NotFound);
             }
 
-            // Marquer les sièges comme disponibles
             foreach (var seat in seats)
             {
                 seat.IsAvailable = true;
                 _context.Set<Seat>().Update(seat);
             }
+
+            showtime.AvailableSeats += seats.Count;
+            _context.Set<Showtime>().Update(showtime);
 
             await _context.SaveChangesAsync();
         }

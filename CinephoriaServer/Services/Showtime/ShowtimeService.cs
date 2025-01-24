@@ -40,7 +40,7 @@ namespace CinephoriaServer.Services
             // Appliquer une promotion si nécessaire
             if (createShowtimeDto.IsPromotion)
             {
-                finalPrice *= 0.9m; // 10% de réduction
+                finalPrice *= 0.9m;
             }
 
             var showtime = _mapper.Map<Showtime>(createShowtimeDto);

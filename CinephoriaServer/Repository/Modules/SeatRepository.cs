@@ -38,6 +38,20 @@ namespace CinephoriaServer.Repository
         /// <param name="seatNumbers">La liste des numéros de sièges.</param>
         /// <returns>Une liste de sièges.</returns>
         Task<List<Seat>> GetSeatsByNumbersAsync(int showtimeId, List<string> seatNumbers);
+
+        /// <summary>
+        /// Ajoute une liste de sièges à la base de données.
+        /// </summary>
+        /// <param name="seats">La liste des sièges à ajouter.</param>
+        /// <returns>Une tâche asynchrone.</returns>
+        Task AddSeatsAsync(List<Seat> seats);
+
+        /// <summary>
+        /// Supprime tous les sièges associés à une salle spécifique.
+        /// </summary>
+        /// <param name="theaterId">L'identifiant de la salle.</param>
+        /// <returns>Une tâche asynchrone.</returns>
+        Task DeleteSeatsByTheaterIdAsync(int theaterId);
     }
     public class SeatRepository : EFRepository<Seat>, ISeatRepository
     {
@@ -148,5 +162,28 @@ namespace CinephoriaServer.Repository
 
             return seats;
         }
+
+        /// <summary>
+        /// Ajoute une liste de sièges à la base de données.
+        /// </summary>
+        public async Task AddSeatsAsync(List<Seat> seats)
+        {
+            await _context.Set<Seat>().AddRangeAsync(seats);
+            await _context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Supprime tous les sièges associés à une salle spécifique.
+        /// </summary>
+        public async Task DeleteSeatsByTheaterIdAsync(int theaterId)
+        {
+            var seats = await _context.Set<Seat>()
+                .Where(s => s.TheaterId == theaterId)
+                .ToListAsync();
+
+            _context.Set<Seat>().RemoveRange(seats);
+            await _context.SaveChangesAsync();
+        }
     }
 }
+

@@ -8,7 +8,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
         {
             // Mapping de Theater vers TheaterDto
             CreateMap<Theater, TheaterDto>()
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Cinema.Name))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Seats, opt => opt.MapFrom(src => src.Seats));
 
             // Mapping de CreateTheaterDto vers Theater

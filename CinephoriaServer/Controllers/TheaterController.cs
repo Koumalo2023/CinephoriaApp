@@ -64,7 +64,7 @@ namespace CinephoriaServer.Controllers
         }
 
         /// <summary>
-        /// Crée une nouvelle salle de cinéma.
+        /// Crée une nouvelle salle de cinéma NB: Le nom de salle doit contenir un suffixe ex "Salle A" ou "Salle B".
         /// </summary>
         /// <param name="createTheaterDto">Les données de la salle à créer.</param>
         /// <returns>La salle créée sous forme de DTO.</returns>

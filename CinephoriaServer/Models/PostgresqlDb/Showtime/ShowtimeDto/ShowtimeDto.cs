@@ -34,10 +34,6 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// </summary>
         public ProjectionQuality Quality { get; set; }
 
-        /// <summary>
-        /// Nombre de sièges disponibles.
-        /// </summary>
-        public int AvailableSeats { get; set; }
 
         /// <summary>
         /// Heure de fin de la séance.

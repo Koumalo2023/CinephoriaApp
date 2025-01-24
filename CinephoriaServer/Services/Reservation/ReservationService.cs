@@ -70,21 +70,15 @@ namespace CinephoriaServer.Services
                 throw new ApiException("Aucun siège trouvé avec les numéros fournis.", StatusCodes.Status404NotFound);
             }
 
-            // Calculer le prix total de la réservation
-            var totalPrice = await _unitOfWork.Reservations.CalculateReservationPriceAsync(showtime, seats);
-
             // Bloquer les sièges
-            await _unitOfWork.Reservations.HoldSeatsAsync(showtime, seats);
+            await _unitOfWork.Reservations.HoldSeatsAsync(showtime.ShowtimeId, seats);
 
             // Créer la réservation
             var reservation = _mapper.Map<Reservation>(createReservationDto);
-            reservation.TotalPrice = (float)totalPrice;
-            reservation.Status = ReservationStatus.Pending;
+            reservation.TotalPrice = (float)await _unitOfWork.Reservations.CalculateReservationPriceAsync(showtime, seats);
+            reservation.Status = ReservationStatus.Confirmed;
 
             await _unitOfWork.Reservations.CreateReservationAsync(reservation);
-
-            // Confirmer la réservation
-            await ConfirmReservationAsync(reservation.ReservationId);
 
             _logger.LogInformation("Réservation créée avec succès pour l'utilisateur avec l'ID {AppUserId}.", createReservationDto.AppUserId);
             return "Réservation créée avec succès.";
@@ -158,8 +152,11 @@ namespace CinephoriaServer.Services
                 throw new ApiException("Réservation non trouvée.", StatusCodes.Status404NotFound);
             }
 
-            // Libérer les sièges réservés
-            await _unitOfWork.Reservations.ReleaseSeatsAsync(reservation.ShowtimeId, reservation.Seats.Select(s => s.SeatNumber).ToList());
+            // Extraire les numéros de sièges
+            var seatNumbers = reservation.Seats.Select(s => s.SeatNumber).ToList();
+
+            // Libérer les sièges
+            await _unitOfWork.Reservations.ReleaseSeatsAsync(reservation.ShowtimeId, seatNumbers);
 
             // Supprimer la réservation
             await _unitOfWork.Reservations.DeleteReservationAsync(reservationId);
@@ -167,7 +164,6 @@ namespace CinephoriaServer.Services
             _logger.LogInformation("Réservation avec l'ID {ReservationId} annulée avec succès.", reservationId);
             return "Réservation annulée avec succès.";
         }
-
 
 
         /// <summary>
@@ -192,15 +188,23 @@ namespace CinephoriaServer.Services
         /// </summary>
         public async Task HoldSeatsAsync(int showtimeId, List<string> seatNumbers)
         {
+            // Récupérer la séance
             var showtime = await _unitOfWork.Showtimes.GetByIdAsync(showtimeId);
-            var seats = await _unitOfWork.Seats.GetSeatsByNumbersAsync(showtimeId, seatNumbers);
-
-            if (showtime == null || seats == null || !seats.Any())
+            if (showtime == null)
             {
-                throw new ApiException("La séance ou les sièges sélectionnés sont invalides.", StatusCodes.Status400BadRequest);
+                throw new ApiException("Séance non trouvée.", StatusCodes.Status404NotFound);
             }
 
-            await _unitOfWork.Reservations.HoldSeatsAsync(showtime, seats);
+            // Récupérer les sièges correspondant aux numéros fournis
+            var seats = await _unitOfWork.Seats.GetSeatsByNumbersAsync(showtimeId, seatNumbers);
+            if (seats == null || !seats.Any())
+            {
+                throw new ApiException("Aucun siège trouvé avec les numéros fournis.", StatusCodes.Status404NotFound);
+            }
+
+            // Bloquer les sièges
+            await _unitOfWork.Reservations.HoldSeatsAsync(showtimeId, seats);
+
             _logger.LogInformation("Sièges bloqués avec succès pour la séance avec l'ID {ShowtimeId}.", showtimeId);
         }
 

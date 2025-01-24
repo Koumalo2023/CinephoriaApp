@@ -53,7 +53,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// <summary>
         /// Nombre de sièges disponibles (calculé à partir des sièges réservés).
         /// </summary>
-        public int AvailableSeats => Theater?.Seats?.Count(s => s.IsAvailable) ?? 0;
+        public int AvailableSeats { get; set; }
 
         [Required]
         /// <summary>
