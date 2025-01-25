@@ -4,6 +4,7 @@ using CinephoriaServer.Configurations;
 using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Repository;
 using Microsoft.EntityFrameworkCore;
+using ZXing;
 using static CinephoriaServer.Configurations.EnumConfig;
 
 namespace CinephoriaServer.Services
@@ -225,7 +226,7 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="qrCodeData">Les données du QRCode scanné.</param>
         /// <returns>True si la validation est réussie, sinon False.</returns>
-        public async Task<bool> ValidatedSession(string qrCodeData)
+        public async Task<string> ValidatedSession(string qrCodeData)
         {
             if (string.IsNullOrEmpty(qrCodeData))
             {
@@ -277,7 +278,7 @@ namespace CinephoriaServer.Services
             await _context.SaveChangesAsync();
 
             _logger.LogInformation("Réservation avec l'ID {ReservationId} validée avec succès.", reservationId);
-            return true;
+            return "Réservation validée avec succès.";
         }
 
     }

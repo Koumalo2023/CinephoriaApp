@@ -56,7 +56,7 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="createCinemaDto">Les données du cinéma à créer.</param>
         /// <returns>Le cinéma créé sous forme de DTO.</returns>
-        public async Task<CinemaDto> CreateCinemaAsync(CreateCinemaDto createCinemaDto)
+        public async Task<string> CreateCinemaAsync(CreateCinemaDto createCinemaDto)
         {
             // Valider le DTO en utilisant les annotations de données
             var validationContext = new ValidationContext(createCinemaDto);
@@ -78,7 +78,7 @@ namespace CinephoriaServer.Services
 
             var cinemaDto = _mapper.Map<CinemaDto>(cinema);
             _logger.LogInformation("Cinéma créé avec succès avec l'ID {CinemaId}.", cinema.CinemaId);
-            return cinemaDto;
+            return "Cinéma créé avec succès";
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="updateCinemaDto">Les données du cinéma à mettre à jour.</param>
         /// <returns>Le cinéma mis à jour sous forme de DTO.</returns>
-        public async Task<CinemaDto> UpdateCinemaAsync(UpdateCinemaDto updateCinemaDto)
+        public async Task<string> UpdateCinemaAsync(UpdateCinemaDto updateCinemaDto)
         {
             var cinema = await _unitOfWork.Cinemas.GetCinemaByIdAsync(updateCinemaDto.CinemaId);
             if (cinema == null)
@@ -100,9 +100,8 @@ namespace CinephoriaServer.Services
 
             await _unitOfWork.Cinemas.UpdateCinemaAsync(cinema);
             await _unitOfWork.CompleteAsync();
-
             _logger.LogInformation("Cinéma avec l'ID {CinemaId} mis à jour avec succès.", cinema.CinemaId);
-            return _mapper.Map<CinemaDto>(cinema);
+            return "Cinéma avec l'ID {CinemaId} mis à jour avec succès." ;
         }
 
         /// <summary>
@@ -110,7 +109,7 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="cinemaId">L'identifiant du cinéma à supprimer.</param>
         /// <returns>Une réponse indiquant le succès ou l'échec de l'opération.</returns>
-        public async Task DeleteCinemaAsync(int cinemaId)
+        public async Task<string> DeleteCinemaAsync(int cinemaId)
         {
             var cinema = await _unitOfWork.Cinemas.GetCinemaByIdAsync(cinemaId);
             if (cinema == null)
@@ -123,6 +122,7 @@ namespace CinephoriaServer.Services
             await _unitOfWork.CompleteAsync();
 
             _logger.LogInformation("Cinéma avec l'ID {CinemaId} supprimé avec succès.", cinemaId);
+            return "Cinéma supprimé avec succès.";
         }
     }
 

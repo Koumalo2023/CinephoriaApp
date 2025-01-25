@@ -66,7 +66,6 @@ namespace CinephoriaServer.Services
             return "Image de profil mise à jour avec succès.";
         }
 
-
         /// <summary>
         /// Supprime l'image de profil d'un utilisateur.
         /// </summary>
@@ -102,8 +101,6 @@ namespace CinephoriaServer.Services
             _logger.LogInformation("Image de profil supprimée avec succès pour l'utilisateur avec l'ID {UserId}.", userId);
             return "Image de profil supprimée avec succès.";
         }
-
-
 
         /// <summary>
         /// Enregistre un nouvel utilisateur.
@@ -158,7 +155,6 @@ namespace CinephoriaServer.Services
 
             return "Utilisateur créé avec succès. Un email de confirmation a été envoyé.";
         }
-
 
         /// <summary>
         /// Enregistre un nouvel employé ou administrateur.
@@ -235,7 +231,6 @@ namespace CinephoriaServer.Services
             return "Compte employé créé avec succès. Un e-mail a été envoyé avec un mot de passe temporaire.";
         }
 
-
         /// <summary>
         /// Connecte un utilisateur en vérifiant ses informations d'identification.
         /// </summary>
@@ -269,9 +264,13 @@ namespace CinephoriaServer.Services
             return token;
         }
 
-
         // Gestion des mot de passe(Demande de changement & Réinitialisation)
 
+        /// <summary>
+        /// Demande de réinitialisation de mot de passe pour un utilisateur normal.
+        /// </summary>
+        /// <param name="request">Les informations de demande de réinitialisation (e-mail).</param>
+        /// <returns>Un message indiquant si la demande a été traitée avec succès.</returns>
         public async Task<string> ForgotPasswordAsync(RequestPasswordResetDto request)
         {
             // Vérifier si l'utilisateur existe
@@ -291,6 +290,11 @@ namespace CinephoriaServer.Services
             return "Un lien de réinitialisation a été envoyé à votre adresse e-mail.";
         }
 
+        /// <summary>
+        /// Réinitialise le mot de passe d'un utilisateur normal.
+        /// </summary>
+        /// <param name="resetPasswordDto">Les informations de réinitialisation (token et nouveau mot de passe).</param>
+        /// <returns>Un message indiquant si la réinitialisation a réussi.</returns>
         public async Task<string> ResetPasswordAsync(ResetPasswordDto resetPasswordDto)
         {
             // Vérifier si l'utilisateur existe
@@ -310,6 +314,12 @@ namespace CinephoriaServer.Services
             return "Votre mot de passe a été réinitialisé avec succès.";
         }
 
+        /// <summary>
+        /// Valide un jeton de réinitialisation de mot de passe.
+        /// </summary>
+        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="token">Le jeton de réinitialisation.</param>
+        /// <returns>Un message indiquant si le jeton est valide.</returns>
         public async Task<string> ValidateResetTokenAsync(string userId, string token)
         {
             // Vérifier si l'utilisateur existe
@@ -329,6 +339,11 @@ namespace CinephoriaServer.Services
             return "Le jeton de réinitialisation est valide.";
         }
 
+        /// <summary>
+        /// Force la réinitialisation du mot de passe d'un utilisateur normal.
+        /// </summary>
+        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <returns>Un message indiquant si la réinitialisation forcée a réussi.</returns>
         public async Task<string> ForcePasswordResetAsync(string userId)
         {
             // Vérifier si l'utilisateur existe
@@ -347,6 +362,11 @@ namespace CinephoriaServer.Services
             return "Un nouveau lien de réinitialisation a été envoyé à votre adresse e-mail.";
         }
 
+        /// <summary>
+        /// Permet à un employé de changer son mot de passe après avoir utilisé un mot de passe temporaire.
+        /// </summary>
+        /// <param name="changePasswordDto">Les informations de changement de mot de passe.</param>
+        /// <returns>Un message indiquant si le changement de mot de passe a réussi.</returns>
         public async Task<string> ChangeEmployeePasswordAsync(ChangeEmployeePasswordDto changePasswordDto)
         {
             // Vérifier si l'utilisateur existe
@@ -376,6 +396,11 @@ namespace CinephoriaServer.Services
             return "Votre mot de passe a été changé avec succès.";
         }
 
+        /// <summary>
+        /// Force un employé à changer son mot de passe (par exemple, si le mot de passe temporaire a expiré).
+        /// </summary>
+        /// <param name="userId">L'identifiant de l'employé.</param>
+        /// <returns>Un message indiquant si la réinitialisation forcée a réussi.</returns>
         public async Task<string> ForceEmployeePasswordChangeAsync(string userId)
         {
             // Vérifier si l'utilisateur existe

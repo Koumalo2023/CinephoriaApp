@@ -23,21 +23,21 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="createTheaterDto">Les données de la salle à créer.</param>
         /// <returns>La salle créée sous forme de DTO.</returns>
-        Task<TheaterDto> CreateTheaterAsync(CreateTheaterDto createTheaterDto);
+        Task<string> CreateTheaterAsync(CreateTheaterDto createTheaterDto);
 
         /// <summary>
         /// Met à jour les informations d'une salle de cinéma existante.
         /// </summary>
         /// <param name="updateTheaterDto">Les données de la salle à mettre à jour.</param>
         /// <returns>La salle mise à jour sous forme de DTO.</returns>
-        Task<TheaterDto> UpdateTheaterAsync(UpdateTheaterDto updateTheaterDto);
+        Task<string> UpdateTheaterAsync(UpdateTheaterDto updateTheaterDto);
 
         /// <summary>
         /// Supprime une salle de cinéma en fonction de son identifiant.
         /// </summary>
         /// <param name="theaterId">L'identifiant de la salle à supprimer.</param>
         /// <returns>Une réponse indiquant le succès ou l'échec de l'opération.</returns>
-        Task<bool> DeleteTheaterAsync(int theaterId);
+        Task<string> DeleteTheaterAsync(int theaterId);
 
         /// <summary>
         /// Récupère la liste des incidents associés à une salle de cinéma.

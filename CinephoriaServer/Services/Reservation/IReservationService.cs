@@ -61,13 +61,12 @@ namespace CinephoriaServer.Services
         Task HoldSeatsAsync(int showtimeId, List<string> seatNumbers);
 
 
-
         /// <summary>
         /// Valide un QRCode scanné pour une réservation.
         /// </summary>
         /// <param name="qrCodeData">Les données du QRCode scanné.</param>
         /// <returns>True si la validation est réussie, sinon False.</returns>
-        Task<bool> ValidatedSession(string qrCodeData);
+        Task<string> ValidatedSession(string qrCodeData);
     }
 
 }

@@ -109,16 +109,47 @@ namespace CinephoriaServer.Services
 
 
         // Gestion des mot de passe(Demande de changement & Réinitialisation)
+        /// <summary>
+        /// Demande de réinitialisation de mot de passe pour un utilisateur normal.
+        /// </summary>
+        /// <param name="request">Les informations de demande de réinitialisation (e-mail).</param>
+        /// <returns>Un message indiquant si la demande a été traitée avec succès.</returns>
         Task<string> ForgotPasswordAsync(RequestPasswordResetDto request);
 
+        /// <summary>
+        /// Réinitialise le mot de passe d'un utilisateur normal.
+        /// </summary>
+        /// <param name="resetPasswordDto">Les informations de réinitialisation (token et nouveau mot de passe).</param>
+        /// <returns>Un message indiquant si la réinitialisation a réussi.</returns>
         Task<string> ResetPasswordAsync(ResetPasswordDto resetPasswordDto);
 
+        /// <summary>
+        /// Valide un jeton de réinitialisation de mot de passe.
+        /// </summary>
+        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="token">Le jeton de réinitialisation.</param>
+        /// <returns>Un message indiquant si le jeton est valide.</returns>
         Task<string> ValidateResetTokenAsync(string userId, string token);
 
+        /// <summary>
+        /// Force la réinitialisation du mot de passe d'un utilisateur normal.
+        /// </summary>
+        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <returns>Un message indiquant si la réinitialisation forcée a réussi.</returns>
         Task<string> ForcePasswordResetAsync(string userId);
 
+        /// <summary>
+        /// Permet à un employé de changer son mot de passe après avoir utilisé un mot de passe temporaire.
+        /// </summary>
+        /// <param name="changePasswordDto">Les informations de changement de mot de passe.</param>
+        /// <returns>Un message indiquant si le changement de mot de passe a réussi.</returns>
         Task<string> ForceEmployeePasswordChangeAsync(string userId);
-
+        
+        /// <summary>
+        /// Force un employé à changer son mot de passe (par exemple, si le mot de passe temporaire a expiré).
+        /// </summary>
+        /// <param name="userId">L'identifiant de l'employé.</param>
+        /// <returns>Un message indiquant si la réinitialisation forcée a réussi.</returns>
         Task<string> ChangeEmployeePasswordAsync(ChangeEmployeePasswordDto changePasswordDto);
     }
 }

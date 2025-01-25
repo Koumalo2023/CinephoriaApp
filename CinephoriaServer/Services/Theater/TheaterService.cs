@@ -3,6 +3,7 @@ using CinephoriaServer.Configurations;
 using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Repository;
 using Microsoft.Extensions.Logging;
+using MimeKit;
 using System.ComponentModel.DataAnnotations;
 
 namespace CinephoriaServer.Services
@@ -58,7 +59,7 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="createTheaterDto">Les données de la salle à créer.</param>
         /// <returns>La salle créée sous forme de DTO.</returns>
-        public async Task<TheaterDto> CreateTheaterAsync(CreateTheaterDto createTheaterDto)
+        public async Task<string> CreateTheaterAsync(CreateTheaterDto createTheaterDto)
         {
             // Valider le DTO en utilisant les annotations de données
             var validationContext = new ValidationContext(createTheaterDto);
@@ -83,7 +84,7 @@ namespace CinephoriaServer.Services
 
             var theaterDto = _mapper.Map<TheaterDto>(theater);
             _logger.LogInformation("Salle créée avec succès avec l'ID {TheaterId}.", theater.TheaterId);
-            return theaterDto;
+            return "Salle créée avec succès.";
         }
 
         /// <summary>
@@ -91,7 +92,7 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="updateTheaterDto">Les données de la salle à mettre à jour.</param>
         /// <returns>La salle mise à jour sous forme de DTO.</returns>
-        public async Task<TheaterDto> UpdateTheaterAsync(UpdateTheaterDto updateTheaterDto)
+        public async Task<string> UpdateTheaterAsync(UpdateTheaterDto updateTheaterDto)
         {
             // Récupérer la salle avec ses sièges
             var theater = await _unitOfWork.Theaters.GetTheaterByIdAsync(updateTheaterDto.TheaterId);
@@ -127,7 +128,7 @@ namespace CinephoriaServer.Services
             // Mapper l'entité Theater vers TheaterDto
             var theaterDto = _mapper.Map<TheaterDto>(theater);
             _logger.LogInformation("Salle avec l'ID {TheaterId} mise à jour avec succès.", theater.TheaterId);
-            return theaterDto;
+            return "Salle mise à jour avec succès.";
         }
 
         /// <summary>
@@ -135,12 +136,19 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="theaterId">L'identifiant de la salle à supprimer.</param>
         /// <returns>Une réponse indiquant le succès ou l'échec de l'opération.</returns>
-        public async Task<bool> DeleteTheaterAsync(int theaterId)
+        public async Task<string> DeleteTheaterAsync(int theaterId)
         {
+            // Récupérer la salle avec ses sièges
+            var theater = await _unitOfWork.Theaters.GetTheaterByIdAsync(theaterId);
+            if (theater == null)
+            {
+                _logger.LogWarning("Salle avec l'ID {TheaterId} non trouvée pour la suppression.", theaterId);
+                throw new ApiException("Salle non trouvée.", StatusCodes.Status404NotFound);
+            }
             // Logique de suppression
             await _unitOfWork.Theaters.DeleteTheaterAsync(theaterId);
             await _unitOfWork.CompleteAsync();
-            return true;
+            return "Salle de cinema supprimée avec succès";
         }
 
         /// <summary>
@@ -170,7 +178,7 @@ namespace CinephoriaServer.Services
         /// <param name="theaterId">L'identifiant de la salle.</param>
         /// <param name="seatCount">Le nombre de sièges à créer.</param>
         /// <returns>Une tâche asynchrone.</returns>
-        private async Task CreateSeatsForTheaterAsync(int theaterId, int seatCount, string theaterName)
+        private async Task<string> CreateSeatsForTheaterAsync(int theaterId, int seatCount, string theaterName)
         {
             var seats = new List<Seat>();
 
@@ -191,8 +199,10 @@ namespace CinephoriaServer.Services
 
             await _unitOfWork.Seats.AddSeatsAsync(seats);
             await _unitOfWork.CompleteAsync();
+            
 
             _logger.LogInformation("{Count} sièges créés pour la salle avec l'ID {TheaterId}.", seatCount, theaterId);
+            return "Sièges créés succès";
         }
     }
 }
