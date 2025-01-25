@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { LoadingService } from '../../../core/services/loading.services';
+import { LoadingService } from '../../../core/services/loading.service';
 import { CommonModule } from '@angular/common';
 
 @Component({

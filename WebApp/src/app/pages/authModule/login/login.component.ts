@@ -42,7 +42,7 @@ export class LoginComponent {
     this.authService.login(loginData).subscribe({
       next: (response) => {
           console.log("Réponse de l'API :", response);
-          if (response && response.newToken) {
+          if (response && response.Token) {
               this.alertService.showAlert('Connexion réussie !', 'success');
               this.router.navigate(['/home']);
               // this.redirectBasedOnRole(response.userInfo.roles, response.userInfo.appUserId);

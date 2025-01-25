@@ -1,36 +1,31 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router, ActivatedRouteSnapshot } from '@angular/router';
+import { CanActivate, ActivatedRouteSnapshot, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthGuard implements CanActivate {
-
   constructor(private authService: AuthService, private router: Router) {}
+
   canActivate(route: ActivatedRouteSnapshot): boolean {
-    // Récupérer les rôles autorisés pour cette route
-    const expectedRoles = route.data['expectedRole'];
-  
-    // Obtenir l'utilisateur connecté via AuthService
+    const expectedRoles: string[] = route.data['expectedRole']?.split(',') || [];
     const currentUser = this.authService.getCurrentUser();
-  
-    // Si aucun utilisateur connecté, rediriger vers la page de connexion
+
+    // Vérifie si l'utilisateur est connecté
     if (!currentUser) {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/login']); // Redirige vers la page de connexion
       return false;
     }
-  
-    // Vérifier si le rôle de l'utilisateur est dans la liste des rôles attendus
-    const userRole = currentUser.roles;
-  
-    if (expectedRoles.includes(userRole)) {
-      return true;
-    } else {
-      // Si le rôle ne correspond pas, rediriger vers une autre page ou afficher un message
-      this.router.navigate(['/unauthorized']);  // Créez une page pour indiquer l'accès non autorisé si nécessaire
+
+    // Vérifie si le rôle de l'utilisateur correspond au rôle attendu
+    const userRole: string = currentUser.role; 
+
+    if (!expectedRoles.includes(userRole)) {
+      this.router.navigate(['/unauthorized']); 
       return false;
     }
+
+    return true; // Autorise l'accès si tout est valide
   }
-  
 }

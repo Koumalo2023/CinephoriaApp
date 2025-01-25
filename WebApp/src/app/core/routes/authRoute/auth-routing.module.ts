@@ -7,26 +7,26 @@ const routes: Routes = [
     children: [
       {
         path: 'login',
-        loadComponent: () => import('../../../pages/authModule/login/login.component').then(m => m.LoginComponent)
+        loadComponent: () => import('@app/pages/authModule/login/login.component').then((m) => m.LoginComponent),
       },
       {
         path: 'register',
-        loadComponent: () => import('../../../pages/authModule/register/register.component').then(m => m.RegisterComponent)
+        loadComponent: () => import('@app/pages/authModule/register/register.component').then((m) => m.RegisterComponent),
       },
       {
         path: 'reset-password',
-        loadComponent: () => import('../../../pages/authModule/resset-password/resset-password.component').then(m => m.RessetPasswordComponent)
+        loadComponent: () => import('@app/pages/authModule/resset-password/resset-password.component').then((m) => m.RessetPasswordComponent),
       },
       {
         path: 'forgot-password',
-        loadComponent: () => import('../../../pages/authModule/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
-      }
-    ]
-  }
+        loadComponent: () => import('@app/pages/authModule/forgot-password/forgot-password.component').then((m) => m.ForgotPasswordComponent),
+      },
+    ],
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AuthRoutingModule { }
+export class AuthRoutingModule {}

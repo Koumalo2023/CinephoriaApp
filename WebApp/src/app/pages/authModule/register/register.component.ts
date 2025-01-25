@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
-import { RegisterViewModel } from '../../../core/models/user.models';
+import { AuthService } from '../../../core/services/auth.service';;
 import { CommonModule } from '@angular/common';
 import { AlertService } from '../../../core/services/alert.service';
-import { LoadingService } from '../../../core/services/loading.services';
 import { tap } from 'rxjs';
+import { LoadingService } from '../../../core/services/loading.service';
 
 @Component({
   selector: 'app-register',
