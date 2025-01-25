@@ -39,7 +39,7 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="reviewDto">Les données de l'avis.</param>
         /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
-        Task<bool> SubmitMovieReviewAsync(MovieReviewDto reviewDto);
+        Task<string> SubmitMovieReviewAsync(MovieReviewDto reviewDto);
 
         /// <summary>
         /// Filtre les films en fonction du cinéma, du genre et de la date.
@@ -53,7 +53,7 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="createMovieDto">Les données du film à créer.</param>
         /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
-        Task<bool> CreateMovieAsync(CreateMovieDto createMovieDto);
+        Task<string> CreateMovieAsync(CreateMovieDto createMovieDto);
 
         /// <summary>
         /// Ajoute une affiche à un film existant.
@@ -61,7 +61,7 @@ namespace CinephoriaServer.Services
         /// <param name="movieId">L'identifiant du film.</param>
         /// <param name="posterUrl">L'URL de l'affiche à ajouter.</param>
         /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
-        Task<bool> AddPosterToMovieAsync(int movieId, string posterUrl);
+        Task<string> AddPosterToMovieAsync(int movieId, string posterUrl);
 
         /// <summary>
         /// Supprime une affiche d'un film existant.
@@ -69,21 +69,21 @@ namespace CinephoriaServer.Services
         /// <param name="movieId">L'identifiant du film.</param>
         /// <param name="posterUrl">L'URL de l'affiche à supprimer.</param>
         /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
-        Task<bool> RemovePosterFromMovieAsync(int movieId, string posterUrl);
+        Task<string> RemovePosterFromMovieAsync(int movieId, string posterUrl);
 
         /// <summary>
         /// Met à jour les informations d'un film existant.
         /// </summary>
         /// <param name="updateMovieDto">Les nouvelles données du film.</param>
         /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
-        Task<bool> UpdateMovieAsync(UpdateMovieDto updateMovieDto);
+        Task<string> UpdateMovieAsync(UpdateMovieDto updateMovieDto);
 
         /// <summary>
         /// Supprime un film en fonction de son identifiant.
         /// </summary>
         /// <param name="movieId">L'identifiant du film à supprimer.</param>
         /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
-        Task<bool> DeleteMovieAsync(int movieId);
+        Task<string> DeleteMovieAsync(int movieId);
     }
 
 }

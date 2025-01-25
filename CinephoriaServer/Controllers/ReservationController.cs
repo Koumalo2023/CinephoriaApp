@@ -130,11 +130,11 @@ namespace CinephoriaServer.Controllers
 
                 if (isValid)
                 {
-                    return Ok(new { Message = "QRCode validé avec succès." });
+                    return Ok("QRCode validé avec succès.");
                 }
                 else
                 {
-                    return BadRequest(new { Message = "Validation du QRCode échouée." });
+                    return BadRequest("Validation du QRCode échouée.");
                 }
             }
             catch (Exception ex)

@@ -136,18 +136,35 @@ namespace CinephoriaServer.Controllers
         /// Connecte un utilisateur en vérifiant ses informations d'identification.
         /// </summary>
         /// <param name="loginUserDto">Les informations de connexion de l'utilisateur.</param>
-        /// <returns>Un jeton JWT si la connexion est réussie, ou un message d'erreur.</returns>
+        /// <returns>
+        /// Un jeton JWT et le profil de l'utilisateur si la connexion est réussie,
+        /// ou un message d'erreur en cas d'échec.
+        /// </returns>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginUserDto loginUserDto)
         {
             try
             {
-                var token = await _authService.LoginAsync(loginUserDto);
-                return Ok(new { Token = token });
+                // Appeler le service d'authentification pour se connecter
+                var (token, profile) = await _authService.LoginAsync(loginUserDto);
+
+                if (token == null)
+                {
+                    return BadRequest(new { Message = profile });
+                }
+
+                // Retourner le token et le profil
+                return Ok(new { Token = token, Profile = profile });
+            }
+            catch (ApiException ex)
+            {
+                // Gérer les erreurs spécifiques (par exemple, utilisateur non trouvé, mot de passe incorrect, etc.)
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = "Une erreur inattendue s'est produite lors de la connexion." });
+                // Gérer les erreurs inattendues
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite lors de la connexion." });
             }
         }
 

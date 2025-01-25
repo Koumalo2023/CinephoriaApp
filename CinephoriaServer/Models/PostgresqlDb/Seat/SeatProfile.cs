@@ -15,14 +15,6 @@ namespace CinephoriaServer.Models.PostgresqlDb
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow));
 
-            // Mapping de UpdateSeatDto vers Seat
-            CreateMap<UpdateSeatDto, Seat>()
-                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow));
-
-            CreateMap<Seat, AvailableSeatsDto>()
-                .ForMember(dest => dest.SeatNumber, opt => opt.MapFrom(src => src.SeatNumber))
-                .ForMember(dest => dest.IsAccessible, opt => opt.MapFrom(src => src.IsAccessible))
-                .ForMember(dest => dest.IsAvailable, opt => opt.MapFrom(src => src.IsAvailable));
 
             CreateMap<AddHandicapSeatDto, Seat>()
                 .ForMember(dest => dest.SeatNumber, opt => opt.MapFrom(src => src.SeatNumber))

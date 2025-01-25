@@ -87,12 +87,12 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="reviewDto">Les données de l'avis.</param>
         /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
-        public async Task<bool> SubmitMovieReviewAsync(MovieReviewDto reviewDto)
+        public async Task<string> SubmitMovieReviewAsync(MovieReviewDto reviewDto)
         {
             await _unitOfWork.Movies.SubmitMovieReviewAsync(reviewDto);
 
             _logger.LogInformation("Avis soumis avec succès pour le film avec l'ID {MovieId}.", reviewDto.MovieId);
-            return true;
+            return "Avis soumis avec succès";
         }
 
         /// <summary>
@@ -114,13 +114,13 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="createMovieDto">Les données du film à créer.</param>
         /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
-        public async Task<bool> CreateMovieAsync(CreateMovieDto createMovieDto)
+        public async Task<string> CreateMovieAsync(CreateMovieDto createMovieDto)
         {
             var movie = _mapper.Map<Movie>(createMovieDto);
             await _unitOfWork.Movies.CreateMovieAsync(movie);
 
             _logger.LogInformation("Film créé avec succès.");
-            return true;
+            return "Film créé avec succès.";
         }
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace CinephoriaServer.Services
         /// <param name="movieId">L'identifiant du film.</param>
         /// <param name="posterUrl">L'URL de l'affiche à ajouter.</param>
         /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
-        public async Task<bool> AddPosterToMovieAsync(int movieId, string posterUrl)
+        public async Task<string> AddPosterToMovieAsync(int movieId, string posterUrl)
         {
             // Récupérer le film existant
             var movie = await _unitOfWork.Movies.GetByIdAsync(movieId);
@@ -146,7 +146,7 @@ namespace CinephoriaServer.Services
             await _unitOfWork.Movies.UpdateAsync(movie);
 
             _logger.LogInformation("Affiche ajoutée avec succès au film avec l'ID {MovieId}.", movieId);
-            return true;
+            return "Affiche ajoutée avec succès au film";
         }
 
         /// <summary>
@@ -155,7 +155,7 @@ namespace CinephoriaServer.Services
         /// <param name="movieId">L'identifiant du film.</param>
         /// <param name="posterUrl">L'URL de l'affiche à supprimer.</param>
         /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
-        public async Task<bool> RemovePosterFromMovieAsync(int movieId, string posterUrl)
+        public async Task<string> RemovePosterFromMovieAsync(int movieId, string posterUrl)
         {
             // Récupérer le film existant
             var movie = await _unitOfWork.Movies.GetByIdAsync(movieId);
@@ -179,7 +179,7 @@ namespace CinephoriaServer.Services
             await _unitOfWork.Movies.UpdateAsync(movie);
 
             _logger.LogInformation("Affiche supprimée avec succès du film avec l'ID {MovieId}.", movieId);
-            return true;
+            return "Affiche supprimée avec succès.";
         }
 
         /// <summary>
@@ -187,13 +187,13 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="updateMovieDto">Les nouvelles données du film.</param>
         /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
-        public async Task<bool> UpdateMovieAsync(UpdateMovieDto updateMovieDto)
+        public async Task<string> UpdateMovieAsync(UpdateMovieDto updateMovieDto)
         {
             var movie = _mapper.Map<Movie>(updateMovieDto);
             await _unitOfWork.Movies.UpdateMovieAsync(movie);
 
             _logger.LogInformation("Film avec l'ID {MovieId} mis à jour avec succès.", updateMovieDto.MovieId);
-            return true;
+            return "Film  mis à jour avec succès.";
         }
 
         /// <summary>
@@ -201,12 +201,12 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="movieId">L'identifiant du film à supprimer.</param>
         /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
-        public async Task<bool> DeleteMovieAsync(int movieId)
+        public async Task<string> DeleteMovieAsync(int movieId)
         {
             await _unitOfWork.Movies.DeleteMovieAsync(movieId);
 
             _logger.LogInformation("Film avec l'ID {MovieId} supprimé avec succès.", movieId);
-            return true;
+            return "Film supprimé avec succès.";
         }
     }
 

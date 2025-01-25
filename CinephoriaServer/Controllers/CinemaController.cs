@@ -28,8 +28,8 @@ namespace CinephoriaServer.Controllers
         {
             try
             {
-                var cinemaDto = await _cinemaService.CreateCinemaAsync(createCinemaDto);
-                return StatusCode(StatusCodes.Status201Created, new { Message = "Cinéma créé avec succès.", Data = cinemaDto });
+                var result = await _cinemaService.CreateCinemaAsync(createCinemaDto);
+                return Ok( new { Message = result });
             }
             catch (ApiException ex)
             {
@@ -51,7 +51,7 @@ namespace CinephoriaServer.Controllers
             try
             {
                 var cinemas = await _cinemaService.GetAllCinemasAsync();
-                return Ok(new { Message = "Liste des cinémas récupérée avec succès.", Data = cinemas });
+                return Ok(cinemas);
             }
             catch (ApiException ex)
             {
@@ -74,7 +74,7 @@ namespace CinephoriaServer.Controllers
             try
             {
                 var cinemaDto = await _cinemaService.GetCinemaByIdAsync(cinemaId);
-                return Ok(new { Message = "Cinéma récupéré avec succès.", Data = cinemaDto });
+                return Ok(cinemaDto);
             }
             catch (ApiException ex)
             {
@@ -96,8 +96,8 @@ namespace CinephoriaServer.Controllers
         {
             try
             {
-                var cinemaDto = await _cinemaService.UpdateCinemaAsync(updateCinemaDto);
-                return Ok(new { Message = "Cinéma mis à jour avec succès.", Data = cinemaDto });
+                var result = await _cinemaService.UpdateCinemaAsync(updateCinemaDto);
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {
@@ -119,8 +119,8 @@ namespace CinephoriaServer.Controllers
         {
             try
             {
-                await _cinemaService.DeleteCinemaAsync(cinemaId);
-                return Ok(new { Message = "Cinéma supprimé avec succès." });
+                var result = await _cinemaService.DeleteCinemaAsync(cinemaId);
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {

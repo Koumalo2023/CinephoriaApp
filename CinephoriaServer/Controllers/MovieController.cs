@@ -1,6 +1,7 @@
 ﻿using CinephoriaServer.Configurations;
 using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CinephoriaServer.Controllers
@@ -30,7 +31,7 @@ namespace CinephoriaServer.Controllers
             try
             {
                 var movies = await _movieService.GetRecentMoviesAsync();
-                return Ok(new { Message = "Liste des derniers films récupérée avec succès.", Data = movies });
+                return Ok(movies);
             }
             catch (ApiException ex)
             {
@@ -54,7 +55,7 @@ namespace CinephoriaServer.Controllers
             try
             {
                 var movies = await _movieService.GetAllMoviesAsync();
-                return Ok(new { Message = "Liste de tous les films récupérée avec succès.", Data = movies });
+                return Ok(movies);
             }
             catch (ApiException ex)
             {
@@ -79,7 +80,7 @@ namespace CinephoriaServer.Controllers
             try
             {
                 var movieDetails = await _movieService.GetMovieDetailsAsync(movieId);
-                return Ok(new { Message = "Détails du film récupérés avec succès.", Data = movieDetails });
+                return Ok(movieDetails);
             }
             catch (ApiException ex)
             {
@@ -103,7 +104,7 @@ namespace CinephoriaServer.Controllers
             try
             {
                 var sessions = await _movieService.GetMovieSessionsAsync(movieId);
-                return Ok(new { Message = "Séances du film récupérées avec succès.", Data = sessions });
+                return Ok(sessions);
             }
             catch (ApiException ex)
             {
@@ -121,13 +122,14 @@ namespace CinephoriaServer.Controllers
         /// </summary>
         /// <param name="reviewDto">Les données de l'avis.</param>
         /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
+        [Authorize(Roles = "Admin, Employee, User")]
         [HttpPost("review")]
         public async Task<IActionResult> SubmitMovieReview([FromBody] MovieReviewDto reviewDto)
         {
             try
             {
-                await _movieService.SubmitMovieReviewAsync(reviewDto);
-                return Ok(new { Message = "Avis soumis avec succès." });
+                var result = await _movieService.SubmitMovieReviewAsync(reviewDto);
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {
@@ -151,7 +153,7 @@ namespace CinephoriaServer.Controllers
             try
             {
                 var movies = await _movieService.FilterMoviesAsync(filterDto.CinemaId, filterDto.Genre, filterDto.Date);
-                return Ok(new { Message = "Films filtrés récupérés avec succès.", Data = movies });
+                return Ok(movies);
             }
             catch (ApiException ex)
             {
@@ -169,13 +171,14 @@ namespace CinephoriaServer.Controllers
         /// </summary>
         /// <param name="createMovieDto">Les données du film à créer.</param>
         /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
+        [Authorize(Roles = "Admin, Employee")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateMovie([FromBody] CreateMovieDto createMovieDto)
         {
             try
             {
-                await _movieService.CreateMovieAsync(createMovieDto);
-                return StatusCode(StatusCodes.Status201Created, new { Message = "Film créé avec succès." });
+                var result = await _movieService.CreateMovieAsync(createMovieDto);
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {
@@ -189,7 +192,12 @@ namespace CinephoriaServer.Controllers
         }
 
 
-        // Upload affiche de film
+        /// <summary>
+        /// Ajouter une image à un film.
+        /// </summary>
+        /// <param name="createMovieDto">image du film à créer.</param>
+        /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
+        [Authorize(Roles = "Admin, Employee")]
         [HttpPost("upload-movie-poster/{movieId}")]
         public async Task<IActionResult> UploadMoviePoster(int movieId, [FromForm] IFormFile file)
         {
@@ -202,8 +210,8 @@ namespace CinephoriaServer.Controllers
                     throw new ApiException("Erreur lors du téléchargement de l'image.", StatusCodes.Status400BadRequest);
                 }
 
-                await _movieService.AddPosterToMovieAsync(movieId, imageUrl);
-                return Ok(new { Message = "Affiche du film téléchargée avec succès.", Url = imageUrl });
+                var result = await _movieService.AddPosterToMovieAsync(movieId, imageUrl);
+                return Ok(new { Message = result, Url = imageUrl });
             }
             catch (ApiException ex)
             {
@@ -222,13 +230,14 @@ namespace CinephoriaServer.Controllers
         /// </summary>
         /// <param name="movieId">L'identifiant du film à supprimer.</param>
         /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
+        [Authorize(Roles = "Admin, Employee")]
         [HttpDelete("delete-movie-poster/{movieId}")]
         public async Task<IActionResult> DeleteMoviePoster(int movieId, [FromQuery] string posterUrl)
         {
             try
             {
-                await _movieService.RemovePosterFromMovieAsync(movieId, posterUrl);
-                return Ok(new { Message = "Affiche du film supprimée avec succès." });
+                var result = await _movieService.RemovePosterFromMovieAsync(movieId, posterUrl);
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {
@@ -241,19 +250,19 @@ namespace CinephoriaServer.Controllers
             }
         }
 
-
         /// <summary>
         /// Met à jour les informations d'un film existant.
         /// </summary>
         /// <param name="updateMovieDto">Les nouvelles données du film.</param>
         /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
+        [Authorize(Roles = "Admin, Employee")]
         [HttpPut]
         public async Task<IActionResult> UpdateMovie([FromBody] UpdateMovieDto updateMovieDto)
         {
             try
             {
-                await _movieService.UpdateMovieAsync(updateMovieDto);
-                return Ok(new { Message = "Film mis à jour avec succès." });
+                var result = await _movieService.UpdateMovieAsync(updateMovieDto);
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {
@@ -271,13 +280,14 @@ namespace CinephoriaServer.Controllers
         /// </summary>
         /// <param name="movieId">L'identifiant du film à supprimer.</param>
         /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
+        [Authorize(Roles = "Admin, Employee")]
         [HttpDelete("movie/{movieId}")]
         public async Task<IActionResult> DeleteMovie(int movieId)
         {
             try
             {
-                await _movieService.DeleteMovieAsync(movieId);
-                return Ok(new { Message = "Film supprimé avec succès." });
+                var result = await _movieService.DeleteMovieAsync(movieId);
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {

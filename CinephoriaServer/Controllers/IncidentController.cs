@@ -40,9 +40,9 @@ namespace CinephoriaServer.Controllers
                 }
 
                 // Appeler la méthode ReportIncidentAsync avec l'identifiant de l'utilisateur connecté
-                await _incidentService.ReportIncidentAsync(createIncidentDto, userId);
+                var result = await _incidentService.ReportIncidentAsync(createIncidentDto, userId);
 
-                return StatusCode(StatusCodes.Status201Created, new { Message = "Incident signalé avec succès." });
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {
@@ -53,7 +53,6 @@ namespace CinephoriaServer.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
             }
         }
-
 
         /// <summary>
         /// Récupère les détails d'un incident en fonction de son identifiant.
@@ -78,7 +77,6 @@ namespace CinephoriaServer.Controllers
             }
         }
 
-
         /// <summary>
         /// Récupère la liste des incidents associés à un cinéma spécifique.
         /// </summary>
@@ -102,7 +100,6 @@ namespace CinephoriaServer.Controllers
             }
         }
 
-
         /// <summary>
         /// Récupère tous les incidents dans tous les cinémas.
         /// </summary>
@@ -125,7 +122,6 @@ namespace CinephoriaServer.Controllers
             }
         }
 
-
         // Upload image d'un incident
         [HttpPost("upload-incident-image/{incidentId}")]
         public async Task<IActionResult> UploadIncidentImage(int incidentId, [FromForm] IFormFile file)
@@ -139,9 +135,9 @@ namespace CinephoriaServer.Controllers
                     throw new ApiException("Erreur lors du téléchargement de l'image.", StatusCodes.Status400BadRequest);
                 }
 
-                await _incidentService.AddImageToIncidentAsync(incidentId, imageUrl);
+                var result = await _incidentService.AddImageToIncidentAsync(incidentId, imageUrl);
 
-                return Ok(new { Url = imageUrl, Message = "Image de l'incident téléchargée avec succès." });
+                return Ok(new { Url = imageUrl, Message = result });
             }
             catch (ApiException ex)
             {
@@ -176,7 +172,6 @@ namespace CinephoriaServer.Controllers
             }
         }
 
-
         /// <summary>
         /// Met à jour le statut d'un incident.
         /// </summary>
@@ -194,12 +189,12 @@ namespace CinephoriaServer.Controllers
                     return Unauthorized(new { Message = "Utilisateur non authentifié." });
                 }
 
-                await _incidentService.UpdateIncidentStatusAsync(
+                var result = await _incidentService.UpdateIncidentStatusAsync(
                     incidentStatusUpdateDto.IncidentId,
                     incidentStatusUpdateDto.Status, userId
                 );
 
-                return Ok(new { Message = "Statut de l'incident mis à jour avec succès." });
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {
@@ -210,7 +205,6 @@ namespace CinephoriaServer.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
             }
         }
-
 
         /// <summary>
         /// Met à jour les informations d'un incident existant.
@@ -222,8 +216,8 @@ namespace CinephoriaServer.Controllers
         {
             try
             {
-                await _incidentService.UpdateIncidentAsync(updateIncidentDto);
-                return Ok(new { Message = "Incident mis à jour avec succès." });
+                var result = await _incidentService.UpdateIncidentAsync(updateIncidentDto);
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {
@@ -235,7 +229,6 @@ namespace CinephoriaServer.Controllers
             }
         }
 
-
         /// <summary>
         /// Supprime un incident en fonction de son identifiant.
         /// </summary>
@@ -246,8 +239,8 @@ namespace CinephoriaServer.Controllers
         {
             try
             {
-                await _incidentService.DeleteIncidentAsync(incidentId);
-                return Ok(new { Message = "Incident supprimé avec succès." });
+                var result = await _incidentService.DeleteIncidentAsync(incidentId);
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {

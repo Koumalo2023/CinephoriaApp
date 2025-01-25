@@ -4,6 +4,7 @@ using CinephoriaServer.Configurations;
 using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Repository;
 using Microsoft.EntityFrameworkCore;
+using ZXing;
 using static CinephoriaServer.Configurations.EnumConfig;
 
 namespace CinephoriaServer.Services

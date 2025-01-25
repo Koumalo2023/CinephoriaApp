@@ -26,14 +26,6 @@ namespace CinephoriaServer.Models.PostgresqlDb
                 .ForMember(dest => dest.IsAccessible, opt => opt.MapFrom(src => src.IsAccessible))
                 .ForMember(dest => dest.IsAvailable, opt => opt.MapFrom(src => src.IsAvailable));
 
-            // Mappings pour les DTO de calcul de prix
-            CreateMap<CalculatePriceRequestDto, Showtime>()
-                .ForMember(dest => dest.ShowtimeId, opt => opt.MapFrom(src => src.ShowtimeId))
-                .ForMember(dest => dest.AvailableSeats, opt => opt.Ignore());
-
-            CreateMap<Reservation, CalculatePriceResponseDto>()
-                .ForMember(dest => dest.TotalPrice, opt => opt.MapFrom(src => src.TotalPrice));
-
             
             // Mappings pour les DTO de réservation utilisateur
             CreateMap<Reservation, UserReservationDto>()

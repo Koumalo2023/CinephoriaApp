@@ -20,18 +20,6 @@ namespace CinephoriaServer.Models.PostgresqlDb
             CreateMap<UpdateTheaterDto, Theater>()
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow));
 
-            CreateMap<Theater, TheaterIncidentsDto>()
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-            .ForMember(dest => dest.Incidents, opt => opt.MapFrom(src => src.Incidents));
-
-            CreateMap<Theater, TheaterWithIncidentsDto>()
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Cinema.Name))
-                .ForMember(dest => dest.Incidents, opt => opt.MapFrom(src => src.Incidents));
-
-            CreateMap<Theater, TheaterWithSeatsDto>()
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Seats, opt => opt.MapFrom(src => src.Seats));
         }
     }
 }
