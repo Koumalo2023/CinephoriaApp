@@ -20,17 +20,11 @@ namespace CinephoriaServer.Models.PostgresqlDb
                 .ForMember(dest => dest.TheaterId, opt => opt.MapFrom(src => src.TheaterId))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.ImageUrls, opt => opt.MapFrom(src => src.ImageUrls))
-                .ForMember(dest => dest.ReportedById, opt => opt.MapFrom(src => src.ReportedBy)) // Mapper ReportedBy à ReportedById
-                .ForMember(dest => dest.ResolvedById, opt => opt.Ignore()) // Ignorer ResolvedById car il sera défini plus tard
-                .ForMember(dest => dest.ReportedBy, opt => opt.Ignore()) // Ignorer la navigation ReportedBy
-                .ForMember(dest => dest.Theater, opt => opt.Ignore()); // Ignorer la navigation Theater
+                .ForMember(dest => dest.ReportedById, opt => opt.MapFrom(src => src.ReportedBy)) 
+                .ForMember(dest => dest.ResolvedById, opt => opt.Ignore()) 
+                .ForMember(dest => dest.ReportedBy, opt => opt.Ignore()) 
+                .ForMember(dest => dest.Theater, opt => opt.Ignore());
 
-            // --- Mapping de Incident vers IncidentDetailsDto ---
-            CreateMap<Incident, IncidentDetailsDto>()
-                .ForMember(dest => dest.TheaterName, opt => opt.MapFrom(src => src.Theater.Name))
-                .ForMember(dest => dest.ReportedBy, opt => opt.MapFrom(src => $"{src.ReportedBy.FirstName} {src.ReportedBy.LastName}"))
-                .ForMember(dest => dest.ResolvedBy, opt => opt.MapFrom(src => src.ResolvedBy != null ? $"{src.ResolvedBy.FirstName} {src.ResolvedBy.LastName}" : null))
-                .ForMember(dest => dest.ImageUrls, opt => opt.MapFrom(src => src.ImageUrls));
 
             // --- Mapping de UpdateIncidentDto vers Incident ---
             CreateMap<UpdateIncidentDto, Incident>()
