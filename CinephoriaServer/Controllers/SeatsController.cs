@@ -27,15 +27,15 @@ namespace CinephoriaServer.Controllers
             try
             {
                 var result = await _seatService.GetAvailableSeatsAsync(sessionId);
-                return Ok(new { Message = "Liste des sièges disponibles récupérée avec succès.", Data = result });
+                return Ok(result);
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+                return StatusCode(ex.StatusCode, ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite lors de la récupération des sièges disponibles." });
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur inattendue s'est produite lors de la récupération des sièges disponibles.");
             }
         }
 
@@ -43,7 +43,7 @@ namespace CinephoriaServer.Controllers
         /// Ajoute un siège réservé pour les personnes à mobilité réduite dans une salle de cinéma.
         /// </summary>
         /// <param name="dto">Les données du siège à ajouter.</param>
-        /// <returns>Une réponse indiquant le succès ou l'échec de l'opération.</returns>
+        /// <returns>Un message indiquant le succès de l'opération.</returns>
         [HttpPost("handicap-add-seat")]
         public async Task<IActionResult> AddHandicapSeat([FromBody] AddHandicapSeatDto dto)
         {
@@ -52,20 +52,20 @@ namespace CinephoriaServer.Controllers
                 var result = await _seatService.AddHandicapSeatAsync(dto.TheaterId, dto.SeatNumber);
                 if (result)
                 {
-                    return Ok(new { Message = "Siège réservé pour personnes à mobilité réduite ajouté avec succès." });
+                    return Ok(new { Message = result });
                 }
                 else
                 {
-                    return StatusCode(StatusCodes.Status400BadRequest, new { Message = "L'ajout du siège réservé pour personnes à mobilité réduite a échoué." });
+                    return BadRequest("L'ajout du siège réservé pour personnes à mobilité réduite a échoué.");
                 }
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+                return StatusCode(ex.StatusCode, ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite lors de l'ajout du siège réservé pour personnes à mobilité réduite." });
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur inattendue s'est produite lors de l'ajout du siège réservé pour personnes à mobilité réduite.");
             }
         }
 
@@ -73,7 +73,7 @@ namespace CinephoriaServer.Controllers
         /// Supprime un siège réservé pour les personnes à mobilité réduite dans une salle de cinéma.
         /// </summary>
         /// <param name="dto">Les données du siège à supprimer.</param>
-        /// <returns>Une réponse indiquant le succès ou l'échec de l'opération.</returns>
+        /// <returns>Un message indiquant le succès de l'opération.</returns>
         [HttpDelete("handicap-delete-seat")]
         public async Task<IActionResult> RemoveHandicapSeat([FromBody] RemoveHandicapSeatDto dto)
         {
@@ -82,20 +82,20 @@ namespace CinephoriaServer.Controllers
                 var result = await _seatService.RemoveHandicapSeatAsync(dto.TheaterId, dto.SeatNumber);
                 if (result)
                 {
-                    return Ok(new { Message = "Siège réservé pour personnes à mobilité réduite supprimé avec succès." });
+                    return Ok("Siège réservé pour personnes à mobilité réduite supprimé avec succès.");
                 }
                 else
                 {
-                    return StatusCode(StatusCodes.Status400BadRequest, new { Message = "La suppression du siège réservé pour personnes à mobilité réduite a échoué." });
+                    return BadRequest("La suppression du siège réservé pour personnes à mobilité réduite a échoué.");
                 }
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+                return StatusCode(ex.StatusCode, ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite lors de la suppression du siège réservé pour personnes à mobilité réduite." });
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur inattendue s'est produite lors de la suppression du siège réservé pour personnes à mobilité réduite.");
             }
         }
     }

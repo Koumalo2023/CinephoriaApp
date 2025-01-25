@@ -3,6 +3,7 @@ using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ZXing;
 
 namespace CinephoriaServer.Controllers
 {
@@ -21,23 +22,23 @@ namespace CinephoriaServer.Controllers
         /// Crée une nouvelle séance (réservé aux administrateurs et employés).
         /// </summary>
         /// <param name="createShowtimeDto">Les données de la séance à créer.</param>
-        /// <returns>Une réponse indiquant si la séance a été créée avec succès.</returns>
+        /// <returns>Un message indiquant le succès de l'opération.</returns>
         [Authorize(Roles = "Admin,Employee")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateShowtime([FromBody] CreateShowtimeDto createShowtimeDto)
         {
             try
             {
-                await _showtimeService.CreateShowtimeAsync(createShowtimeDto);
-                return StatusCode(StatusCodes.Status201Created, new { Message = "Séance créée avec succès." });
+                var result = await _showtimeService.CreateShowtimeAsync(createShowtimeDto);
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+                return StatusCode(ex.StatusCode, ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur inattendue s'est produite.");
             }
         }
 
@@ -45,23 +46,23 @@ namespace CinephoriaServer.Controllers
         /// Met à jour les informations d'une séance existante (réservé aux administrateurs et employés).
         /// </summary>
         /// <param name="updateShowtimeDto">Les données mises à jour de la séance.</param>
-        /// <returns>Une réponse indiquant si la séance a été mise à jour avec succès.</returns>
+        /// <returns>Un message indiquant le succès de l'opération.</returns>
         [Authorize(Roles = "Admin,Employee")]
         [HttpPut("update")]
         public async Task<IActionResult> UpdateShowtime([FromBody] UpdateShowtimeDto updateShowtimeDto)
         {
             try
             {
-                await _showtimeService.UpdateShowtimeAsync(updateShowtimeDto);
-                return Ok(new { Message = "Séance mise à jour avec succès." });
+                var result =await _showtimeService.UpdateShowtimeAsync(updateShowtimeDto);
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+                return StatusCode(ex.StatusCode, ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur inattendue s'est produite.");
             }
         }
 
@@ -69,23 +70,23 @@ namespace CinephoriaServer.Controllers
         /// Supprime une séance existante (réservé aux administrateurs et employés).
         /// </summary>
         /// <param name="showtimeId">L'identifiant de la séance à supprimer.</param>
-        /// <returns>Une réponse indiquant si la séance a été supprimée avec succès.</returns>
+        /// <returns>Un message indiquant le succès de l'opération.</returns>
         [Authorize(Roles = "Admin,Employee")]
         [HttpDelete("delete/{showtimeId}")]
         public async Task<IActionResult> DeleteShowtime(int showtimeId)
         {
             try
             {
-                await _showtimeService.DeleteShowtimeAsync(showtimeId);
-                return Ok(new { Message = "Séance supprimée avec succès." });
+                var result = await _showtimeService.DeleteShowtimeAsync(showtimeId);
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+                return StatusCode(ex.StatusCode, ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur inattendue s'est produite.");
             }
         }
 
@@ -103,11 +104,11 @@ namespace CinephoriaServer.Controllers
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+                return StatusCode(ex.StatusCode, ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur inattendue s'est produite.");
             }
         }
 
@@ -126,11 +127,11 @@ namespace CinephoriaServer.Controllers
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+                return StatusCode(ex.StatusCode, ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur inattendue s'est produite.");
             }
         }
 

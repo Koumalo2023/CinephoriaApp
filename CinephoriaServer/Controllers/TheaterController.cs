@@ -3,6 +3,7 @@ using CinephoriaServer.Models.PostgresqlDb;
 using CinephoriaServer.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ZXing;
 
 namespace CinephoriaServer.Controllers
 {
@@ -28,15 +29,15 @@ namespace CinephoriaServer.Controllers
             try
             {
                 var result = await _theaterService.GetTheatersByCinemaAsync(cinemaId);
-                return Ok(new { Message = "Liste des salles de cinéma récupérée avec succès.", Data = result });
+                return Ok(result);
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+                return StatusCode(ex.StatusCode, ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite lors de la récupération des salles de cinéma." });
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur inattendue s'est produite lors de la récupération des salles de cinéma.");
             }
         }
 
@@ -51,15 +52,15 @@ namespace CinephoriaServer.Controllers
             try
             {
                 var result = await _theaterService.GetTheaterByIdAsync(theaterId);
-                return Ok(new { Message = "Salle de cinéma récupérée avec succès.", Data = result });
+                return Ok(result);
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+                return StatusCode(ex.StatusCode, ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite lors de la récupération de la salle de cinéma." });
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur inattendue s'est produite lors de la récupération de la salle de cinéma.");
             }
         }
 
@@ -67,22 +68,22 @@ namespace CinephoriaServer.Controllers
         /// Crée une nouvelle salle de cinéma NB: Le nom de salle doit contenir un suffixe ex "Salle A" ou "Salle B".
         /// </summary>
         /// <param name="createTheaterDto">Les données de la salle à créer.</param>
-        /// <returns>La salle créée sous forme de DTO.</returns>
+        /// <returns>Un message indiquant le succès de l'opération.</returns>
         [HttpPost("create")]
         public async Task<IActionResult> CreateTheater([FromBody] CreateTheaterDto createTheaterDto)
         {
             try
             {
-                var result = await _theaterService.CreateTheaterAsync(createTheaterDto);
-                return StatusCode(StatusCodes.Status201Created, new { Message = "Salle de cinéma créée avec succès.", Data = result });
+                var result =  await _theaterService.CreateTheaterAsync(createTheaterDto);
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+                return StatusCode(ex.StatusCode, ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite lors de la création de la salle de cinéma." });
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur inattendue s'est produite lors de la création de la salle de cinéma.");
             }
         }
 
@@ -90,22 +91,22 @@ namespace CinephoriaServer.Controllers
         /// Met à jour les informations d'une salle de cinéma existante.
         /// </summary>
         /// <param name="updateTheaterDto">Les données de la salle à mettre à jour.</param>
-        /// <returns>La salle mise à jour sous forme de DTO.</returns>
-        [HttpPut]
+        /// <returns>Un message indiquant le succès de l'opération.</returns>
+        [HttpPut("update")]
         public async Task<IActionResult> UpdateTheater([FromBody] UpdateTheaterDto updateTheaterDto)
         {
             try
             {
                 var result = await _theaterService.UpdateTheaterAsync(updateTheaterDto);
-                return Ok(new { Message = "Salle de cinéma mise à jour avec succès.", Data = result });
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+                return StatusCode(ex.StatusCode, ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite lors de la mise à jour de la salle de cinéma." });
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur inattendue s'est produite lors de la mise à jour de la salle de cinéma.");
             }
         }
 
@@ -113,8 +114,8 @@ namespace CinephoriaServer.Controllers
         /// Supprime une salle de cinéma en fonction de son identifiant.
         /// </summary>
         /// <param name="theaterId">L'identifiant de la salle à supprimer.</param>
-        /// <returns>Une réponse indiquant le succès ou l'échec de l'opération.</returns>
-        [HttpDelete("{theaterId}")]
+        /// <returns>Un message indiquant le succès de l'opération.</returns>
+        [HttpDelete("delete/{theaterId}")]
         public async Task<IActionResult> DeleteTheater(int theaterId)
         {
             try
@@ -122,20 +123,20 @@ namespace CinephoriaServer.Controllers
                 var result = await _theaterService.DeleteTheaterAsync(theaterId);
                 if (result)
                 {
-                    return Ok(new { Message = "Salle de cinéma supprimée avec succès." });
+                    return Ok(new { Message = result });
                 }
                 else
                 {
-                    return StatusCode(StatusCodes.Status400BadRequest, new { Message = "La suppression de la salle de cinéma a échoué." });
+                    return BadRequest("La suppression de la salle de cinéma a échoué.");
                 }
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+                return StatusCode(ex.StatusCode, ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite lors de la suppression de la salle de cinéma." });
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur inattendue s'est produite lors de la suppression de la salle de cinéma.");
             }
         }
 
@@ -150,15 +151,15 @@ namespace CinephoriaServer.Controllers
             try
             {
                 var result = await _theaterService.GetTheaterIncidentsAsync(theaterId);
-                return Ok(new { Message = "Liste des incidents de la salle de cinéma récupérée avec succès.", Data = result });
+                return Ok(result);
             }
             catch (ApiException ex)
             {
-                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+                return StatusCode(ex.StatusCode, ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite lors de la récupération des incidents de la salle de cinéma." });
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur inattendue s'est produite lors de la récupération des incidents de la salle de cinéma.");
             }
         }
     }

@@ -24,7 +24,7 @@ namespace CinephoriaServer.Controllers
         /// </summary>
         /// <param name="createMovieRatingDto">Les données de l'avis à soumettre.</param>
         /// <returns>Une réponse indiquant si l'avis a été soumis avec succès.</returns>
-        [Authorize]
+        [Authorize(Roles = "Admin, Employee, User")]
         [HttpPost("submit")]
         public async Task<IActionResult> SubmitMovieReview([FromBody] CreateMovieRatingDto createMovieRatingDto)
         {
@@ -38,9 +38,9 @@ namespace CinephoriaServer.Controllers
                 }
 
                 // Appeler la méthode SubmitMovieReviewAsync avec l'identifiant de l'utilisateur connecté
-                await _movieRatingService.SubmitMovieReviewAsync(createMovieRatingDto, userId);
+                var result = await _movieRatingService.SubmitMovieReviewAsync(createMovieRatingDto, userId);
 
-                return StatusCode(StatusCodes.Status201Created, new { Message = "Avis soumis avec succès." });
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {
@@ -64,8 +64,8 @@ namespace CinephoriaServer.Controllers
         {
             try
             {
-                await _movieRatingService.ValidateReviewAsync(reviewId);
-                return Ok(new { Message = "Avis validé avec succès." });
+                var result = await _movieRatingService.ValidateReviewAsync(reviewId);
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {
@@ -77,8 +77,7 @@ namespace CinephoriaServer.Controllers
             }
         }
 
-
-        // <summary>
+        /// <summary>
         /// Supprime un avis sur un film (réservé aux administrateurs et employées).
         /// </summary>
         /// <param name="reviewId">L'identifiant de l'avis à supprimer.</param>
@@ -89,8 +88,8 @@ namespace CinephoriaServer.Controllers
         {
             try
             {
-                await _movieRatingService.DeleteReviewAsync(reviewId);
-                return Ok(new { Message = "Avis supprimé avec succès." });
+                var result = await _movieRatingService.DeleteReviewAsync(reviewId);
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {
@@ -101,7 +100,6 @@ namespace CinephoriaServer.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
             }
         }
-
 
         /// <summary>
         /// Récupère la liste des avis associés à un film.
@@ -126,12 +124,12 @@ namespace CinephoriaServer.Controllers
             }
         }
 
-
-        // <summary>
+        /// <summary>
         /// Récupère les détails d'un avis spécifique.
         /// </summary>
         /// <param name="reviewId">L'identifiant de l'avis.</param>
         /// <returns>Les détails de l'avis sous forme de DTO.</returns>
+        [Authorize(Roles = "Admin, Employee, User")]
         [HttpGet("{reviewId}")]
         public async Task<IActionResult> GetReviewDetails(int reviewId)
         {
@@ -155,14 +153,14 @@ namespace CinephoriaServer.Controllers
         /// </summary>
         /// <param name="updateMovieRatingDto">Les données mises à jour de l'avis.</param>
         /// <returns>Une réponse indiquant si l'avis a été mis à jour avec succès.</returns>
-        [Authorize]
+        [Authorize(Roles = "Admin, Employee, User")]
         [HttpPut("update")]
         public async Task<IActionResult> UpdateReview([FromBody] UpdateMovieRatingDto updateMovieRatingDto)
         {
             try
             {
-                await _movieRatingService.UpdateReviewAsync(updateMovieRatingDto);
-                return Ok(new { Message = "Avis mis à jour avec succès." });
+                var result = await _movieRatingService.UpdateReviewAsync(updateMovieRatingDto);
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {
