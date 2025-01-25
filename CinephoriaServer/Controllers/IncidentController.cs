@@ -36,13 +36,13 @@ namespace CinephoriaServer.Controllers
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userId))
                 {
-                    return Unauthorized(new { Message = result });
+                    return Unauthorized(new { Message = "Utilisateur non authentifié." });
                 }
 
                 // Appeler la méthode ReportIncidentAsync avec l'identifiant de l'utilisateur connecté
                 var result = await _incidentService.ReportIncidentAsync(createIncidentDto, userId);
 
-                return StatusCode(StatusCodes.Status201Created, new { Message = "Incident signalé avec succès." });
+                return Ok(new { Message = result });
             }
             catch (ApiException ex)
             {

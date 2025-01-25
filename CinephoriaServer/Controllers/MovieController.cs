@@ -31,7 +31,7 @@ namespace CinephoriaServer.Controllers
             try
             {
                 var movies = await _movieService.GetRecentMoviesAsync();
-                return Ok(new { Message = "Liste des derniers films récupérée avec succès.", Data = movies });
+                return Ok(movies);
             }
             catch (ApiException ex)
             {
@@ -55,7 +55,7 @@ namespace CinephoriaServer.Controllers
             try
             {
                 var movies = await _movieService.GetAllMoviesAsync();
-                return Ok(new { Message = "Liste de tous les films récupérée avec succès.", Data = movies });
+                return Ok(movies);
             }
             catch (ApiException ex)
             {
@@ -80,7 +80,7 @@ namespace CinephoriaServer.Controllers
             try
             {
                 var movieDetails = await _movieService.GetMovieDetailsAsync(movieId);
-                return Ok(new { Message = "Détails du film récupérés avec succès.", Data = movieDetails });
+                return Ok(movieDetails);
             }
             catch (ApiException ex)
             {
@@ -104,7 +104,7 @@ namespace CinephoriaServer.Controllers
             try
             {
                 var sessions = await _movieService.GetMovieSessionsAsync(movieId);
-                return Ok(new { Message = "Séances du film récupérées avec succès.", Data = sessions });
+                return Ok(sessions);
             }
             catch (ApiException ex)
             {
@@ -249,7 +249,6 @@ namespace CinephoriaServer.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
             }
         }
-
 
         /// <summary>
         /// Met à jour les informations d'un film existant.
