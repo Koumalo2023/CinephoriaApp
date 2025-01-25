@@ -66,7 +66,7 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="qrCodeData">Les données du QRCode scanné.</param>
         /// <returns>True si la validation est réussie, sinon False.</returns>
-        Task<string> ValidatedSession(string qrCodeData);
+        Task<bool> ValidatedSession(string qrCodeData);
     }
 
 }

@@ -37,7 +37,7 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="theaterId">L'identifiant de la salle à supprimer.</param>
         /// <returns>Une réponse indiquant le succès ou l'échec de l'opération.</returns>
-        Task<string> DeleteTheaterAsync(int theaterId);
+        Task<bool> DeleteTheaterAsync(int theaterId);
 
         /// <summary>
         /// Récupère la liste des incidents associés à une salle de cinéma.

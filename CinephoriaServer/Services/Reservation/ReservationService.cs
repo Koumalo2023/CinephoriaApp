@@ -226,7 +226,7 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="qrCodeData">Les données du QRCode scanné.</param>
         /// <returns>True si la validation est réussie, sinon False.</returns>
-        public async Task<string> ValidatedSession(string qrCodeData)
+        public async Task<bool> ValidatedSession(string qrCodeData)
         {
             if (string.IsNullOrEmpty(qrCodeData))
             {
@@ -278,7 +278,7 @@ namespace CinephoriaServer.Services
             await _context.SaveChangesAsync();
 
             _logger.LogInformation("Réservation avec l'ID {ReservationId} validée avec succès.", reservationId);
-            return "Réservation validée avec succès.";
+            return true;
         }
 
     }

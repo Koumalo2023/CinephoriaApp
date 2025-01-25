@@ -136,7 +136,7 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="theaterId">L'identifiant de la salle à supprimer.</param>
         /// <returns>Une réponse indiquant le succès ou l'échec de l'opération.</returns>
-        public async Task<string> DeleteTheaterAsync(int theaterId)
+        public async Task<bool> DeleteTheaterAsync(int theaterId)
         {
             // Récupérer la salle avec ses sièges
             var theater = await _unitOfWork.Theaters.GetTheaterByIdAsync(theaterId);
@@ -148,7 +148,7 @@ namespace CinephoriaServer.Services
             // Logique de suppression
             await _unitOfWork.Theaters.DeleteTheaterAsync(theaterId);
             await _unitOfWork.CompleteAsync();
-            return "Salle de cinema supprimée avec succès";
+            return true;
         }
 
         /// <summary>

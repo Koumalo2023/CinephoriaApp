@@ -5,6 +5,7 @@ using CinephoriaServer.Models.PostgresqlDb.Auth.AppUserDto;
 using CinephoriaServer.Repository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
@@ -236,32 +237,47 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="loginUserDto">Les informations d'identification de l'utilisateur.</param>
         /// <returns>Un jeton JWT en cas de succès, ou un message d'erreur.</returns>
-        public async Task<string> LoginAsync(LoginUserDto loginUserDto)
+        public async Task<(string Token, object Profile)> LoginAsync(LoginUserDto loginUserDto)
         {
             // Vérifier si l'utilisateur existe
             var user = await _userManager.FindByEmailAsync(loginUserDto.Email);
             if (user == null)
             {
-                return "Utilisateur non trouvé.";
+                return (null, "Utilisateur non trouvé.");
             }
 
             // Vérifier si le mot de passe est correct
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, loginUserDto.Password);
             if (!isPasswordValid)
             {
-                return "Mot de passe incorrect.";
+                return (null, "Mot de passe incorrect.");
             }
 
             // Vérifier si l'email est confirmé
             if (!user.EmailConfirmed)
             {
-                return "Veuillez confirmer votre adresse email avant de vous connecter.";
+                return (null, "Veuillez confirmer votre adresse email avant de vous connecter.");
             }
+
+            // Récupérer le rôle de l'utilisateur
+            var roles = await _userManager.GetRolesAsync(user);
+            var role = roles.FirstOrDefault(); 
 
             // Générer le token JWT
             var token = GenerateJwtToken(user);
 
-            return token;
+            
+            object profile = null;
+            if (role == "User")
+            {
+                profile = _mapper.Map<UserProfileDto>(user);
+            }
+            else if (role == "Employee" || role == "Admin")
+            {
+                profile = _mapper.Map<EmployeeProfileDto>(user);
+            }
+
+            return (token, profile);
         }
 
         // Gestion des mot de passe(Demande de changement & Réinitialisation)
