@@ -6,17 +6,17 @@ import { AuthGuard } from '@app/core/guards/auth.guard';
 const routes: Routes = [
   {
     path: '',
-    canActivate: [AuthGuard],
-    data: { expectedRole: 'Admin, Employee' },
+    canActivate: [AuthGuard], 
+    data: { expectedRole: 'Admin, Employee' }, 
     children: [
-      // {
-      //   path: 'manage-movie',
-      //   loadComponent: () => import('@app/pages/adminModule/manage-movie/manage-movie.component').then((m) => m.ManageMovieComponent),
-      // },
-      // {
-      //   path: 'movie-detail/:id',
-      //   loadComponent: () => import('@app/pages/adminModule/manage-movie/movie-detail/movie-detail.component').then((m) => m.MovieDetailComponent),
-      // },
+      // Route pour la gestion des films
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('@app/pages/adminModule/admin-dashboard/admin-dashboard.component').then(
+            (m) => m.AdminDashboardComponent
+          ),
+      },
     ],
   },
 ];
