@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { AlertService } from '../../../core/services/alert.service';
 import { tap } from 'rxjs';
 import { LoadingService } from '../../../core/services/loading.service';
+import { RegisterUserDto } from '@app/core/models/user.models';
 
 @Component({
   selector: 'app-register',
@@ -18,7 +19,6 @@ export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
   showPassword: boolean = false;
   showPasswordCriteria: boolean = false;
-  isFormValid: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -26,72 +26,69 @@ export class RegisterComponent implements OnInit {
     private alertService: AlertService,
     private loadingService: LoadingService,
     private router: Router
-  ) {}
+  ) {
+    
+  }
 
   ngOnInit(): void {
+    // Écoute les changements de valeur du formulaire
     this.registerForm = this.fb.group({
-      userName: ['', [Validators.required, Validators.email]],
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      password: ['', [
-        Validators.required,
-        Validators.minLength(8),
-        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
-      ]],                                                    // Mot de passe
-      confirmPassword: ['', Validators.required],             // Confirmation de mot de passe
-      phoneNumber: [''],                                      // Numéro de téléphone (optionnel)
-      hiredDate: [''],                                        // Date d'embauche (optionnel)
-      position: [''],                                         // Poste (optionnel)
-      roles: [[]]                                             // Rôles (optionnel)
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', [Validators.required]],
+      firstName: ['', [Validators.required]],
+      lastName: ['', [Validators.required]]
     }, { validator: this.passwordMatchValidator });
-
-    // Abonnez-vous aux modifications de l'état de validation du formulaire
-    this.registerForm.statusChanges.subscribe(status => {
-      this.isFormValid = this.registerForm.valid;
-    });
   }
 
-  // Vérifie que le mot de passe et sa confirmation correspondent
-  passwordMatchValidator(form: FormGroup) {
-    return form.get('password')?.value === form.get('confirmPassword')?.value
-      ? null
-      : { mismatch: true };
+  // Vérifie si un champ a une erreur
+
+  passwordMatchValidator(formGroup: FormGroup) {
+    const passwordControl = formGroup.get('password');
+    const confirmPasswordControl = formGroup.get('confirmPassword');
+  
+    if (!passwordControl || !confirmPasswordControl) {
+      return null; // Retourne null si l'un des contrôles n'existe pas
+    }
+  
+    const password = passwordControl.value;
+    const confirmPassword = confirmPasswordControl.value;
+  
+    return password === confirmPassword ? null : { mismatch: true };
   }
 
-  // Soumet le formulaire d'inscription
-  onSubmit(): void {
+
+  // Soumission du formulaire
+  
+  onSubmit() {
     if (this.registerForm.valid) {
-      this.loadingService.show();
-      const registerData = {
-        ...this.registerForm.value,
-        phoneNumber: this.registerForm.value.phoneNumber || null,
-        hiredDate: this.registerForm.value.hiredDate || null,
-        position: this.registerForm.value.position || null,
-        roles: this.registerForm.value.roles?.length ? this.registerForm.value.roles : null
-      };
-      this.authService.registerUser(registerData).subscribe(
-        () => {
+      const registerData = this.registerForm.value;
+      this.authService.registerUser(registerData).subscribe({
+        next: () => {
           this.loadingService.hide();
           this.alertService.showAlert('Inscription réussie !', 'success');
-          this.router.navigate(['auth/login']);
+          this.router.navigate(['/auth/login']);
         },
-        (error) => {
+        error: (error) => {
           this.loadingService.hide();
-          const errorMessage = error?.error?.message || JSON.stringify(error.error);
+          const errorMessage = error?.error?.message || 'Une erreur est survenue lors de l\'inscription.';
           this.alertService.showAlert(errorMessage, 'danger');
         }
-      );
+      });
+    } else {
+      console.log('Form is not valid');
     }
   }
 
-  // Récupère les messages d'erreur pour les champs de formulaire
-  getErrorMessage(controlName: string, errorName: string): boolean {
-    const control = this.registerForm.get(controlName);
-    return control?.hasError(errorName) && (control.dirty || control.touched) || false;
-  }
 
   // Affiche ou masque le mot de passe
-  togglePasswordVisibility() {
+  togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
+  }
+
+  // Vérifie si un champ a une erreur spécifique
+  hasError(controlName: string, errorName: string): boolean {
+    const control = this.registerForm.get(controlName);
+    return !!control && control.hasError(errorName) && (control.dirty || control.touched);
   }
 }

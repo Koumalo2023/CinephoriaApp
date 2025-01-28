@@ -8,7 +8,7 @@ export const routes: Routes = [
   // Redirection par défaut vers la page d'accueil
   {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'home/home',
     pathMatch: 'full',
   },
 
@@ -58,5 +58,5 @@ export const routes: Routes = [
   },
 
   // Gestion des routes non trouvées (redirection vers la page d'accueil)
-  { path: '**', redirectTo: '/home' },
+  { path: '**', redirectTo: '/home/home' },
 ];

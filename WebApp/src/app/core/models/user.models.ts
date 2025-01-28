@@ -74,14 +74,20 @@ export interface EmployeeProfileDto {
     hiredDate?: Date;
     createdAt: Date;
     updatedAt: Date;
+    role: UserRole;
     profilePictureUrl?: string;
-    resolvedByIncidents: IncidentDto[];
+    resolvedByIncidents: Incident[];
     reportedIncidents: IncidentDto[];
 }
 
 export interface LoginUserDto {
     email: string;
     password: string;
+}
+
+export interface LoginResponseDto {
+    token: string | null; 
+    profile: UserProfileDto | EmployeeProfileDto | string;
 }
 
 export interface RegisterUserDto {
@@ -136,10 +142,13 @@ export interface UserProfileDto {
     email: string;
     createdAt: Date;
     updatedAt: Date;
+    role: UserRole;
     phoneNumber?: string;
     reservations: ReservationDto[];
     movieRatings: MovieRatingDto[];
 }
+
+
 
 
 
