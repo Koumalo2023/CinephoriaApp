@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { CreateEmployeeDto, LoginUserDto, RegisterUserDto, UpdateAppUserDto, UpdateEmployeeDto, User, UserDto } from '../models/user.models';
-import { Observable } from 'rxjs';
+import { CreateEmployeeDto, EmployeeProfileDto, LoginResponseDto, LoginUserDto,  RegisterUserDto, UpdateAppUserDto, UpdateEmployeeDto, User, UserDto, UserProfileDto } from '../models/user.models';
+import { Observable, tap } from 'rxjs';
 
 
 @Injectable({
@@ -14,31 +14,6 @@ export class AuthService {
 
 
   constructor(private http: HttpClient) { }
-
-
-
-  //   //  Inscription d'un nouvel utilisateur
-  //   registerUser(registerViewModel: RegisterViewModel): Observable<GeneralServiceResponse> {
-  //     return this.http.post<GeneralServiceResponse>(
-  //       `${this.apiUrl}/users/register`,
-  //       registerViewModel
-  //     );
-  //   }
-
-
-  //   //  Connexion de l'utilisateur
-  //   login(loginViewModel: LoginViewModel): Observable<LoginResponseViewModel | null> {
-  //     return this.http.post<LoginResponseViewModel | null>(`${this.apiUrl}/login`, loginViewModel).pipe(
-  //         tap(response => {
-  //             if (response && response.newToken) { 
-  //                 this.storeUserData(response.userInfo, response.newToken);
-  //             }
-  //         })
-  //     );
-  // }
-
-  
-
 
   /**
    * Crée un compte employé ou administrateur avec un mot de passe temporaire.
@@ -54,9 +29,21 @@ export class AuthService {
    * @param loginUserDto Les informations de connexion de l'utilisateur.
    * @returns Observable contenant un jeton JWT et les informations de profil de l'utilisateur.
    */
-  login(loginUserDto: LoginUserDto): Observable<{ Token: string; Profile: UserDto }> {
-    return this.http.post<{ Token: string; Profile: UserDto }>(`${this.apiUrl}/login`, loginUserDto);
+  login(loginUserDto: LoginUserDto): Observable<LoginResponseDto> {
+    return this.http.post<LoginResponseDto>(`${this.apiUrl}/login`, loginUserDto).pipe(
+      tap(response => {
+        if (response && response.token) {
+          try {
+            const user = this.mapProfileToUser(response.profile);
+            this.storeUserData(user, response.token);
+          } catch (error) {
+            console.error('Erreur lors de la conversion du profil en User :', error);
+          }
+        }
+      })
+    );
   }
+  
 
   /**
    * Télécharge une image de profil pour un utilisateur spécifique.
@@ -197,16 +184,6 @@ export class AuthService {
     });
   }
 
-  /**
-   * Force la réinitialisation du mot de passe d'un utilisateur.
-   * @param userId L'identifiant de l'utilisateur.
-   * @returns Observable contenant le message de réussite ou d'échec.
-   */
-  forcePasswordReset(userId: string): Observable<{ Message: string }> {
-    return this.http.post<{ Message: string }>(`${this.apiUrl}/force-password-reset`, null, {
-      params: { userId }
-    });
-  }
 
   /**
    * Permet à un employé de changer son mot de passe après avoir utilisé un mot de passe temporaire.
@@ -284,6 +261,72 @@ export class AuthService {
   isUser(): boolean {
     const user = this.getCurrentUser();
     return user ? user.role.includes('User') : false;
+  }
+  private mapEmployeeProfileDtoToUser(profile: EmployeeProfileDto): User {
+    return {
+      id: profile.employeeId,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      email: profile.email,
+      userName: `${profile.firstName}.${profile.lastName}`, 
+      emailConfirmed: true, 
+      phoneNumber: '', 
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
+      hasApprovedTermsOfUse: true, // Supposons que les termes sont approuvés
+      hiredDate: profile.hiredDate,
+      position: profile.position,
+      profilePictureUrl: profile.profilePictureUrl,
+      reportedIncidents: profile.reportedIncidents,
+      resolvedByIncidents: profile.resolvedByIncidents,
+      role: profile.role,
+      reservations: [],
+      movieRatings: [], 
+    };
+  }
+
+  private mapUserProfileDtoToUser(profile: UserProfileDto): User {
+    return {
+      id: profile.userId,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      email: profile.email,
+      userName: `${profile.firstName}.${profile.lastName}`, // Générer un nom d'utilisateur
+      emailConfirmed: true, // Supposons que l'email est confirmé
+      phoneNumber: profile.phoneNumber || '', // Utiliser la valeur fournie ou une chaîne vide
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
+      hasApprovedTermsOfUse: true, // Supposons que les termes sont approuvés
+      hiredDate: undefined, // Non fourni dans UserProfileDto
+      position: undefined, // Non fourni dans UserProfileDto
+      profilePictureUrl: undefined, // Non fourni dans UserProfileDto
+      reportedIncidents: [], // Non fourni dans UserProfileDto
+      resolvedByIncidents: [], // Non fourni dans UserProfileDto
+      role: profile.role,
+      reservations: profile.reservations,
+      movieRatings: profile.movieRatings,
+    };
+  }
+
+  private mapProfileToUser(profile: UserProfileDto | EmployeeProfileDto | string): User {
+    if (typeof profile === 'string') {
+     
+      try {
+        return JSON.parse(profile) as User;
+      } catch (error) {
+        throw new Error('Le profil ne peut pas être converti en User.');
+      }
+    }
+  
+    if ('userId' in profile) {
+      return this.mapUserProfileDtoToUser(profile);
+    }
+  
+    if ('employeeId' in profile) {
+      return this.mapEmployeeProfileDtoToUser(profile);
+    }
+   
+    throw new Error('Le type de profil n\'est pas reconnu.');
   }
 
 }

@@ -5,14 +5,15 @@
 
   <nav class="header-nav">
     <ul>
-      <li><a routerLink="/home"><i class="bi bi-house pe-2"></i> Accueil</a></li>
-      <li><a routerLink="/movie-list"><i class="bi bi-film pe-2"></i> Films</a></li>
-      <li><a routerLink="/reservation"><i class="bi bi-info-circle pe-2"></i> Reservation</a></li>
-      <li><a routerLink="/contacts"><i class="bi bi-envelope pe-2"></i> Contact</a></li>
+      <li><a routerLink="/home/home"><i class="bi bi-house pe-2"></i> Accueil</a></li>
+      <li><a routerLink="/home/movie-list"><i class="bi bi-film pe-2"></i> Films</a></li>
+      <li><a routerLink="/home/reservation"><i class="bi bi-info-circle pe-2"></i> Reservation</a></li>
+      <li><a routerLink="/home/contacts"><i class="bi bi-envelope pe-2"></i> Contact</a></li>
+      <li><a routerLink="/admin/dashboard"><i class="bi bi-speedometer2 pe-2"></i> Dashboard</a></li>
       
       <!-- Menu Login / Profile & Logout -->
       <li class="nav-item dropdown" *ngIf="!isLoggedIn">
-        <a routerLink="/login" class="nav-link"><i class="bi bi-person-circle pe-2"></i> Login</a>
+        <a routerLink="/auth/login" class="nav-link"><i class="bi bi-person-circle pe-2"></i> Login</a>
       </li>
       
       <li class="nav-item dropdown" *ngIf="isLoggedIn">

@@ -56,5 +56,10 @@
         /// Liste des incidents signalés par l'employé (applicable aux utilisateurs de type "Employee").
         /// </summary>
         public ICollection<IncidentDto> ReportedIncidents { get; set; } = new List<IncidentDto>();
+
+        /// <summary>
+        /// Rôle de l'utilisateur.
+        /// </summary>
+        public string Role { get; set; }
     }
 }

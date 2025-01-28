@@ -55,7 +55,7 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="loginUserDto">Les informations de connexion de l'utilisateur.</param>
         /// <returns>Un jeton JWT et le profil sont retournés si la connexion est réussie, ou un message d'erreur.</returns>
-        Task<(string Token, object Profile)> LoginAsync(LoginUserDto loginUserDto);
+        Task<LoginResponseDto> LoginAsync(LoginUserDto loginUserDto);
 
         /// <summary>
         /// Récupère la liste de tous les utilisateurs enregistrés.

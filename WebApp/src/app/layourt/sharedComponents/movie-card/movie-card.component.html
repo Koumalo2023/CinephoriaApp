@@ -1,0 +1,21 @@
+<div class="movie-card">
+    <!-- Image de fond dynamique -->
+    <div
+      class="movie-img"
+      [ngStyle]="{ 'background-image': 'url(' + movie.image + ')' }"
+    ></div>
+  
+    <!-- Contenu textuel -->
+    <div class="movie-content">
+      <h2 class="movie-title">{{ movie.title }}</h2>
+  
+      <!-- Liste des genres -->
+      <ul class="movie-genres">
+        <li *ngFor="let genre of movie.genres">{{ genre }}</li>
+      </ul>
+  
+      <!-- Description -->
+      <p class="movie-description">{{ movie.description }}</p>
+    </div>
+  </div>
+  

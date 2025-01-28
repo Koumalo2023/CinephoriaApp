@@ -6,9 +6,13 @@ const routes: Routes = [
   {
     path: '',
     children: [
+      // Route pour la page d'accueil
       {
         path: 'home',
-        loadComponent: () => import('@app/pages/homeModule/home-movie/home-movie.component').then((m) => m.HomeMovieComponent),
+        loadComponent: () =>
+          import('@app/pages/homeModule/home-movie/home-movie.component').then(
+            (m) => m.HomeMovieComponent
+          ),
       },
     ],
   },
