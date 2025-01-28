@@ -20,36 +20,44 @@ export class ForgotPasswordComponent implements OnInit {
   isSuccess: boolean = false;
   isLoading: boolean = false;
 
-  constructor(private fb: FormBuilder, private authService: AuthService,
-      private alertService: AlertService,
-      private loadingService: LoadingService,private router: Router) {}
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private alertService: AlertService,
+    private loadingService: LoadingService,
+    private router: Router
+  ) {}
 
-      ngOnInit(): void {
-        this.requestPasswordResetForm = this.fb.group({
-          email: ['', [Validators.required, Validators.email]]
-        });
+  ngOnInit(): void {
+    this.requestPasswordResetForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]]
+    });
+  }
+
+  onSubmit() {
+    if (this.requestPasswordResetForm.invalid) {
+      return;
+    }
+
+    this.isLoading = true;
+    this.loadingService.show();
+    const email = this.requestPasswordResetForm.value.email;
+
+    // Appel de la méthode du service pour demander la réinitialisation
+    this.authService.forgotPassword(email).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        this.loadingService.hide();
+        this.message = response.Message;
+        this.alertService.showAlert('Un email de réinitialisation a été envoyé.', 'success');
+        this.router.navigate(['/auth/reset-password'], { queryParams: { email } }); // Redirige vers la page de réinitialisation
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.loadingService.hide();
+        this.alertService.showAlert('Une erreur est survenue lors de l\'envoi de l\'email.', 'danger');
+        console.error(err);
       }
-    
-      onSubmit() {
-        if (this.requestPasswordResetForm.invalid) {
-          return;
-        }
-    
-        this.loadingService.show();
-        const email = this.requestPasswordResetForm.value.email;
-    
-        // Appel de la méthode du service
-        this.authService.forgotPassword(email).subscribe({
-          next: (response) => {
-            this.message = response.Message;
-            this.alertService.showAlert('Inscription réussie !', 'success');
-            this.router.navigate(['/auth/reset-password']);
-          },
-          error: (err) => {
-            this.loadingService.hide();
-            this.alertService.showAlert('Une erreur est survenue lors de l\'inscription.', 'danger');
-            console.error(err);
-          }
-        });
-      }
+    });
+  }
 }
