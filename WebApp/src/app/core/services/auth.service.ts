@@ -184,16 +184,6 @@ export class AuthService {
     });
   }
 
-  /**
-   * Force la réinitialisation du mot de passe d'un utilisateur.
-   * @param userId L'identifiant de l'utilisateur.
-   * @returns Observable contenant le message de réussite ou d'échec.
-   */
-  forcePasswordReset(userId: string): Observable<{ Message: string }> {
-    return this.http.post<{ Message: string }>(`${this.apiUrl}/force-password-reset`, null, {
-      params: { userId }
-    });
-  }
 
   /**
    * Permet à un employé de changer son mot de passe après avoir utilisé un mot de passe temporaire.
