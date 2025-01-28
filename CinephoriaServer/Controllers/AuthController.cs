@@ -146,15 +146,16 @@ namespace CinephoriaServer.Controllers
             try
             {
                 // Appeler le service d'authentification pour se connecter
-                var (token, profile) = await _authService.LoginAsync(loginUserDto);
+                var loginResponse = await _authService.LoginAsync(loginUserDto);
 
-                if (token == null)
+                // Si le token est null, cela signifie qu'une erreur s'est produite (utilisateur non trouvé, mot de passe incorrect, etc.)
+                if (loginResponse.Token == null)
                 {
-                    return BadRequest(new { Message = profile });
+                    return BadRequest(new { Message = loginResponse.Profile });
                 }
 
-                // Retourner le token et le profil
-                return Ok(new { Token = token, Profile = profile });
+                // Retourner le token et le profil encapsulés dans LoginResponseDto
+                return Ok(loginResponse);
             }
             catch (ApiException ex)
             {
@@ -163,7 +164,7 @@ namespace CinephoriaServer.Controllers
             }
             catch (Exception ex)
             {
-                // Gérer les erreurs inattendues
+                
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite lors de la connexion." });
             }
         }

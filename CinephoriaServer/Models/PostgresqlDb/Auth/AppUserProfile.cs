@@ -51,7 +51,8 @@ namespace CinephoriaServer.Models.PostgresqlDb
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
                 .ForMember(dest => dest.Reservations, opt => opt.MapFrom(src => src.Reservations))
-                .ForMember(dest => dest.MovieRatings, opt => opt.MapFrom(src => src.MovieRatings));
+                .ForMember(dest => dest.MovieRatings, opt => opt.MapFrom(src => src.MovieRatings))
+                .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role));
 
             CreateMap<AppUser, EmployeeProfileDto>()
                 .ForMember(dest => dest.EmployeeId, opt => opt.MapFrom(src => src.Id))
@@ -62,8 +63,9 @@ namespace CinephoriaServer.Models.PostgresqlDb
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
                 .ForMember(dest => dest.ProfilePictureUrl, opt => opt.MapFrom(src => src.ProfilePictureUrl))
-            .ForMember(dest => dest.ResolvedByIncidents, opt => opt.MapFrom(src => src.ResolvedByIncidents))
-            .ForMember(dest => dest.ReportedIncidents, opt => opt.MapFrom(src => src.ReportedIncidents));
+                .ForMember(dest => dest.ResolvedByIncidents, opt => opt.MapFrom(src => src.ResolvedByIncidents))
+                .ForMember(dest => dest.ReportedIncidents, opt => opt.MapFrom(src => src.ReportedIncidents))
+                .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role));
 
             CreateMap<AppUser, AppUserDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))

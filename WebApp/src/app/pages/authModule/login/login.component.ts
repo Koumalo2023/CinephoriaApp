@@ -4,6 +4,8 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { AlertService } from '../../../core/services/alert.service';
 import { CommonModule } from '@angular/common';
+import { EmployeeProfileDto, UserProfileDto } from '@app/core/models/user.models';
+import { RedirectService } from '@app/core/services/redirect.service';
 
 @Component({
   selector: 'app-login',
@@ -23,7 +25,8 @@ export class LoginComponent {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private redirectService: RedirectService
   ) {
     this.loginForm = this.fb.group({
       userName: ['', [Validators.required, Validators.email]],
@@ -35,43 +38,75 @@ export class LoginComponent {
     if (this.loginForm.invalid) {
       return;
     }
-
+  
     this.loading = true;
-    const loginData = this.loginForm.value;
-
+    const loginData = {
+      email: this.loginForm.value.userName,
+      password: this.loginForm.value.password,
+    };
+  
     this.authService.login(loginData).subscribe({
       next: (response) => {
-          console.log("Réponse de l'API :", response);
-          if (response && response.Token) {
-              this.alertService.showAlert('Connexion réussie !', 'success');
-              this.router.navigate(['/home']);
-              // this.redirectBasedOnRole(response.userInfo.roles, response.userInfo.appUserId);
+        if (response.token) {
+          this.alertService.showAlert('Connexion réussie !', 'success');
+  
+          // Vérifier le type de `response.profile`
+          if (typeof response.profile === 'string') {
+            try {
+              // Parser la chaîne en objet
+              const parsedProfile = JSON.parse(response.profile);
+              this.handleProfile(parsedProfile);
+            } catch (error) {
+              console.error('Erreur lors de l\'analyse du profil :', error);
+              this.errorMessage = 'Erreur lors de la connexion.';
+            }
           } else {
-              this.errorMessage = 'Connexion échouée. Vérifiez vos informations.';
+            // Si `response.profile` est déjà un objet
+            this.handleProfile(response.profile);
           }
-      },
+  
+          // Rediriger en fonction du rôle ou de l'URL de redirection
+          const redirectUrl = this.redirectService.getRedirectUrl();
+          if (redirectUrl) {
+            this.router.navigateByUrl(redirectUrl);
+            this.redirectService.clearRedirectUrl();
+          }
+        } else {
+          this.errorMessage = 'Connexion échouée. Vérifiez vos informations.';
+        }
+      },  
       error: (error) => {
-          this.loading = false;
-          console.error("Erreur lors de la connexion :", error);
-          this.errorMessage = 'Erreur lors de la connexion : ' + (error?.error?.message || 'Erreur inconnue');
+        console.error("Erreur lors de la connexion :", error);
+        this.errorMessage = 'Erreur lors de la connexion : ' + (error?.error?.message || 'Erreur inconnue');
       },
       complete: () => {
-          this.loading = false;
-      }
-  });
-  
+        this.loading = false;
+      },
+    });
   }
 
-  // Redirection en fonction du rôle de l'utilisateur
-  redirectBasedOnRole(roles: string, userId: string) {
-    if (roles === 'Admin') {
-      this.router.navigate(['/home']);
-    } else if (roles === 'Employee' || roles === 'User') {
-      this.router.navigate(['/dashboard/user-profile', userId]);
-    } else {
-      this.errorMessage = 'Rôle utilisateur non reconnu.';
+  private handleProfile(profile: UserProfileDto | EmployeeProfileDto): void {
+    const userRole = profile.role;
+    const userId = 'userId' in profile ? profile.userId : profile.employeeId;
+    this.redirectBasedOnRole(userRole, userId);
+  }
+
+  private redirectBasedOnRole(role: string, userId: string): void {
+    switch (role) {
+      case 'Admin':
+        this.router.navigate(['/home/home']);
+        break;
+      case 'Employee':
+      case 'User':
+        this.router.navigate(['/admin/dashboard/', userId]);
+        break;
+      default:
+        this.errorMessage = 'Rôle utilisateur non reconnu.';
+        console.error('Rôle non reconnu :', role);
+        break;
     }
   }
+  
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
   }

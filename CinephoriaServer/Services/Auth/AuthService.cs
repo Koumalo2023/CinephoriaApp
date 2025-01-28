@@ -237,47 +237,56 @@ namespace CinephoriaServer.Services
         /// </summary>
         /// <param name="loginUserDto">Les informations d'identification de l'utilisateur.</param>
         /// <returns>Un jeton JWT en cas de succès, ou un message d'erreur.</returns>
-        public async Task<(string Token, object Profile)> LoginAsync(LoginUserDto loginUserDto)
+        public async Task<LoginResponseDto> LoginAsync(LoginUserDto loginUserDto)
         {
             // Vérifier si l'utilisateur existe
             var user = await _userManager.FindByEmailAsync(loginUserDto.Email);
             if (user == null)
             {
-                return (null, "Utilisateur non trouvé.");
+                return new LoginResponseDto { Token = null, Profile = "Utilisateur non trouvé." };
             }
 
             // Vérifier si le mot de passe est correct
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, loginUserDto.Password);
             if (!isPasswordValid)
             {
-                return (null, "Mot de passe incorrect.");
+                return new LoginResponseDto { Token = null, Profile = "Mot de passe incorrect." };
             }
 
             // Vérifier si l'email est confirmé
             if (!user.EmailConfirmed)
             {
-                return (null, "Veuillez confirmer votre adresse email avant de vous connecter.");
+                return new LoginResponseDto { Token = null, Profile = "Veuillez confirmer votre adresse email avant de vous connecter." };
             }
 
             // Récupérer le rôle de l'utilisateur
             var roles = await _userManager.GetRolesAsync(user);
-            var role = roles.FirstOrDefault(); 
+            var role = roles.FirstOrDefault();
 
             // Générer le token JWT
             var token = GenerateJwtToken(user);
 
-            
+            // Créer le profil en fonction du rôle
             object profile = null;
             if (role == "User")
             {
-                profile = _mapper.Map<UserProfileDto>(user);
+                var userProfile = _mapper.Map<UserProfileDto>(user);
+                userProfile.Role = role; // Ajouter le rôle au profil utilisateur
+                profile = userProfile;
             }
             else if (role == "Employee" || role == "Admin")
             {
-                profile = _mapper.Map<EmployeeProfileDto>(user);
+                var employeeProfile = _mapper.Map<EmployeeProfileDto>(user);
+                employeeProfile.Role = role; // Ajouter le rôle au profil employé
+                profile = employeeProfile;
             }
 
-            return (token, profile);
+            // Retourner la réponse avec le token et le profil
+            return new LoginResponseDto
+            {
+                Token = token,
+                Profile = profile
+            };
         }
 
         // Gestion des mot de passe(Demande de changement & Réinitialisation)

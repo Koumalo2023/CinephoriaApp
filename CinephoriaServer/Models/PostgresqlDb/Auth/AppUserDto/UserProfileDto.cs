@@ -43,5 +43,10 @@
         /// Liste des avis laissés par l'utilisateur.
         /// </summary>
         public ICollection<MovieRatingDto> MovieRatings { get; set; } = new List<MovieRatingDto>();
+
+        /// <summary>
+        /// Rôle de l'utilisateur.
+        /// </summary>
+        public string Role { get; set; }
     }
 }
