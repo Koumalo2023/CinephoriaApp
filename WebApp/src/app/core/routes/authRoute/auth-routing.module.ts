@@ -32,7 +32,7 @@ const routes: Routes = [
         path: 'reset-password',
         loadComponent: () =>
           import('@app/pages/authModule/resset-password/resset-password.component').then(
-            (m) => m.RessetPasswordComponent
+            (m) => m.ResetPasswordComponent
           ),
       },
 
@@ -42,6 +42,14 @@ const routes: Routes = [
         loadComponent: () =>
           import('@app/pages/authModule/forgot-password/forgot-password.component').then(
             (m) => m.ForgotPasswordComponent
+          ),
+      },
+      // Route pour la page de confirmation du mot de passe
+      {
+        path: 'confirm-email',
+        loadComponent: () =>
+          import('@app/pages/authModule/confirm-email/confirm-email.component').then(
+            (m) => m.ConfirmEmailComponent
           ),
       },
     ],
