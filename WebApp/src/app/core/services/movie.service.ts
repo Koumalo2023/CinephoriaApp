@@ -1,20 +1,22 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import {
   MovieDto,
   MovieReviewDto,
   CreateMovieDto,
   UpdateMovieDto,
-  FilterMoviesRequestDto
+  FilterMoviesRequestDto,
+  MovieDetailsDto
 } from '../models/movie.models'; 
 import { ShowtimeDto } from '../models/showtime.models';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MovieService {
-  private apiUrl = 'api/movies';
+  private apiUrl = `${environment.apiUrl}/Movie`;
 
   constructor(private http: HttpClient) {}
 
@@ -23,8 +25,19 @@ export class MovieService {
    * @returns Observable contenant une liste de films.
    */
   getRecentMovies(): Observable<MovieDto[]> {
-    return this.http.get<MovieDto[]>(`${this.apiUrl}/recent`);
+    return this.http.get<MovieDto[]>(`${this.apiUrl}/recent`).pipe(
+      map((movies) => {
+        return movies.map((movie) => {
+          movie.posterUrls = movie.posterUrls.map((url) =>
+            url.startsWith('http') ? url : `${this.apiUrl}/${url}`
+          ); 
+          return movie;
+        });
+      })
+    );
   }
+  
+
 
   /**
    * Récupère la liste de tous les films.
@@ -39,8 +52,8 @@ export class MovieService {
    * @param movieId L'identifiant du film.
    * @returns Observable contenant les détails du film.
    */
-  getMovieDetails(movieId: number): Observable<MovieDto> {
-    return this.http.get<MovieDto>(`${this.apiUrl}/movie/${movieId}`);
+  getMovieDetails(movieId: number): Observable<MovieDetailsDto> {
+    return this.http.get<MovieDetailsDto>(`${this.apiUrl}/movie/${movieId}`);
   }
 
   /**
@@ -69,6 +82,8 @@ export class MovieService {
   filterMovies(filterDto: FilterMoviesRequestDto): Observable<MovieDto[]> {
     return this.http.post<MovieDto[]>(`${this.apiUrl}/filter`, filterDto);
   }
+  
+  
 
   /**
    * Crée un nouveau film.

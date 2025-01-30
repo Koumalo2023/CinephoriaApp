@@ -1,0 +1,39 @@
+.home-container {
+    padding: $spacing-lg;
+    color: $body-color;
+  
+    .logo {
+      max-width: 150px;
+      margin-bottom: $spacing-md;
+    }
+  
+    header {
+      text-align: center;
+      margin-bottom: $spacing-lg;
+  
+      h1 {
+        font-size: $font-size-large;
+        color: $white-color;
+        font-weight: bold;
+      }
+  
+      p {
+        font-size: $font-size-base;
+        color: $gray-light;
+      }
+    }
+  
+    .latest-movies {
+      margin-bottom: $spacing-lg;
+  
+      h2 {
+        color: $h3-text-color;
+        font-size: $font-size-large;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: $spacing-md;
+      }
+    }
+  
+    
+  }

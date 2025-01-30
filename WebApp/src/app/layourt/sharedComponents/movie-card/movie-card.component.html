@@ -1,21 +1,27 @@
+
 <div class="movie-card">
-    <!-- Image de fond dynamique -->
-    <div
-      class="movie-img"
-      [ngStyle]="{ 'background-image': 'url(' + movie.image + ')' }"
-    ></div>
-  
-    <!-- Contenu textuel -->
-    <div class="movie-content">
-      <h2 class="movie-title">{{ movie.title }}</h2>
-  
-      <!-- Liste des genres -->
-      <ul class="movie-genres">
-        <li *ngFor="let genre of movie.genres">{{ genre }}</li>
-      </ul>
-  
-      <!-- Description -->
-      <p class="movie-description">{{ movie.description }}</p>
+  <div
+    class="movie-img"
+    [ngStyle]="{
+      'background-image': movie.posterUrls && movie.posterUrls.length > 0
+        ? 'url(' + movie.posterUrls[0] + ')'
+        : 'url(assets/images/default-movie-poster.jpg)'
+    }"
+  ></div>
+
+  <div class="movie-content">
+    <h2 class="movie-title">{{ movie.title }}</h2>
+    <h3 class="movie-genres">{{ movie.genre }}</h3>
+    <p class="movie-description">{{ truncatedDescription }}</p>
+
+    <div class="movie-details">
+      <p><strong>Durée :</strong> {{ movie.duration }}</p>
+      <p><strong>Âge minimum :</strong> {{ movie.minimumAge }}+</p>
     </div>
+
+    <!-- Bouton pour afficher les détails du film -->
+    <button class="btn-details" (click)="showMovieDetails(); $event.stopPropagation();">
+      <i class="bi bi-info-circle"></i> Voir les détails
+    </button>
   </div>
-  
+</div>

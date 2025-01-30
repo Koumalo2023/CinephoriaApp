@@ -1,0 +1,60 @@
+.movie-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  .movie-poster {
+    max-width: 30%;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .movie-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .movie-title {
+      font-size: 2rem;
+      color: #002b36;
+    }
+
+    .movie-director,
+    .movie-release-date,
+    .movie-genre,
+    .movie-duration,
+    .movie-age,
+    .movie-rating {
+      font-size: 1rem;
+      color: #333;
+    }
+  }
+
+  .movie-description {
+    h2 {
+      font-size: 1.5rem;
+      color: #002b36;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 1rem;
+      color: #555;
+      line-height: 1.5;
+    }
+  }
+}
+
+.loading {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #002b36;
+
+  .error-message {
+    color: #d9534f;
+  }
+}

@@ -7,12 +7,13 @@ import {
 } from '../models/reservation.models'; 
 import { ShowtimeDto } from '../models/showtime.models';
 import { SeatDto } from '../models/seat.models';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReservationService {
-  private apiUrl = 'api/reservations';
+  private apiUrl =`${environment.apiUrl}/Reservation`;
 
   constructor(private http: HttpClient) {}
 

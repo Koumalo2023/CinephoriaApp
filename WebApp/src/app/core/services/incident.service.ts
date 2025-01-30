@@ -7,12 +7,13 @@ import {
   IncidentStatusUpdateDto, 
   IncidentDto
 } from '../models/incident.models';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class IncidentService {
-  private apiUrl = 'api/incidents'; 
+  private apiUrl = `${environment.apiUrl}/Incident`;
 
   constructor(private http: HttpClient) {}
 

@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SeatDto, AddHandicapSeatDto, RemoveHandicapSeatDto } from '../models/seat.models';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SeatsService {
-  private apiUrl = 'api/seats';
+  private apiUrl = `${environment.apiUrl}/Seats`;
 
   constructor(private http: HttpClient) {}
 
