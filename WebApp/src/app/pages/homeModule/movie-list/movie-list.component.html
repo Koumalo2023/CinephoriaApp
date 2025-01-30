@@ -1,0 +1,19 @@
+<div class="row">
+  <h2>{{ showRecentMoviesOnly ? 'Films récents' : 'Tous les films' }}</h2>
+
+  <!-- Filtres (optionnel) -->
+  <div *ngIf="showFilter" class="filter-section">
+    <app-movie-filter (filterChange)="onFilterChange($event)"></app-movie-filter>
+  </div>
+
+  <!-- Liste des films -->
+  <div class="movie-list">
+    <app-movie-card
+      *ngFor="let movie of filteredMovies"
+      [movie]="movie"
+      (movieSelected)="onMovieSelected($event)"
+    ></app-movie-card>
+  </div>
+
+
+</div>
