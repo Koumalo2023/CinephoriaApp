@@ -1,0 +1,18 @@
+<div class="movie-filter">
+  <label for="genre">Genre:</label>
+  <select id="genre" (change)="onGenreChange($event)">
+    <option value="">Tous les genres</option>
+    <option *ngFor="let genre of movieGenres" [value]="genre">{{ genre }}</option>
+  </select>
+
+  <label for="cinema">Cinéma:</label>
+  <select id="cinema" (change)="onCinemaChange($event)">
+    <option value="">Tous les cinémas</option>
+    <option *ngFor="let cinema of cinemas" [value]="cinema.cinemaId">{{ cinema.name }}</option>
+  </select>
+
+  <label for="date">Date:</label>
+  <input id="date" type="date" (change)="onDateChange($event)" />
+
+  <button (click)="applyFilters()">Appliquer les filtres</button>
+</div>

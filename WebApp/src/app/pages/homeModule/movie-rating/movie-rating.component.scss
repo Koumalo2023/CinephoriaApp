@@ -1,0 +1,47 @@
+.movie-ratings {
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+    h2 {
+      font-size: 1.5rem;
+      color: #002b36;
+      margin-bottom: 1rem;
+    }
+  
+    .review {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background-color: #fff;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+      .review-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+  
+        .user-rating {
+          font-weight: bold;
+          color: #b58900;
+        }
+  
+        .user-id {
+          color: #666;
+        }
+      }
+  
+      .review-description {
+        font-size: 1rem;
+        color: #555;
+        line-height: 1.5;
+      }
+    }
+  
+    p {
+      font-size: 1rem;
+      color: #666;
+    }
+  }
