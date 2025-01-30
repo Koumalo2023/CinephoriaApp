@@ -1,0 +1,31 @@
+<div *ngIf="currentStep === 1">
+    <app-cinema-selector (cinemaSelected)="onCinemaSelected($event)"></app-cinema-selector>
+  </div>
+  <!-- Afficher les informations du cinéma sélectionné -->
+  <div *ngIf="reservationDetails.cinema" class="cinema-info">
+    <h3>Cinéma sélectionné :</h3>
+    <p><strong>Nom :</strong> {{ reservationDetails.cinema.name }}</p>
+    <p><strong>Adresse :</strong> {{ reservationDetails.cinema.address }}</p>
+    <p><strong>Ville :</strong> {{ reservationDetails.cinema.city }}, {{ reservationDetails.cinema.country }}</p>
+    <p><strong>Téléphone :</strong> {{ reservationDetails.cinema.phoneNumber }}</p>
+    <p><strong>Horaires d'ouverture :</strong> {{ reservationDetails.cinema.openingHours }}</p>
+  </div>
+  <app-movie-selector
+    *ngIf="currentStep >= 2"
+    [cinemaId]="reservationDetails.cinema?.cinemaId"
+    (movieSelected)="onMovieSelected($event)"
+  ></app-movie-selector>
+
+  <div *ngIf="currentStep === 3">
+    <app-showtime-selector (sessionSelected)="onSessionSelected($event)"></app-showtime-selector>
+  </div>
+  <div *ngIf="currentStep === 4">
+    <app-seat-selector (seatsSelected)="onSeatsSelected($event)"></app-seat-selector>
+  </div>
+  <div *ngIf="currentStep === 5">
+    <app-price-summary [reservationDetails]="reservationDetails"></app-price-summary>
+    <app-reservation-confirmation (confirm)="onReservationConfirmed()"></app-reservation-confirmation>
+  </div>
+  
+  <button (click)="previousStep()" *ngIf="currentStep > 1">Précédent</button>
+  <button (click)="nextStep()" *ngIf="currentStep < 5">Suivant</button>

@@ -73,6 +73,15 @@ namespace CinephoriaServer.Repository
         /// <param name="movieId">L'identifiant du film à supprimer.</param>
         /// <returns>Une tâche asynchrone.</returns>
         Task DeleteMovieAsync(int movieId);
+
+
+        /// <summary>
+        /// Récupère la liste des films qui ont une séance dans un cinéma spécifique.
+        /// </summary>
+        /// <param name="cinemaId">L'identifiant du cinéma.</param>
+        /// <returns>Une liste de films.</returns>
+        Task<List<Movie>> GetMoviesByCinemaIdAsync(int cinemaId);
+
     }
 
 
@@ -96,9 +105,9 @@ namespace CinephoriaServer.Repository
 
             // Récupérer les films ajoutés depuis le dernier mercredi
             var recentMovies = await _context.Set<Movie>()
-                .Where(m => m.CreatedAt >= lastWednesday) 
-                .OrderByDescending(m => m.CreatedAt) 
-                .Take(20) 
+                .Where(m => m.CreatedAt >= lastWednesday)
+                .OrderByDescending(m => m.CreatedAt)
+                .Take(20)
                 .ToListAsync();
 
             return recentMovies;
@@ -172,7 +181,7 @@ namespace CinephoriaServer.Repository
         public async Task<List<Movie>> FilterMoviesAsync(int? cinemaId, MovieGenre? genre, DateTime? date)
         {
             var query = _context.Set<Movie>()
-                .Include(m => m.Showtimes) 
+                .Include(m => m.Showtimes)
                 .AsQueryable();
 
             // Filtrer par cinéma
@@ -260,6 +269,20 @@ namespace CinephoriaServer.Repository
             }
         }
 
+        /// <summary>
+        /// Récupère la liste des films qui ont une séance dans un cinéma spécifique.
+        /// </summary>
+        /// <param name="cinemaId">L'identifiant du cinéma.</param>
+        /// <returns>Une liste de films.</returns>
+        public async Task<List<Movie>> GetMoviesByCinemaIdAsync(int cinemaId)
+        {
+            return await _context.Set<Showtime>()
+                .Where(s => s.CinemaId == cinemaId) 
+                .Select(s => s.Movie) 
+                .Distinct()
+                .ToListAsync();
+        }
+
         private DateTime GetLastWednesday()
         {
             DateTime today = DateTime.UtcNow.Date;
@@ -267,5 +290,6 @@ namespace CinephoriaServer.Repository
             DateTime lastWednesday = today.AddDays(-daysSinceWednesday);
             return lastWednesday;
         }
+
     }
 }

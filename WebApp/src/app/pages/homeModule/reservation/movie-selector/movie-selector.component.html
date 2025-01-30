@@ -1,0 +1,13 @@
+<div *ngIf="movies.length > 0">
+  <h3>Sélectionnez un film :</h3>
+  <div class="movie-grid">
+    <app-movie-card
+      *ngFor="let movie of movies"
+      [movie]="movie"
+      (movieSelected)="onMovieSelected($event)"
+    ></app-movie-card>
+  </div>
+</div>
+<div *ngIf="movies.length === 0">
+  <p>Aucun film disponible pour ce cinéma.</p>
+</div>

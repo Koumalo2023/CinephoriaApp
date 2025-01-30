@@ -3,12 +3,12 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MovieDetailsDto } from '@app/core/models/movie.models';
 import { MovieService } from '@app/core/services/movie.service';
-import { ShowtimeSelectorComponent } from '../showtime-selector/showtime-selector.component';
-import { MovieRatingComponent } from '../movie-rating/movie-rating.component';
 import { LoadingService } from '@app/core/services/loading.service';
 import { AlertService } from '@app/core/services/alert.service';
 import { ShowtimeDto } from '@app/core/models/showtime.models';
 import { AuthService } from '@app/core/services/auth.service';
+import { ShowtimeSelectorComponent } from '../showtime-selector/showtime-selector.component';
+import { MovieRatingComponent } from '../movie-rating/movie-rating.component';
 
 @Component({
   selector: 'app-movie-details',

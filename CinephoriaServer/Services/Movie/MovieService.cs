@@ -208,6 +208,26 @@ namespace CinephoriaServer.Services
             _logger.LogInformation("Film avec l'ID {MovieId} supprimé avec succès.", movieId);
             return "Film supprimé avec succès.";
         }
+
+        /// <summary>
+        /// Récupère la liste des films qui ont des séances dans un cinéma spécifique.
+        /// </summary>
+        /// <param name="cinemaId">L'identifiant du cinéma.</param>
+        /// <returns>Une liste de films.</returns>
+        public async Task<List<MovieDto>> GetMoviesByCinemaIdAsync(int cinemaId)
+        {
+            var movies = await _unitOfWork.Movies.GetMoviesByCinemaIdAsync(cinemaId);
+            if (movies == null || !movies.Any())
+            {
+                _logger.LogWarning("Aucun film trouvé pour le cinéma avec l'ID {CinemaId}.", cinemaId);
+                throw new ApiException("Aucun film trouvé pour ce cinéma.", StatusCodes.Status404NotFound);
+            }
+
+            var movieDtos = _mapper.Map<List<MovieDto>>(movies);
+
+            _logger.LogInformation("Films récupérés avec succès pour le cinéma avec l'ID {CinemaId}.", cinemaId);
+            return movieDtos;
+        }
     }
 
 }

@@ -13,7 +13,11 @@ const routes: Routes = [
   },
   { 
     path: 'movie-details/:movieId', 
-    loadComponent: () => import('@app/pages/homeModule/movie-details/movie-details.component').then(m => m.MovieDetailsComponent) 
+    loadComponent: () => import('@app/pages/homeModule/movie-list/movie-details/movie-details.component').then(m => m.MovieDetailsComponent) 
+  },
+  { 
+    path: 'reservation', 
+    loadComponent: () => import('@app/pages/homeModule/reservation/reservation.component').then(m => m.ReservationComponent) 
   },
 ];
 
