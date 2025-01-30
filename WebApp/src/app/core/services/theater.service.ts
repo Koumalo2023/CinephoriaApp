@@ -3,12 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { TheaterDto, CreateTheaterDto, UpdateTheaterDto,} from '../models/theater.models';
 import { IncidentDto } from '../models/incident.models';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TheaterService {
-  private apiUrl = 'api/theater';
+  private apiUrl = `${environment.apiUrl}/Theater`;
 
   constructor(private http: HttpClient) {}
 

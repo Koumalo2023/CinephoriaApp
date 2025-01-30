@@ -65,9 +65,9 @@ export interface CreateMovieDto {
   }
 
   export interface FilterMoviesRequestDto {
-    cinemaId?: number;
-    genre?: MovieGenre;
-    date?: Date;
-  }
+  cinemaId: number | null;
+  genre: MovieGenre | null;
+  date: Date | null; // Utilisez directement le type Date pour la date
+}
   
   

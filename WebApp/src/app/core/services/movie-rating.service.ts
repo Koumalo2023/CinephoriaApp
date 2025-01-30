@@ -6,12 +6,13 @@ import {
   UpdateMovieRatingDto,
   MovieReviewDto
 } from '../models/movie-rating.models';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MovieRatingService {
-  private apiUrl = 'api/reviews'; // Base URL de l'API
+  private apiUrl = `${environment.apiUrl}/MovieRating`; // Base URL de l'API
 
   constructor(private http: HttpClient) {}
 
