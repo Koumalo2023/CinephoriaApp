@@ -14,18 +14,5 @@ import { ConfirmationDialogComponent } from '../sharedComponents/confirmation-di
   styleUrl: './home.component.scss'
 })
 export class HomeComponent {
-  constructor(private modalService: NgbModal, private alertService: AlertService) {}
-
-  openConfirmationDialog() {
-    const modalRef = this.modalService.open(ConfirmationDialogComponent);
-    modalRef.componentInstance.title = 'Supprimer un élément';
-    modalRef.componentInstance.message = 'Voulez-vous vraiment supprimer cet élément ?';
   
-    modalRef.result.then((result) => {
-      if (result) {
-        this.alertService.showAlert('Enregistrement réussi !', 'success');
-      }
-    }).catch(() => {
-      this.alertService.showAlert('Erreur lors de l’enregistrement.', 'danger');
-    });
-}}
+}

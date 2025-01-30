@@ -3,18 +3,17 @@ import { RouterModule, Routes } from '@angular/router';
 
 
 const routes: Routes = [
-  {
-    path: '',
-    children: [
-      // Route pour la page d'accueil
-      {
-        path: 'home',
-        loadComponent: () =>
-          import('@app/pages/homeModule/home-movie/home-movie.component').then(
-            (m) => m.HomeMovieComponent
-          ),
-      },
-    ],
+  { 
+    path: 'home', 
+    loadComponent: () => import('@app/pages/homeModule/home-movie/home-movie.component').then(m => m.HomeMovieComponent) 
+  },
+  { 
+    path: 'movie-list', 
+    loadComponent: () => import('@app/pages/homeModule/movie-list/movie-list.component').then(m => m.MovieListComponent) 
+  },
+  { 
+    path: 'movie-details/:movieId', 
+    loadComponent: () => import('@app/pages/homeModule/movie-details/movie-details.component').then(m => m.MovieDetailsComponent) 
   },
 ];
 
