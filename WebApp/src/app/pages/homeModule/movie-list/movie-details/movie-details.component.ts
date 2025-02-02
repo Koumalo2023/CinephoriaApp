@@ -29,17 +29,17 @@ export class MovieDetailsComponent implements OnInit {
     private movieService: MovieService,
     private loadingService: LoadingService,
     private alertService: AlertService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       const paramMovieId = params.get('movieId');
       console.log('Param movieId:', paramMovieId);
-  
+
       if (paramMovieId) {
         this.movieId = +paramMovieId;
         console.log('Converted movieId:', this.movieId);
-  
+
         if (!isNaN(this.movieId)) {
           this.loadMovieDetails();
         } else {
@@ -51,7 +51,7 @@ export class MovieDetailsComponent implements OnInit {
       }
     });
   }
-  
+
 
   private loadMovieDetails(): void {
     this.loadingService.show();
@@ -69,18 +69,22 @@ export class MovieDetailsComponent implements OnInit {
     );
   }
 
+
   onShowtimeSelected(showtime: ShowtimeDto): void {
-    if (this.authService.isLoggedIn()) {
-      // Si l'utilisateur est connecté, rediriger vers la page de réservation
-      this.router.navigate(['/home/reservation'], { queryParams: { showtimeId: showtime.showtimeId } });
-    } else {
-      // Si l'utilisateur n'est pas connecté, afficher un composant ou un message d'invite
-      this.alertService.showAlert('Veuillez vous connecter ou vous inscrire pour continuer.', 'warning');
-      // Affichez LoginPromptComponent ici ou redirigez si nécessaire
-    }
+    this.router.navigate(['/home/reservation'], {
+      queryParams: {
+        showtimeId: showtime.showtimeId,
+        movieId: this.movieId,
+        cinemaId: showtime.cinemaId,
+        step: 4
+      }
+    });
+
   }
+
+
   onGoBack(): void {
-    this.router.navigate(['/home/movies']); // Retour à la liste des films
+    this.router.navigate(['/home/movies']);
   }
 }
 

@@ -20,8 +20,8 @@
     </div>
 
     <!-- Bouton pour afficher les détails du film -->
-    <button class="btn-details" (click)="showMovieDetails(); $event.stopPropagation();">
-      <i class="bi bi-info-circle"></i> Voir les détails
+    <button class="btn-details" (click)="onCardClick()">
+      <i class="bi bi-info-circle"></i> {{ mode === 'details' ? 'Voir les détails' : 'Voir les séances' }}
     </button>
   </div>
 </div>

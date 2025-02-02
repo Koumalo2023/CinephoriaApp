@@ -4,6 +4,7 @@
     <app-movie-card
       *ngFor="let movie of movies"
       [movie]="movie"
+      mode="sessions" 
       (movieSelected)="onMovieSelected($event)"
     ></app-movie-card>
   </div>
