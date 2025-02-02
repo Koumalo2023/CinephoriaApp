@@ -1,1 +1,17 @@
-<p>seat-selector works!</p>
+<div *ngIf="availableSeats.length > 0">
+    <h3>Sièges disponibles :</h3>
+    <div class="seat-grid">
+      <div
+        *ngFor="let seat of availableSeats"
+        class="seat"
+        [ngClass]="{ 'selected': localSelectedSeats.includes(seat) }"
+        (click)="selectSeat(seat)"
+      >
+        {{ seat.seatNumber }}
+      </div>
+    </div>
+    <button class="confirm-button" (click)="confirmSelection()">Confirmer la sélection</button>
+  </div>
+  <div *ngIf="availableSeats.length === 0">
+    <p>Aucun siège disponible pour cette séance.</p>
+  </div>
