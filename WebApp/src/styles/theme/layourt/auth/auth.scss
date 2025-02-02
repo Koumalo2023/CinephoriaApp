@@ -30,24 +30,6 @@
           .form-floating {
             width: 100%;
             margin-bottom: 1.5rem;
-  
-            .form-control {
-              width: 100%;
-              padding: 1.25rem 1rem;
-              font-size: 1rem;
-              border: 1px solid $body-bg-color-second;
-              border-radius: 4px;
-  
-              &:focus {
-                border-color: #495057;
-                box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25);
-              }
-            }
-  
-            label {
-              color: #6c757d;
-              font-size: 0.875rem;
-            }
           }
   
           // Boutons

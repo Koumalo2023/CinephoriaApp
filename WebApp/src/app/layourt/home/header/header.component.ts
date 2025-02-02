@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '@app/core/services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -14,24 +15,55 @@ export class HeaderComponent {
   isMenuOpen = false;
   isDropdownOpen = false;
   isDropdownMobileOpen = false;
-  isSearchOpen = false;
   isLoggedIn = false;
-  username = 'John Doe'; 
+  userRole: string | null = null; 
+  dropdownTitle = 'Dropdown';
+  username = '';
 
-  searchQuery: string = '';
+  constructor(private authService: AuthService, private router: Router) {}
+
+  ngOnInit() {
+    // Vérifie l'état de connexion à l'initialisation
+    this.isLoggedIn = this.authService.isLoggedIn();
+    this.setDropdownTitle();
+
+    // Écoute les changements de connexion en temps réel
+    this.authService.authStatus.subscribe(status => {
+      this.isLoggedIn = status;
+      this.setDropdownTitle();
+    });
+  }
+
+  setDropdownTitle() {
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      this.username = user.firstName + ' ' + user.lastName;
+      switch (user.role) {
+        case 'User':
+          this.dropdownTitle = 'Mon Espace';
+          break;
+        case 'Employee':
+          this.dropdownTitle = 'Intranet';
+          break;
+        case 'Admin':
+          this.dropdownTitle = 'Administration';
+          break;
+        default:
+          this.dropdownTitle = 'Dropdown';
+      }
+    } else {
+      this.dropdownTitle = 'Dropdown';
+    }
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/home/home']);
+  }
   
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
   }
-
-  onSearch() {
-    if (this.searchQuery.trim().length > 0) {
-      console.log(`Search query: ${this.searchQuery}`);
-      // Handle filtering of sessions and rooms here
-      // For example, you could call a service that filters the results
-    }
-  }
-
 
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
@@ -41,8 +73,4 @@ export class HeaderComponent {
     this.isDropdownMobileOpen = !this.isDropdownMobileOpen;
   }
 
-  logout() { 
-    console.log('User logged out');
-    this.isLoggedIn = false;
-  }
 }

@@ -20,7 +20,7 @@ export class AuthGuard implements CanActivate {
     // Vérifie si l'utilisateur est connecté
     if (!currentUser) {
       this.alertService.showAlert('Vous devez vous connecter pour accéder à cette page.', 'warning');
-      this.router.navigate(['/login']);
+      this.router.navigate(['/auth/login']);
       return false;
     }
 
