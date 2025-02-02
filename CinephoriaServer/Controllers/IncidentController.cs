@@ -33,14 +33,14 @@ namespace CinephoriaServer.Controllers
             try
             {
                 // Récupérer l'identifiant de l'utilisateur connecté
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId))
+                var AppUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(AppUserId))
                 {
                     return Unauthorized(new { Message = "Utilisateur non authentifié." });
                 }
 
                 // Appeler la méthode ReportIncidentAsync avec l'identifiant de l'utilisateur connecté
-                var result = await _incidentService.ReportIncidentAsync(createIncidentDto, userId);
+                var result = await _incidentService.ReportIncidentAsync(createIncidentDto, AppUserId);
 
                 return Ok(new { Message = result });
             }
@@ -183,15 +183,15 @@ namespace CinephoriaServer.Controllers
             try
             {
                 // Récupérer l'identifiant de l'utilisateur connecté
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userId))
+                var AppUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(AppUserId))
                 {
                     return Unauthorized(new { Message = "Utilisateur non authentifié." });
                 }
 
                 var result = await _incidentService.UpdateIncidentStatusAsync(
                     incidentStatusUpdateDto.IncidentId,
-                    incidentStatusUpdateDto.Status, userId
+                    incidentStatusUpdateDto.Status, AppUserId
                 );
 
                 return Ok(new { Message = result });

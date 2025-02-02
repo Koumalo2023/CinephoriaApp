@@ -44,7 +44,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
 
             // --- Mappings pour les DTOs de sortie ---
             CreateMap<AppUser, UserProfileDto>()
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.AppUserId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
@@ -68,7 +68,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
                 .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role));
 
             CreateMap<AppUser, AppUserDto>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.AppUserId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
@@ -86,7 +86,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
             // --- Mapping pour SubmitMovieReviewDto ---
             CreateMap<SubmitMovieReviewDto, MovieRating>()
                 .ForMember(dest => dest.MovieId, opt => opt.MapFrom(src => src.MovieId))
-                .ForMember(dest => dest.AppUserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.AppUserId, opt => opt.MapFrom(src => src.AppUserId))
                 .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating))
                 .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.IsValidated, opt => opt.MapFrom(src => false));

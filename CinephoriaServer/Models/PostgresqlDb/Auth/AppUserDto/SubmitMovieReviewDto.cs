@@ -14,7 +14,7 @@ namespace CinephoriaServer.Models.PostgresqlDb.Auth.AppUserDto
         /// Identifiant de l'utilisateur qui soumet l'avis.
         /// </summary>
         [Required]
-        public string UserId { get; set; }
+        public string AppUserId { get; set; }
 
         /// <summary>
         /// Note attribuée au film (sur 5).

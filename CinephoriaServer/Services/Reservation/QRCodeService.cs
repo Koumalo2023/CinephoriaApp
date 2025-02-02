@@ -23,7 +23,7 @@ public class QRCodeService
         if (reservation == null)
             throw new ArgumentNullException(nameof(reservation));
 
-        var qrCodeData = $"ReservationId:{reservation.ReservationId};ShowtimeId:{reservation.ShowtimeId};UserId:{reservation.AppUserId}";
+        var qrCodeData = $"ReservationId:{reservation.ReservationId};ShowtimeId:{reservation.ShowtimeId};AppUserId:{reservation.AppUserId}";
 
         var writer = new BarcodeWriterPixelData
         {

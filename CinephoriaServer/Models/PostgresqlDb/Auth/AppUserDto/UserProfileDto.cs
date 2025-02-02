@@ -5,7 +5,7 @@
         /// <summary>
         /// Identifiant unique de l'utilisateur.
         /// </summary>
-        public string UserId { get; set; }
+        public string AppUserId { get; set; }
 
         /// <summary>
         /// Prénom de l'utilisateur.

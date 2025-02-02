@@ -6,7 +6,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
     public class UpdateAppUserDto
     {
         [Required(ErrorMessage = "L'identifiant de l'utilisateur est obligatoire.")]
-        public string Id { get; set; }
+        public string AppUserId { get; set; }
 
         [Required(ErrorMessage = "Le prénom est obligatoire.")]
         [StringLength(50, ErrorMessage = "Le prénom ne peut pas dépasser 50 caractères.")]

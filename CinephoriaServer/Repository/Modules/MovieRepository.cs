@@ -38,7 +38,7 @@ namespace CinephoriaServer.Repository
         /// Soumet un avis sur un film de la part d'un utilisateur.
         /// </summary>
         /// <param name="movieId">L'identifiant du film.</param>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <param name="rating">La note attribuée au film.</param>
         /// <param name="description">La description de l'avis.</param>
         /// <returns>Une tâche asynchrone.</returns>
@@ -148,7 +148,7 @@ namespace CinephoriaServer.Repository
         /// Soumet un avis sur un film de la part d'un utilisateur.
         /// </summary>
         /// <param name="movieId">L'identifiant du film.</param>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <param name="rating">La note attribuée au film.</param>
         /// <param name="description">La description de l'avis.</param>
         /// <returns>Une tâche asynchrone.</returns>
@@ -157,7 +157,7 @@ namespace CinephoriaServer.Repository
             var review = new MovieRating
             {
                 MovieId = reviewDto.MovieId,
-                AppUserId = reviewDto.UserId,
+                AppUserId = reviewDto.AppUserId,
                 Rating = reviewDto.Rating,
                 Comment = reviewDto.Description,
                 CreatedAt = DateTime.UtcNow,

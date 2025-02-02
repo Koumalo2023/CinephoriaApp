@@ -12,16 +12,16 @@ namespace CinephoriaServer.Repository
         /// <summary>
         /// Récupère le profil d'un utilisateur en fonction de son identifiant.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Le profil de l'utilisateur.</returns>
-        Task<AppUser> GetUserProfileAsync(string userId);
+        Task<AppUser> GetUserProfileAsync(string AppUserId);
 
         /// <summary>
         /// Récupère la liste des commandes (réservations) d'un utilisateur.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Une liste de réservations.</returns>
-        Task<List<Reservation>> GetUserOrdersAsync(string userId);
+        Task<List<Reservation>> GetUserOrdersAsync(string AppUserId);
 
         /// <summary>
         /// Récupère le profil d'un employé avec la liste des incidents qu'il a gérés.
@@ -39,25 +39,25 @@ namespace CinephoriaServer.Repository
         /// <summary>
         /// Récupère le profil d'un utilisateur en fonction de son identifiant.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Le profil de l'utilisateur.</returns>
-        public async Task<AppUser> GetUserProfileAsync(string userId)
+        public async Task<AppUser> GetUserProfileAsync(string AppUserId)
         {
             return await _context.Set<AppUser>()
                 .Include(u => u.Reservations)
                 .Include(u => u.MovieRatings)
-                .FirstOrDefaultAsync(u => u.Id == userId);
+                .FirstOrDefaultAsync(u => u.Id == AppUserId);
         }
 
         /// <summary>
         /// Récupère la liste des commandes (réservations) d'un utilisateur.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Une liste de réservations.</returns>
-        public async Task<List<Reservation>> GetUserOrdersAsync(string userId)
+        public async Task<List<Reservation>> GetUserOrdersAsync(string AppUserId)
         {
             return await _context.Set<Reservation>()
-                .Where(r => r.AppUserId == userId)
+                .Where(r => r.AppUserId == AppUserId)
                 .Include(r => r.Showtime)
                 .ThenInclude(s => s.Movie)
                 .ToListAsync();

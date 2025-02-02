@@ -67,14 +67,14 @@ namespace CinephoriaServer.Controllers
         /// <summary>
         /// Récupère la liste des réservations d'un utilisateur.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Une liste de réservations sous forme de DTO.</returns>
-        [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetUserReservations(string userId)
+        [HttpGet("user/{AppUserId}")]
+        public async Task<IActionResult> GetUserReservations(string AppUserId)
         {
             try
             {
-                var reservations = await _reservationService.GetUserReservationsAsync(userId);
+                var reservations = await _reservationService.GetUserReservationsAsync(AppUserId);
                 return Ok(reservations);
             }
             catch (ApiException ex)

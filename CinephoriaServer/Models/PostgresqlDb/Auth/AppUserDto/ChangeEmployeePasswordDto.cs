@@ -8,7 +8,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
         public string OldPassword { get; set; }
 
         [Required]
-        public string UserId { get; set; }
+        public string AppUserId { get; set; }
 
         [Required]
         [StringLength(100, MinimumLength = 8, ErrorMessage = "Le mot de passe doit contenir entre 8 et 100 caractères.")]

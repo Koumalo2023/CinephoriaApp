@@ -25,23 +25,23 @@ namespace CinephoriaServer.Services
         /// Soumet un avis sur un film de la part d'un utilisateur.
         /// </summary>
         /// <param name="createMovieRatingDto">Les données de l'avis à soumettre.</param>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Une réponse indiquant le succès de l'opération.</returns>
-        public async Task<string> SubmitMovieReviewAsync(CreateMovieRatingDto createMovieRatingDto, string userId)
+        public async Task<string> SubmitMovieReviewAsync(CreateMovieRatingDto createMovieRatingDto, string AppUserId)
         {
-            if (createMovieRatingDto.MovieId <= 0 || string.IsNullOrWhiteSpace(userId))
+            if (createMovieRatingDto.MovieId <= 0 || string.IsNullOrWhiteSpace(AppUserId))
             {
                 throw new ApiException("Entrées invalides.", StatusCodes.Status400BadRequest);
             }
 
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(AppUserId);
             if (user == null) throw new ApiException("Utilisateur introuvable.", StatusCodes.Status400BadRequest);
 
             var movieExists = await _unitOfWork.Movies.GetByIdAsync(createMovieRatingDto.MovieId) != null;
             if (!movieExists) throw new ApiException("Film introuvable.", StatusCodes.Status400BadRequest);
 
             var movieRating = _mapper.Map<MovieRating>(createMovieRatingDto);
-            movieRating.AppUserId = userId;
+            movieRating.AppUserId = AppUserId;
             movieRating.IsValidated = false;
 
             await _unitOfWork.MovieRatings.CreateAsync(movieRating);
