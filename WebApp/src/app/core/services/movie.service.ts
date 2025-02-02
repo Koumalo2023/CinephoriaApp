@@ -57,6 +57,15 @@ export class MovieService {
   }
 
   /**
+   * Récupère la liste des films qui ont des séances dans un cinéma spécifique.
+   * @param cinemaId L'identifiant du cinema.
+   * @returns Observable contenant une liste de films.
+   */
+  getMoviesByCinemaId(cinemaId: number): Observable<MovieDto[]> {
+    return this.http.get<MovieDto[]>(`${this.apiUrl}/cinema/${cinemaId}/movies`);
+  }
+
+  /**
    * Récupère la liste des séances disponibles pour un film spécifique.
    * @param movieId L'identifiant du film.
    * @returns Observable contenant une liste de séances.

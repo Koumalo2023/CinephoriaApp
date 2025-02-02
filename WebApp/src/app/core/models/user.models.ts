@@ -4,7 +4,7 @@ import { MovieRatingDto } from "./movie-rating.models";
 import { ReservationDto } from "./reservation.models";
 
 export interface User {
-    id: string;
+    appUserId: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -25,7 +25,7 @@ export interface User {
 }
 
 export interface UserDto {
-    id: string;
+    appUserId: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -47,7 +47,7 @@ export interface UserDto {
 
 export interface ChangeEmployeePasswordDto {
     oldPassword: string;
-    userId: string;
+    appUserId: string;
     newPassword: string;
 }
 
@@ -110,13 +110,13 @@ export interface ResetPasswordDto {
 
 export interface SubmitMovieReviewDto {
     movieId: number;
-    userId: string;
+    appUserId: string;
     rating: number;
     description?: string;
 }
 
 export interface UpdateAppUserDto {
-    id: string;
+    appUserId: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -136,7 +136,7 @@ export interface UpdateEmployeeDto {
 }
 
 export interface UserProfileDto {
-    userId: string;
+    appUserId: string;
     firstName: string;
     lastName: string;
     email: string;

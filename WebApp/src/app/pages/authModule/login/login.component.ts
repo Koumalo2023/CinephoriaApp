@@ -6,6 +6,7 @@ import { AlertService } from '../../../core/services/alert.service';
 import { CommonModule } from '@angular/common';
 import { EmployeeProfileDto, UserProfileDto } from '@app/core/models/user.models';
 import { RedirectService } from '@app/core/services/redirect.service';
+import { app } from 'server';
 
 @Component({
   selector: 'app-login',
@@ -66,11 +67,11 @@ export class LoginComponent {
           }
   
           // Rediriger en fonction du rôle ou de l'URL de redirection
-          const redirectUrl = this.redirectService.getRedirectUrl();
-          if (redirectUrl) {
-            this.router.navigateByUrl(redirectUrl);
-            this.redirectService.clearRedirectUrl();
-          }
+          // const redirectUrl = this.redirectService.getRedirectUrl();
+          // if (redirectUrl) {
+          //   this.router.navigateByUrl(redirectUrl);
+          //   this.redirectService.clearRedirectUrl();
+          // }
         } else {
           this.errorMessage = 'Connexion échouée. Vérifiez vos informations.';
         }
@@ -87,8 +88,8 @@ export class LoginComponent {
 
   private handleProfile(profile: UserProfileDto | EmployeeProfileDto): void {
     const userRole = profile.role;
-    const userId = 'userId' in profile ? profile.userId : profile.employeeId;
-    this.redirectBasedOnRole(userRole, userId);
+    const employeeId = ('userId' in profile ? profile.userId : profile) as string;
+    this.redirectBasedOnRole(userRole, employeeId);
   }
 
   private redirectBasedOnRole(role: string, userId: string): void {

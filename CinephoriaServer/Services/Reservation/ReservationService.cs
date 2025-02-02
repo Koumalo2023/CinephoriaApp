@@ -92,19 +92,19 @@ namespace CinephoriaServer.Services
         /// <summary>
         /// Récupère la liste des réservations d'un utilisateur.
         /// </summary>
-        public async Task<List<UserReservationDto>> GetUserReservationsAsync(string userId)
+        public async Task<List<UserReservationDto>> GetUserReservationsAsync(string AppUserId)
         {
-            if (string.IsNullOrEmpty(userId))
+            if (string.IsNullOrEmpty(AppUserId))
             {
                 throw new ApiException("L'identifiant de l'utilisateur est invalide.", StatusCodes.Status400BadRequest);
             }
 
             // Récupérer les réservations de l'utilisateur
-            var reservations = await _unitOfWork.Reservations.GetUserReservationsAsync(userId);
+            var reservations = await _unitOfWork.Reservations.GetUserReservationsAsync(AppUserId);
 
             if (reservations == null || !reservations.Any())
             {
-                _logger.LogInformation("Aucune réservation trouvée pour l'utilisateur avec l'ID {UserId}.", userId);
+                _logger.LogInformation("Aucune réservation trouvée pour l'utilisateur avec l'ID {AppUserId}.", AppUserId);
                 return new List<UserReservationDto>(); // Retourner une liste vide au lieu de null
             }
 
@@ -117,7 +117,7 @@ namespace CinephoriaServer.Services
                 throw new ApiException("Erreur lors du traitement des réservations.", StatusCodes.Status500InternalServerError);
             }
 
-            _logger.LogInformation("{Count} réservations récupérées pour l'utilisateur avec l'ID {UserId}.", userReservationDtos.Count, userId);
+            _logger.LogInformation("{Count} réservations récupérées pour l'utilisateur avec l'ID {AppUserId}.", userReservationDtos.Count, AppUserId);
             return userReservationDtos;
         }
 
@@ -243,16 +243,16 @@ namespace CinephoriaServer.Services
             // Extraire les informations du QRCode
             var reservationIdPart = qrCodeParts[0].Split(':');
             var showtimeIdPart = qrCodeParts[1].Split(':');
-            var userIdPart = qrCodeParts[2].Split(':');
+            var AppUserIdPart = qrCodeParts[2].Split(':');
 
-            if (reservationIdPart.Length != 2 || showtimeIdPart.Length != 2 || userIdPart.Length != 2)
+            if (reservationIdPart.Length != 2 || showtimeIdPart.Length != 2 || AppUserIdPart.Length != 2)
             {
                 throw new ArgumentException("Format du QRCode invalide.");
             }
 
             int reservationId = int.Parse(reservationIdPart[1]);
             int showtimeId = int.Parse(showtimeIdPart[1]);
-            string userId = userIdPart[1];
+            string AppUserId = AppUserIdPart[1];
 
             // Récupérer la réservation correspondante avec une requête personnalisée
             var reservation = await _context.Reservations

@@ -13,18 +13,18 @@ namespace CinephoriaServer.Services
         /// <summary>
         /// Met à jour l'image de profil d'un utilisateur.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <param name="imageUrl">L'URL de la nouvelle image de profil.</param>
         /// <returns>Un message indiquant si l'opération a réussi.</returns>
-        Task<string> UpdateProfileImageAsync(string userId, string imageUrl);
+        Task<string> UpdateProfileImageAsync(string AppUserId, string imageUrl);
 
         /// <summary>
         /// Supprime l'image de profil d'un utilisateur.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <param name="imageUrl">L'URL de l'image de profil à supprimer.</param>
         /// <returns>Un message indiquant si l'opération a réussi.</returns>
-        Task<string> RemoveProfileImageAsync(string userId, string imageUrl);
+        Task<string> RemoveProfileImageAsync(string AppUserId, string imageUrl);
 
         /// <summary>
         /// Enregistre un nouvel utilisateur.
@@ -44,10 +44,10 @@ namespace CinephoriaServer.Services
         /// <summary>
         /// Confirme l'adresse email d'un utilisateur.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <param name="token">Le jeton de confirmation.</param>
         /// <returns>Un message indiquant si l'opération a réussi.</returns>
-        Task<string> ConfirmEmailAsync(string userId, string token);
+        Task<string> ConfirmEmailAsync(string AppUserId, string token);
 
 
         /// <summary>
@@ -66,17 +66,17 @@ namespace CinephoriaServer.Services
         /// <summary>
         /// Récupère un utilisateur spécifique par son identifiant.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Les informations de l'utilisateur.</returns>
-        Task<AppUserDto> GetUserByIdAsync(string userId);
+        Task<AppUserDto> GetUserByIdAsync(string AppUserId);
 
         /// <summary>
         /// Met à jour le profil d'un utilisateur spécifique.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <param name="updateAppUserDto">Les nouvelles données du profil.</param>
         /// <returns>Un message indiquant si l'opération a réussi.</returns>
-        Task<string> UpdateUserProfileAsync(string userId, UpdateAppUserDto updateAppUserDto);
+        Task<string> UpdateUserProfileAsync(string AppUserId, UpdateAppUserDto updateAppUserDto);
 
         /// <summary>
         /// Met à jour le profil d'un employé spécifique.
@@ -89,16 +89,16 @@ namespace CinephoriaServer.Services
         /// <summary>
         /// Récupère le profil d'un utilisateur spécifique.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Le profil de l'utilisateur.</returns>
-        Task<UserProfileDto> GetUserProfileAsync(string userId);
+        Task<UserProfileDto> GetUserProfileAsync(string AppUserId);
 
         /// <summary>
         /// Récupère les réservations d'un utilisateur spécifique.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Les réservations de l'utilisateur.</returns>
-        Task<List<ReservationDto>> GetUserOrdersAsync(string userId);
+        Task<List<ReservationDto>> GetUserOrdersAsync(string AppUserId);
 
         /// <summary>
         /// Récupère le profil d'un employé spécifique.
@@ -126,29 +126,29 @@ namespace CinephoriaServer.Services
         /// <summary>
         /// Valide un jeton de réinitialisation de mot de passe.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <param name="token">Le jeton de réinitialisation.</param>
         /// <returns>Un message indiquant si le jeton est valide.</returns>
-        Task<string> ValidateResetTokenAsync(string userId, string token);
+        Task<string> ValidateResetTokenAsync(string AppUserId, string token);
 
         /// <summary>
         /// Force la réinitialisation du mot de passe d'un utilisateur normal.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Un message indiquant si la réinitialisation forcée a réussi.</returns>
-        Task<string> ForcePasswordResetAsync(string userId);
+        Task<string> ForcePasswordResetAsync(string AppUserId);
 
         /// <summary>
         /// Permet à un employé de changer son mot de passe après avoir utilisé un mot de passe temporaire.
         /// </summary>
         /// <param name="changePasswordDto">Les informations de changement de mot de passe.</param>
         /// <returns>Un message indiquant si le changement de mot de passe a réussi.</returns>
-        Task<string> ForceEmployeePasswordChangeAsync(string userId);
+        Task<string> ForceEmployeePasswordChangeAsync(string AppUserId);
         
         /// <summary>
         /// Force un employé à changer son mot de passe (par exemple, si le mot de passe temporaire a expiré).
         /// </summary>
-        /// <param name="userId">L'identifiant de l'employé.</param>
+        /// <param name="AppUserId">L'identifiant de l'employé.</param>
         /// <returns>Un message indiquant si la réinitialisation forcée a réussi.</returns>
         Task<string> ChangeEmployeePasswordAsync(ChangeEmployeePasswordDto changePasswordDto);
     }

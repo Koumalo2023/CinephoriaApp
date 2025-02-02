@@ -29,11 +29,11 @@ namespace CinephoriaServer.Controllers
         /// <summary>
         /// Télécharge une image de profil pour un utilisateur spécifique.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <param name="file">Le fichier image à télécharger.</param>
         /// <returns>L'URL de l'image téléchargée ou un message d'erreur.</returns>
-        [HttpPost("upload-user-profile/{userId}")]
-        public async Task<IActionResult> UploadUserProfile(string userId, [FromForm, Required] IFormFile file)
+        [HttpPost("upload-user-profile/{AppUserId}")]
+        public async Task<IActionResult> UploadUserProfile(string AppUserId, [FromForm, Required] IFormFile file)
         {
             try
             {
@@ -44,7 +44,7 @@ namespace CinephoriaServer.Controllers
                     return BadRequest(new { Message = "Erreur lors du téléchargement de l'image." });
                 }
 
-                var result = await _authService.UpdateProfileImageAsync(userId, imageUrl);
+                var result = await _authService.UpdateProfileImageAsync(AppUserId, imageUrl);
                 return Ok(new { Message = result, Url = imageUrl });
             }
             catch (Exception ex)
@@ -56,15 +56,15 @@ namespace CinephoriaServer.Controllers
         /// <summary>
         /// Supprime l'image de profil d'un utilisateur spécifique.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <param name="imageUrl">L'URL de l'image à supprimer.</param>
         /// <returns>Un message indiquant si l'opération a réussi.</returns>
-        [HttpDelete("delete-user-profile-image/{userId}")]
-        public async Task<IActionResult> DeleteUserProfileImage(string userId, [FromQuery] string imageUrl)
+        [HttpDelete("delete-user-profile-image/{AppUserId}")]
+        public async Task<IActionResult> DeleteUserProfileImage(string AppUserId, [FromQuery] string imageUrl)
         {
             try
             {
-                var result = await _authService.RemoveProfileImageAsync(userId, imageUrl);
+                var result = await _authService.RemoveProfileImageAsync(AppUserId, imageUrl);
                 return Ok(new { Message = result });
             }
             catch (Exception ex)
@@ -190,14 +190,14 @@ namespace CinephoriaServer.Controllers
         /// <summary>
         /// Récupère un utilisateur spécifique par son identifiant.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Les informations de l'utilisateur.</returns>
-        [HttpGet("users/{userId}")]
-        public async Task<IActionResult> GetUserById(string userId)
+        [HttpGet("users/{AppUserId}")]
+        public async Task<IActionResult> GetUserById(string AppUserId)
         {
             try
             {
-                var user = await _authService.GetUserByIdAsync(userId);
+                var user = await _authService.GetUserByIdAsync(AppUserId);
                 if (user == null)
                 {
                     return NotFound(new { Message = "Utilisateur non trouvé." });
@@ -243,21 +243,21 @@ namespace CinephoriaServer.Controllers
         /// <summary>
         /// Récupère le profil d'un utilisateur spécifique.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Le profil de l'utilisateur.</returns>
         [Authorize]
-        [HttpGet("user-profile/{userId}")]
-        public async Task<IActionResult> GetUserProfile(string userId)
+        [HttpGet("user-profile/{AppUserId}")]
+        public async Task<IActionResult> GetUserProfile(string AppUserId)
         {
             try
             {
-                var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (currentUserId != userId)
+                var currentAppUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (currentAppUserId != AppUserId)
                 {
                     return StatusCode(403, new { Message = "Vous n'êtes pas autorisé à accéder à ce profil." });
                 }
 
-                var userProfile = await _authService.GetUserProfileAsync(userId);
+                var userProfile = await _authService.GetUserProfileAsync(AppUserId);
                 if (userProfile == null)
                 {
                     return NotFound(new { Message = "Utilisateur non trouvé." });
@@ -273,22 +273,22 @@ namespace CinephoriaServer.Controllers
         /// <summary>
         /// Met à jour le profil d'un utilisateur spécifique.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <param name="updateAppUserDto">Les nouvelles données du profil.</param>
         /// <returns>Un message indiquant si l'opération a réussi.</returns>
         [Authorize]
-        [HttpPut("update-profile/{userId}")]
-        public async Task<IActionResult> UpdateUserProfile(string userId, [FromBody] UpdateAppUserDto updateAppUserDto)
+        [HttpPut("update-profile/{AppUserId}")]
+        public async Task<IActionResult> UpdateUserProfile(string AppUserId, [FromBody] UpdateAppUserDto updateAppUserDto)
         {
             try
             {
-                var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (currentUserId != userId)
+                var currentAppUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (currentAppUserId != AppUserId)
                 {
                     return StatusCode(403, new { Message = "Vous n'êtes pas autorisé à mettre à jour ce profil." });
                 }
 
-                var result = await _authService.UpdateUserProfileAsync(userId, updateAppUserDto);
+                var result = await _authService.UpdateUserProfileAsync(AppUserId, updateAppUserDto);
                 return Ok(new { Message = result });
             }
             catch (Exception ex)
@@ -309,8 +309,8 @@ namespace CinephoriaServer.Controllers
         {
             try
             {
-                var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (currentUserId != employeeId && !User.IsInRole("Admin"))
+                var currentAppUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (currentAppUserId != employeeId && !User.IsInRole("Admin"))
                 {
                     return StatusCode(403, new { Message = "Vous n'êtes pas autorisé à mettre à jour ce profil." });
                 }
@@ -327,15 +327,15 @@ namespace CinephoriaServer.Controllers
         /// <summary>
         /// Confirme l'adresse email d'un utilisateur.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <param name="token">Le jeton de confirmation.</param>
         /// <returns>Un message indiquant si l'opération a réussi.</returns>
         [HttpGet("confirm-email")]
-        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        public async Task<IActionResult> ConfirmEmail(string AppUserId, string token)
         {
             try
             {
-                var result = await _authService.ConfirmEmailAsync(userId, token);
+                var result = await _authService.ConfirmEmailAsync(AppUserId, token);
                 return Ok(new { Message = result });
             }
             catch (Exception ex)
@@ -388,15 +388,15 @@ namespace CinephoriaServer.Controllers
         /// <summary>
         /// Valide un jeton de réinitialisation de mot de passe.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <param name="token">Le jeton de réinitialisation.</param>
         /// <returns>Un message indiquant si le jeton est valide.</returns>
         [HttpGet("validate-reset-token")]
-        public async Task<IActionResult> ValidateResetToken([FromQuery] string userId, [FromQuery] string token)
+        public async Task<IActionResult> ValidateResetToken([FromQuery] string AppUserId, [FromQuery] string token)
         {
             try
             {
-                var result = await _authService.ValidateResetTokenAsync(userId, token);
+                var result = await _authService.ValidateResetTokenAsync(AppUserId, token);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -409,14 +409,14 @@ namespace CinephoriaServer.Controllers
         /// <summary>
         /// Force la réinitialisation du mot de passe d'un utilisateur normal.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Un message indiquant si la réinitialisation forcée a réussi.</returns>
         [HttpPost("force-password-reset")]
-        public async Task<IActionResult> ForcePasswordReset([FromQuery] string userId)
+        public async Task<IActionResult> ForcePasswordReset([FromQuery] string AppUserId)
         {
             try
             {
-                var result = await _authService.ForcePasswordResetAsync(userId);
+                var result = await _authService.ForcePasswordResetAsync(AppUserId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -449,15 +449,15 @@ namespace CinephoriaServer.Controllers
         /// <summary>
         /// Force un employé à changer son mot de passe (par exemple, si le mot de passe temporaire a expiré).
         /// </summary>
-        /// <param name="userId">L'identifiant de l'employé.</param>
+        /// <param name="AppUserId">L'identifiant de l'employé.</param>
         /// <returns>Un message indiquant si la réinitialisation forcée a réussi.</returns>
         [HttpPost("force-password-change")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> ForceEmployeePasswordChange([FromQuery] string userId)
+        public async Task<IActionResult> ForceEmployeePasswordChange([FromQuery] string AppUserId)
         {
             try
             {
-                var result = await _authService.ForceEmployeePasswordChangeAsync(userId);
+                var result = await _authService.ForceEmployeePasswordChangeAsync(AppUserId);
                 return Ok(result);
             }
             catch (Exception ex)

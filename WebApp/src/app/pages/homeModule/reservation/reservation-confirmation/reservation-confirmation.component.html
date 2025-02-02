@@ -1,0 +1,17 @@
+<div *ngIf="isLoggedIn; else loginPrompt">
+    <h3>Confirmation de la réservation</h3>
+    <div *ngIf="reservationDetails">
+      <p><strong>Film :</strong> {{ reservationDetails.movie?.title }}</p>
+      <p><strong>Séance :</strong> {{ reservationDetails.session?.startTime | date:'dd/MM/yyyy HH:mm' }}</p>
+      <p><strong>Sièges :</strong> {{ getFormattedSeats() }}</p>
+      <p class="mb-0">
+        <strong><i class="bi bi-wallet2"></i> Total :</strong>
+        {{ calculateTotalPrice() | currency:'EUR':'symbol':'1.2-2' }}
+      </p>
+      <button class="btn btn-success" (click)="confirmReservation()">Confirmer la réservation</button>
+    </div>
+  </div>
+  
+  <ng-template #loginPrompt>
+    <app-login-prompt></app-login-prompt>
+  </ng-template>  

@@ -1,6 +1,5 @@
 import { Component} from '@angular/core';
 import { MovieDto } from '@app/core/models/movie.models';
-import { MovieListComponent } from '../movie-list/movie-list.component';
 import { Router } from '@angular/router';
 import { MovieCardComponent } from '@app/layourt/sharedComponents/movie-card/movie-card.component';
 import { CommonModule } from '@angular/common';

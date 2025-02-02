@@ -58,9 +58,9 @@ namespace CinephoriaServer.Repository
         /// <summary>
         /// Récupère la liste des réservations d'un utilisateur.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Une liste de réservations.</returns>
-        Task<List<Reservation>> GetUserReservationsAsync(string userId);
+        Task<List<Reservation>> GetUserReservationsAsync(string AppUserId);
 
         /// <summary>
         /// Crée une nouvelle réservation pour une séance spécifique.
@@ -281,14 +281,14 @@ namespace CinephoriaServer.Repository
         /// <summary>
         /// Récupère la liste des réservations d'un utilisateur.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Une liste de réservations.</returns>
-        public async Task<List<Reservation>> GetUserReservationsAsync(string userId)
+        public async Task<List<Reservation>> GetUserReservationsAsync(string AppUserId)
         {
             return await _context.Set<Reservation>()
                 .Include(r => r.Showtime)
                 .Include(r => r.Seats)
-                .Where(r => r.AppUserId == userId)
+                .Where(r => r.AppUserId == AppUserId)
                 .ToListAsync();
         }
 

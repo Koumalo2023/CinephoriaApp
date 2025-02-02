@@ -165,7 +165,7 @@ namespace CinephoriaServer.Migrations
 
                     b.HasKey("CinemaId");
 
-                    b.ToTable("Cinemas");
+                    b.ToTable("Cinemas", (string)null);
                 });
 
             modelBuilder.Entity("CinephoriaServer.Models.PostgresqlDb.Incident", b =>
@@ -218,7 +218,7 @@ namespace CinephoriaServer.Migrations
 
                     b.HasIndex("TheaterId");
 
-                    b.ToTable("Incidents");
+                    b.ToTable("Incidents", (string)null);
                 });
 
             modelBuilder.Entity("CinephoriaServer.Models.PostgresqlDb.Movie", b =>
@@ -279,7 +279,7 @@ namespace CinephoriaServer.Migrations
 
                     b.HasKey("MovieId");
 
-                    b.ToTable("Movies");
+                    b.ToTable("Movies", (string)null);
                 });
 
             modelBuilder.Entity("CinephoriaServer.Models.PostgresqlDb.MovieRating", b =>
@@ -322,7 +322,7 @@ namespace CinephoriaServer.Migrations
 
                     b.HasIndex("MovieId");
 
-                    b.ToTable("MovieRatings");
+                    b.ToTable("MovieRatings", (string)null);
                 });
 
             modelBuilder.Entity("CinephoriaServer.Models.PostgresqlDb.Reservation", b =>
@@ -368,7 +368,7 @@ namespace CinephoriaServer.Migrations
 
                     b.HasIndex("ShowtimeId");
 
-                    b.ToTable("Reservations");
+                    b.ToTable("Reservations", (string)null);
                 });
 
             modelBuilder.Entity("CinephoriaServer.Models.PostgresqlDb.Seat", b =>
@@ -407,7 +407,7 @@ namespace CinephoriaServer.Migrations
 
                     b.HasIndex("TheaterId");
 
-                    b.ToTable("Seats");
+                    b.ToTable("Seats", (string)null);
                 });
 
             modelBuilder.Entity("CinephoriaServer.Models.PostgresqlDb.Showtime", b =>
@@ -462,7 +462,7 @@ namespace CinephoriaServer.Migrations
 
                     b.HasIndex("TheaterId");
 
-                    b.ToTable("Showtimes");
+                    b.ToTable("Showtimes", (string)null);
                 });
 
             modelBuilder.Entity("CinephoriaServer.Models.PostgresqlDb.Theater", b =>
@@ -502,7 +502,7 @@ namespace CinephoriaServer.Migrations
 
                     b.HasIndex("CinemaId");
 
-                    b.ToTable("Theaters");
+                    b.ToTable("Theaters", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -564,19 +564,19 @@ namespace CinephoriaServer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("ClaimType")
                         .HasColumnType("text");
 
                     b.Property<string>("ClaimValue")
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("AppUserId");
 
                     b.ToTable("AspNetUserClaims", (string)null);
                 });
@@ -589,29 +589,29 @@ namespace CinephoriaServer.Migrations
                     b.Property<string>("ProviderKey")
                         .HasColumnType("text");
 
-                    b.Property<string>("ProviderDisplayName")
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
+                    b.Property<string>("ProviderDisplayName")
                         .HasColumnType("text");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("AppUserId");
 
                     b.ToTable("AspNetUserLogins", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.Property<string>("UserId")
+                    b.Property<string>("AppUserId")
                         .HasColumnType("text");
 
                     b.Property<string>("RoleId")
                         .HasColumnType("text");
 
-                    b.HasKey("UserId", "RoleId");
+                    b.HasKey("AppUserId", "RoleId");
 
                     b.HasIndex("RoleId");
 
@@ -620,7 +620,7 @@ namespace CinephoriaServer.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.Property<string>("UserId")
+                    b.Property<string>("AppUserId")
                         .HasColumnType("text");
 
                     b.Property<string>("LoginProvider")
@@ -632,7 +632,7 @@ namespace CinephoriaServer.Migrations
                     b.Property<string>("Value")
                         .HasColumnType("text");
 
-                    b.HasKey("UserId", "LoginProvider", "Name");
+                    b.HasKey("AppUserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
@@ -778,7 +778,7 @@ namespace CinephoriaServer.Migrations
                 {
                     b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -787,22 +787,22 @@ namespace CinephoriaServer.Migrations
                 {
                     b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", null)
                         .WithMany()
-                        .HasForeignKey("RoleId")
+                        .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", null)
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -811,7 +811,7 @@ namespace CinephoriaServer.Migrations
                 {
                     b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

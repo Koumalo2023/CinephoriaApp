@@ -14,7 +14,7 @@ namespace CinephoriaServer.Services
         /// <param name="reportedBy">L'identifiant de l'employé ayant signalé l'incident.</param>
         /// <param name="imageUrls">Liste des URLs des images associées à l'incident.</param>
         /// <returns>Une réponse indiquant le succès ou l'échec de l'opération.</returns>
-        Task<string> ReportIncidentAsync(CreateIncidentDto createIncidentDto, string userId);
+        Task<string> ReportIncidentAsync(CreateIncidentDto createIncidentDto, string AppUserId);
 
         /// <summary>
         /// Affiche les détails d'un incident en fonction de son identifiant.
@@ -66,7 +66,7 @@ namespace CinephoriaServer.Services
         /// <param name="incidentId">L'identifiant de l'incident.</param>
         /// <param name="status">Le nouveau statut de l'incident.</param>
         /// <returns>Une réponse indiquant le succès ou l'échec de l'opération.</returns>
-        Task<string> UpdateIncidentStatusAsync(int incidentId, IncidentStatus status, string userId);
+        Task<string> UpdateIncidentStatusAsync(int incidentId, IncidentStatus status, string AppUserId);
 
         /// <summary>
         /// Met à jour les informations d'un incident existant.

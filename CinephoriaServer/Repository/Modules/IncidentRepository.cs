@@ -45,7 +45,7 @@ namespace CinephoriaServer.Repository
         /// <param name="incidentId">L'identifiant de l'incident.</param>
         /// <param name="status">Le nouveau statut de l'incident.</param>
         /// <returns>Une tâche asynchrone.</returns>
-        Task UpdateIncidentStatusAsync(int incidentId, IncidentStatus status, string userId);
+        Task UpdateIncidentStatusAsync(int incidentId, IncidentStatus status, string AppUserId);
 
         /// <summary>
         /// Met à jour les informations d'un incident existant.
@@ -157,7 +157,7 @@ namespace CinephoriaServer.Repository
         /// <param name="incidentId">L'identifiant de l'incident.</param>
         /// <param name="status">Le nouveau statut de l'incident.</param>
         /// <returns>Une tâche asynchrone.</returns>
-        public async Task UpdateIncidentStatusAsync(int incidentId, IncidentStatus status, string userId)
+        public async Task UpdateIncidentStatusAsync(int incidentId, IncidentStatus status, string AppUserId)
         {
             var incident = await _context.Set<Incident>().FindAsync(incidentId);
             if (incident == null)
@@ -167,7 +167,7 @@ namespace CinephoriaServer.Repository
 
             incident.Status = status;
             incident.UpdatedAt = DateTime.UtcNow;
-            incident.ResolvedById = userId;
+            incident.ResolvedById = AppUserId;
 
             if (status == IncidentStatus.Resolved)
             {

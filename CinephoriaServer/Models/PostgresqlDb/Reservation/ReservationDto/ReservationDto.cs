@@ -12,7 +12,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// <summary>
         /// Identifiant de l'utilisateur ayant fait la réservation.
         /// </summary>
-        public string AppUserId { get; set; }
+        public string AppAppUserId { get; set; }
 
         /// <summary>
         /// Identifiant de la séance réservée.

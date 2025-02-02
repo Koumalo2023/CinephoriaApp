@@ -1,5 +1,6 @@
-<div class="alert alert-info text-center">
-    <p>Connectez-vous ou créez un compte pour accéder à plus de fonctionnalités !</p>
-    <a routerLink="/login" class="btn btn-primary me-2">Se connecter</a>
-    <a routerLink="/register" class="btn btn-secondary">Créer un compte</a>
-  </div>
+<div class="login-prompt">
+  <h3>Connectez-vous pour confirmer votre réservation</h3>
+  <p>Vous devez être connecté pour finaliser votre réservation.</p>
+  <button class="btn btn-primary" (click)="navigateToLogin()">Se connecter</button>
+  <button class="btn btn-secondary" (click)="navigateToRegister()">S'inscrire</button>
+</div>

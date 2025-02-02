@@ -34,14 +34,14 @@ namespace CinephoriaServer.Services
         /// <param name="reportedBy">L'identifiant de l'employé ayant signalé l'incident.</param>
         /// <param name="imageUrls">Liste des URLs des images associées à l'incident.</param>
         /// <returns>Une réponse indiquant le succès ou l'échec de l'opération.</returns>
-        public async Task<string> ReportIncidentAsync(CreateIncidentDto createIncidentDto, string userId)
+        public async Task<string> ReportIncidentAsync(CreateIncidentDto createIncidentDto, string AppUserId)
         {
-            if (createIncidentDto.TheaterId <= 0 || string.IsNullOrWhiteSpace(createIncidentDto.Description) || string.IsNullOrWhiteSpace(userId))
+            if (createIncidentDto.TheaterId <= 0 || string.IsNullOrWhiteSpace(createIncidentDto.Description) || string.IsNullOrWhiteSpace(AppUserId))
             {
                 throw new ApiException("Entrées invalides.", StatusCodes.Status400BadRequest);
             }
 
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(AppUserId);
             if (user == null) throw new ApiException("Utilisateur introuvable.", StatusCodes.Status400BadRequest);
 
             var theaterExists = await _unitOfWork.Theaters.GetByIdAsync(createIncidentDto.TheaterId) != null;
@@ -199,14 +199,14 @@ namespace CinephoriaServer.Services
         /// <param name="incidentId">L'identifiant de l'incident.</param>
         /// <param name="status">Le nouveau statut de l'incident.</param>
         /// <returns>Une réponse indiquant le succès ou l'échec de l'opération.</returns>
-        public async Task<string> UpdateIncidentStatusAsync(int incidentId, IncidentStatus status, string userId)
+        public async Task<string> UpdateIncidentStatusAsync(int incidentId, IncidentStatus status, string AppUserId)
         {
             if (incidentId <= 0)
             {
                 throw new ApiException("L'identifiant de l'incident doit être un nombre positif.", StatusCodes.Status400BadRequest);
             }
 
-            if (string.IsNullOrWhiteSpace(userId))
+            if (string.IsNullOrWhiteSpace(AppUserId))
             {
                 throw new ApiException("L'identifiant de l'utilisateur connecté est manquant.", StatusCodes.Status400BadRequest);
             }
@@ -221,7 +221,7 @@ namespace CinephoriaServer.Services
 
             if (status == IncidentStatus.Resolved)
             {
-                incident.ResolvedById = userId; // Identifiant de l'utilisateur qui résout l'incident.
+                incident.ResolvedById = AppUserId; // Identifiant de l'utilisateur qui résout l'incident.
                 incident.ResolvedAt = DateTime.UtcNow; // Date et heure de la résolution.
             }
 

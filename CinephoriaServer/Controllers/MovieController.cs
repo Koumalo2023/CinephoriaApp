@@ -299,5 +299,29 @@ namespace CinephoriaServer.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
             }
         }
+
+        /// <summary>
+        /// Récupère la liste des films qui ont des séances dans un cinéma spécifique.
+        /// </summary>
+        /// <param name="cinemaId">L'identifiant du cinéma.</param>
+        /// <returns>Une liste de films.</returns>
+        [HttpGet("cinema/{cinemaId}/movies")]
+        public async Task<IActionResult> GetMoviesByCinemaId(int cinemaId)
+        {
+            try
+            {
+                var movies = await _movieService.GetMoviesByCinemaIdAsync(cinemaId);
+                return Ok(movies);
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Une erreur inattendue s'est produite lors de la récupération des films pour le cinéma avec l'ID {CinemaId}.", cinemaId);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Une erreur inattendue s'est produite." });
+            }
+        }
     }
 }

@@ -1,0 +1,53 @@
+<div *ngIf="currentStep === 1">
+  <app-cinema-selector (cinemaSelected)="updateReservationDetails({ cinema: $event })"></app-cinema-selector>
+</div>
+
+<!-- Afficher les informations du cinéma sélectionné -->
+<div *ngIf="reservationDetails.cinema" class="cinema-info">
+  <h3>Cinéma sélectionné :</h3>
+  <p><strong>Nom :</strong> {{ reservationDetails.cinema.name }}</p>
+  <p><strong>Adresse :</strong> {{ reservationDetails.cinema.address }}</p>
+  <p><strong>Ville :</strong> {{ reservationDetails.cinema.city }}, {{ reservationDetails.cinema.country }}</p>
+  <p><strong>Téléphone :</strong> {{ reservationDetails.cinema.phoneNumber }}</p>
+  <p><strong>Horaires d'ouverture :</strong> {{ reservationDetails.cinema.openingHours }}</p>
+</div>
+  
+<div *ngIf="currentStep === 2">
+  <app-movie-selector 
+    [cinemaId]="reservationDetails.cinema?.cinemaId" 
+    (movieSelected)="updateReservationDetails({ movie: $event })">
+  </app-movie-selector>
+</div>
+
+<div *ngIf="currentStep === 3">
+  <app-showtime-selector 
+    [movieId]="selectedMovieId" 
+    (showtimeSelected)="updateReservationDetails({ session: $event })">
+  </app-showtime-selector>
+</div>
+
+<div *ngIf="currentStep === 4">
+  <h3>Détails de la séance :</h3>
+  <p><strong>Film :</strong> {{ reservationDetails.movie?.title }}</p>
+  <p><strong>Séance :</strong> {{ reservationDetails.session?.startTime | dateFormat:'dd/MM/yyyy HH:mm' }}</p>
+</div>
+
+<div *ngIf="currentStep === 4">  
+  <app-seat-selector 
+    [showtimeId]="selectedShowtimeId" 
+    [selectedSeats]="selectedSeats" 
+    (seatsSelected)="updateReservationDetails({ seats: $event })">
+  </app-seat-selector>
+</div>
+
+
+<div *ngIf="currentStep === 5">
+  <app-reservation-confirmation 
+    [reservationDetails]="reservationDetails">
+  </app-reservation-confirmation>
+</div>
+
+<div class="navigation-buttons">
+  <button (click)="previousStep()" [disabled]="currentStep === 1">Précédent</button>
+  <button (click)="nextStep()" [disabled]="currentStep === 5">Suivant</button>
+</div>

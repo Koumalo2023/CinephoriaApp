@@ -84,6 +84,13 @@ namespace CinephoriaServer.Services
         /// <param name="movieId">L'identifiant du film à supprimer.</param>
         /// <returns>Une réponse indiquant si l'opération a réussi.</returns>
         Task<string> DeleteMovieAsync(int movieId);
+
+        /// <summary>
+        /// Récupère la liste des films qui ont des séances dans un cinéma spécifique.
+        /// </summary>
+        /// <param name="cinemaId">L'identifiant du cinéma.</param>
+        /// <returns>Une liste de films.</returns>
+        Task<List<MovieDto>> GetMoviesByCinemaIdAsync(int cinemaId);
     }
 
 }

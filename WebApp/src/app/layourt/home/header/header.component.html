@@ -7,26 +7,28 @@
     <ul>
       <li><a routerLink="/home/home"><i class="bi bi-house pe-2"></i> Accueil</a></li>
       <li><a routerLink="/home/movie-list"><i class="bi bi-film pe-2"></i> Films</a></li>
-      <li><a routerLink="/home/reservation"><i class="bi bi-info-circle pe-2"></i> Reservation</a></li>
+      <li><a routerLink="/home/reservation"><i class="bi bi-info-circle pe-2"></i> Réservation</a></li>
       <li><a routerLink="/home/contacts"><i class="bi bi-envelope pe-2"></i> Contact</a></li>
-      <li><a routerLink="/admin/dashboard"><i class="bi bi-speedometer2 pe-2"></i> Dashboard</a></li>
-      
-      <!-- Menu Login / Profile & Logout -->
+  
       <li class="nav-item dropdown" *ngIf="!isLoggedIn">
         <a routerLink="/auth/login" class="nav-link"><i class="bi bi-person-circle pe-2"></i> Login</a>
       </li>
-      
+  
       <li class="nav-item dropdown" *ngIf="isLoggedIn">
-        <a href="#" class="nav-link dropdown-toggle" (click)="toggleDropdown()" role="button">
-          <i class="bi bi-person-circle pe-2"></i> {{ username }}
+        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+          {{ dropdownTitle }}
         </a>
-        <ul class="dropdown-menu" [ngClass]="{'show': isDropdownOpen}">
-          <li><a routerLink="/profile" class="dropdown-item"><i class="bi bi-person pe-2"></i> Profile</a></li>
-          <li><a href="#" (click)="logout()" class="dropdown-item"><i class="bi bi-box-arrow-right pe-2"></i> Logout</a></li>
-        </ul>
+        <div class="dropdown-menu">
+          <p>Bonjour, {{ username }}</p>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="#">Profil</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" (click)="logout()">Déconnexion</a>
+        </div>
       </li>
     </ul>
   </nav>
+  
   <button class="mobile-toggle" (click)="toggleMenu()">
     <i class="bi bi-list"></i>
   </button>

@@ -14,7 +14,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// Identifiant de l'utilisateur.
         /// </summary>
         [Required(ErrorMessage = "L'identifiant de l'utilisateur est requis.")]
-        public string UserId { get; set; }
+        public string AppUserId { get; set; }
 
         /// <summary>
         /// Note attribuée au film (sur 5).

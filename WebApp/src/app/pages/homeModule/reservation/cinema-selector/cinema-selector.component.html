@@ -1,0 +1,10 @@
+<div class="mb-3">
+    <label for="cinemaSelect" class="form-label">Sélectionnez un cinéma :</label>
+    <select id="cinemaSelect" class="form-select" (change)="onCinemaChange($event)">
+      <option value="" disabled selected>Choisissez un cinéma</option>
+      <option *ngFor="let cinema of cinemas" [value]="cinema.cinemaId">
+        {{ cinema.name }} - {{ cinema.address }}
+      </option>
+    </select>
+  </div>
+  <app-cinema-card *ngIf="selectedCinema" [cinema]="selectedCinema"></app-cinema-card>

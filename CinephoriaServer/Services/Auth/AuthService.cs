@@ -41,13 +41,13 @@ namespace CinephoriaServer.Services
         /// <summary>
         /// Met à jour l'image de profil d'un utilisateur.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <param name="imageUrl">L'URL de la nouvelle image de profil.</param>
         /// <returns>Un message indiquant si l'opération a réussi.</returns>
-        public async Task<string> UpdateProfileImageAsync(string userId, string imageUrl)
+        public async Task<string> UpdateProfileImageAsync(string AppUserId, string imageUrl)
         {
             // Récupérer l'utilisateur existant
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(AppUserId);
             if (user == null)
             {
                 return "Utilisateur non trouvé.";
@@ -63,20 +63,20 @@ namespace CinephoriaServer.Services
                 return "Erreur lors de la mise à jour de l'image de profil.";
             }
 
-            _logger.LogInformation("Image de profil mise à jour avec succès pour l'utilisateur avec l'ID {UserId}.", userId);
+            _logger.LogInformation("Image de profil mise à jour avec succès pour l'utilisateur avec l'ID {AppUserId}.", AppUserId);
             return "Image de profil mise à jour avec succès.";
         }
 
         /// <summary>
         /// Supprime l'image de profil d'un utilisateur.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <param name="imageUrl">L'URL de l'image de profil à supprimer.</param>
         /// <returns>Un message indiquant si l'opération a réussi.</returns>
-        public async Task<string> RemoveProfileImageAsync(string userId, string imageUrl)
+        public async Task<string> RemoveProfileImageAsync(string AppUserId, string imageUrl)
         {
             // Récupérer l'utilisateur existant
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(AppUserId);
             if (user == null)
             {
                 return "Utilisateur non trouvé.";
@@ -99,7 +99,7 @@ namespace CinephoriaServer.Services
                 return "Erreur lors de la suppression de l'image de profil.";
             }
 
-            _logger.LogInformation("Image de profil supprimée avec succès pour l'utilisateur avec l'ID {UserId}.", userId);
+            _logger.LogInformation("Image de profil supprimée avec succès pour l'utilisateur avec l'ID {AppUserId}.", AppUserId);
             return "Image de profil supprimée avec succès.";
         }
 
@@ -342,13 +342,13 @@ namespace CinephoriaServer.Services
         /// <summary>
         /// Valide un jeton de réinitialisation de mot de passe.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <param name="token">Le jeton de réinitialisation.</param>
         /// <returns>Un message indiquant si le jeton est valide.</returns>
-        public async Task<string> ValidateResetTokenAsync(string userId, string token)
+        public async Task<string> ValidateResetTokenAsync(string AppUserId, string token)
         {
             // Vérifier si l'utilisateur existe
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(AppUserId);
             if (user == null)
             {
                 return "Utilisateur non trouvé.";
@@ -367,12 +367,12 @@ namespace CinephoriaServer.Services
         /// <summary>
         /// Force la réinitialisation du mot de passe d'un utilisateur normal.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Un message indiquant si la réinitialisation forcée a réussi.</returns>
-        public async Task<string> ForcePasswordResetAsync(string userId)
+        public async Task<string> ForcePasswordResetAsync(string AppUserId)
         {
             // Vérifier si l'utilisateur existe
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(AppUserId);
             if (user == null)
             {
                 return "Utilisateur non trouvé.";
@@ -395,7 +395,7 @@ namespace CinephoriaServer.Services
         public async Task<string> ChangeEmployeePasswordAsync(ChangeEmployeePasswordDto changePasswordDto)
         {
             // Vérifier si l'utilisateur existe
-            var user = await _userManager.FindByIdAsync(changePasswordDto.UserId);
+            var user = await _userManager.FindByIdAsync(changePasswordDto.AppUserId);
             if (user == null)
             {
                 return "Utilisateur non trouvé.";
@@ -424,12 +424,12 @@ namespace CinephoriaServer.Services
         /// <summary>
         /// Force un employé à changer son mot de passe (par exemple, si le mot de passe temporaire a expiré).
         /// </summary>
-        /// <param name="userId">L'identifiant de l'employé.</param>
+        /// <param name="AppUserId">L'identifiant de l'employé.</param>
         /// <returns>Un message indiquant si la réinitialisation forcée a réussi.</returns>
-        public async Task<string> ForceEmployeePasswordChangeAsync(string userId)
+        public async Task<string> ForceEmployeePasswordChangeAsync(string AppUserId)
         {
             // Vérifier si l'utilisateur existe
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(AppUserId);
             if (user == null)
             {
                 return "Utilisateur non trouvé.";
@@ -472,12 +472,12 @@ namespace CinephoriaServer.Services
         /// <summary>
         /// Récupère les détails d'un utilisateur spécifique par son identifiant.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Les détails de l'utilisateur ou un message d'erreur.</returns>
-        public async Task<AppUserDto> GetUserByIdAsync(string userId)
+        public async Task<AppUserDto> GetUserByIdAsync(string AppUserId)
         {
             // Récupérer l'utilisateur par son ID
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(AppUserId);
             if (user == null)
             {
                 return null; // Ou retourner un message d'erreur si nécessaire
@@ -493,13 +493,13 @@ namespace CinephoriaServer.Services
         /// <summary>
         /// Met à jour le profil d'un utilisateur spécifique.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <param name="updateAppUserDto">Les nouvelles données du profil.</param>
         /// <returns>Un message indiquant si l'opération a réussi.</returns>
-        public async Task<string> UpdateUserProfileAsync(string userId, UpdateAppUserDto updateAppUserDto)
+        public async Task<string> UpdateUserProfileAsync(string AppUserId, UpdateAppUserDto updateAppUserDto)
         {
             // Récupérer l'utilisateur par son ID
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(AppUserId);
             if (user == null)
             {
                 return "Utilisateur non trouvé.";
@@ -526,12 +526,12 @@ namespace CinephoriaServer.Services
         /// <summary>
         /// Récupère le profil d'un utilisateur spécifique.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Le profil de l'utilisateur ou un message d'erreur.</returns>
-        public async Task<UserProfileDto> GetUserProfileAsync(string userId)
+        public async Task<UserProfileDto> GetUserProfileAsync(string AppUserId)
         {
             // Récupérer le profil utilisateur via le repository
-            var user = await _unitOfWork.Users.GetUserProfileAsync(userId);
+            var user = await _unitOfWork.Users.GetUserProfileAsync(AppUserId);
             if (user == null)
             {
                 return null;
@@ -547,12 +547,12 @@ namespace CinephoriaServer.Services
         /// <summary>
         /// Récupère les réservations d'un utilisateur spécifique.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <returns>Les réservations de l'utilisateur ou un message d'erreur.</returns>
-        public async Task<List<ReservationDto>> GetUserOrdersAsync(string userId)
+        public async Task<List<ReservationDto>> GetUserOrdersAsync(string AppUserId)
         {
             // Récupérer les réservations de l'utilisateur via le repository
-            var reservations = await _unitOfWork.Users.GetUserOrdersAsync(userId);
+            var reservations = await _unitOfWork.Users.GetUserOrdersAsync(AppUserId);
             if (reservations == null || !reservations.Any())
             {
                 return null; // Ou retourner un message d'erreur si nécessaire
@@ -622,12 +622,12 @@ namespace CinephoriaServer.Services
         /// <summary>
         /// Confirme l'adresse email d'un utilisateur.
         /// </summary>
-        /// <param name="userId">L'identifiant de l'utilisateur.</param>
+        /// <param name="AppUserId">L'identifiant de l'utilisateur.</param>
         /// <param name="token">Le jeton de confirmation.</param>
         /// <returns>Un message indiquant si l'opération a réussi.</returns>
-        public async Task<string> ConfirmEmailAsync(string userId, string token)
+        public async Task<string> ConfirmEmailAsync(string AppUserId, string token)
         {
-            if (string.IsNullOrEmpty(userId))
+            if (string.IsNullOrEmpty(AppUserId))
             {
                 return "L'ID de l'utilisateur ne peut pas être vide.";
             }
@@ -638,7 +638,7 @@ namespace CinephoriaServer.Services
             }
 
             // Récupérer l'utilisateur par son ID
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(AppUserId);
             if (user == null)
             {
                 return "Utilisateur non trouvé.";
@@ -713,7 +713,7 @@ namespace CinephoriaServer.Services
             var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
             // Créer le lien de confirmation
-            var confirmationLink = $"{_configuration["AppBaseUrl"]}/confirm-email?userId={user.Id}&token={WebUtility.UrlEncode(emailConfirmationToken)}";
+            var confirmationLink = $"{_configuration["AppBaseUrl"]}/confirm-email?AppUserId={user.Id}&token={WebUtility.UrlEncode(emailConfirmationToken)}";
 
             // Charger le template HTML
             var emailTemplatePath = Path.Combine(Directory.GetCurrentDirectory(), "Configurations/Templates", "ConfirmationEmail.html");
@@ -730,7 +730,7 @@ namespace CinephoriaServer.Services
         private async Task SendResetPasswordEmailAsync(AppUser user, string resetToken)
         {
             // Créer le lien de réinitialisation
-            var resetPasswordLink = $"{_configuration["AppBaseUrl"]}/reset-password?userId={user.Id}&token={WebUtility.UrlEncode(resetToken)}";
+            var resetPasswordLink = $"{_configuration["AppBaseUrl"]}/reset-password?AppUserId={user.Id}&token={WebUtility.UrlEncode(resetToken)}";
 
             // Charger le template HTML
             var emailTemplatePath = Path.Combine(Directory.GetCurrentDirectory(), "Configurations/Templates", "ResetPasswordEmail.html");
@@ -747,7 +747,7 @@ namespace CinephoriaServer.Services
         private async Task SendEmployeePasswordResetEmailAsync(AppUser user, string temporaryPassword)
         {
             // Créer le lien de changement de mot de passe
-            var changePasswordLink = $"{_configuration["AppBaseUrl"]}/change-password?userId={user.Id}";
+            var changePasswordLink = $"{_configuration["AppBaseUrl"]}/change-password?AppUserId={user.Id}";
 
             // Charger le template HTML
             var emailTemplatePath = Path.Combine(Directory.GetCurrentDirectory(), "Configurations/Templates", "EmployeePasswordResetEmail.html");

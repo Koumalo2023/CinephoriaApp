@@ -293,7 +293,7 @@ namespace CinephoriaServer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MovieRatingId"));
 
-                    b.Property<string>("AppUserId")
+                    b.Property<string>("AppAppUserId")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -321,7 +321,7 @@ namespace CinephoriaServer.Migrations
 
                     b.HasKey("MovieRatingId");
 
-                    b.HasIndex("AppUserId");
+                    b.HasIndex("AppAppUserId");
 
                     b.HasIndex("MovieId");
 
@@ -336,7 +336,7 @@ namespace CinephoriaServer.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ReservationId"));
 
-                    b.Property<string>("AppUserId")
+                    b.Property<string>("AppAppUserId")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -367,7 +367,7 @@ namespace CinephoriaServer.Migrations
 
                     b.HasKey("ReservationId");
 
-                    b.HasIndex("AppUserId");
+                    b.HasIndex("AppAppUserId");
 
                     b.HasIndex("ShowtimeId");
 
@@ -573,13 +573,13 @@ namespace CinephoriaServer.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
+                    b.Property<string>("AppUserId")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("AppUserId");
 
                     b.ToTable("AspNetUserClaims", (string)null);
                 });
@@ -595,26 +595,26 @@ namespace CinephoriaServer.Migrations
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
+                    b.Property<string>("AppUserId")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("AppUserId");
 
                     b.ToTable("AspNetUserLogins", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.Property<string>("UserId")
+                    b.Property<string>("AppUserId")
                         .HasColumnType("text");
 
                     b.Property<string>("RoleId")
                         .HasColumnType("text");
 
-                    b.HasKey("UserId", "RoleId");
+                    b.HasKey("AppUserId", "RoleId");
 
                     b.HasIndex("RoleId");
 
@@ -623,7 +623,7 @@ namespace CinephoriaServer.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.Property<string>("UserId")
+                    b.Property<string>("AppUserId")
                         .HasColumnType("text");
 
                     b.Property<string>("LoginProvider")
@@ -635,7 +635,7 @@ namespace CinephoriaServer.Migrations
                     b.Property<string>("Value")
                         .HasColumnType("text");
 
-                    b.HasKey("UserId", "LoginProvider", "Name");
+                    b.HasKey("AppUserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
@@ -685,7 +685,7 @@ namespace CinephoriaServer.Migrations
                 {
                     b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", "AppUser")
                         .WithMany("MovieRatings")
-                        .HasForeignKey("AppUserId")
+                        .HasForeignKey("AppAppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -704,7 +704,7 @@ namespace CinephoriaServer.Migrations
                 {
                     b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", "AppUser")
                         .WithMany("Reservations")
-                        .HasForeignKey("AppUserId")
+                        .HasForeignKey("AppAppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -781,7 +781,7 @@ namespace CinephoriaServer.Migrations
                 {
                     b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -790,7 +790,7 @@ namespace CinephoriaServer.Migrations
                 {
                     b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -805,7 +805,7 @@ namespace CinephoriaServer.Migrations
 
                     b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -814,7 +814,7 @@ namespace CinephoriaServer.Migrations
                 {
                     b.HasOne("CinephoriaServer.Models.PostgresqlDb.AppUser", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

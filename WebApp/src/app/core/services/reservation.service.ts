@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import {
   CreateReservationDto,
   ReservationDto,
@@ -14,6 +14,10 @@ import { environment } from 'src/environments/environment';
 })
 export class ReservationService {
   private apiUrl =`${environment.apiUrl}/Reservation`;
+
+  
+  private currentReservationSubject = new BehaviorSubject<any>(null);
+  currentReservation$ = this.currentReservationSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -78,5 +82,19 @@ export class ReservationService {
    */
   cancelReservation(reservationId: number): Observable<{ Message: string }> {
     return this.http.delete<{ Message: string }>(`${this.apiUrl}/cancel/${reservationId}`);
+  }
+
+
+
+  setCurrentReservation(reservationDetails: any): void {
+    this.currentReservationSubject.next(reservationDetails);
+  }
+
+  getCurrentReservation(): any {
+    return this.currentReservationSubject.value;
+  }
+
+  clearCurrentReservation(): void {
+    this.currentReservationSubject.next(null);
   }
 }
