@@ -1,24 +1,21 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class RedirectService {
-  private redirectUrl: string | null = null;
+  private currentStepSubject = new BehaviorSubject<number>(1); // Étape actuelle du processus de réservation
+  currentStep$ = this.currentStepSubject.asObservable();
 
-  // Stocker l'URL de redirection
-  setRedirectUrl(url: string): void {
-    this.redirectUrl = url;
+  // Définir l'étape actuelle
+  setCurrentStep(step: number): void {
+    this.currentStepSubject.next(step);
   }
 
-  // Récupérer l'URL de redirection
-  getRedirectUrl(): string | null {
-    return this.redirectUrl;
-  }
-
-  // Effacer l'URL de redirection après utilisation
-  clearRedirectUrl(): void {
-    this.redirectUrl = null;
+  // Récupérer l'étape actuelle
+  getCurrentStep(): number {
+    return this.currentStepSubject.value;
   }
 }
 
