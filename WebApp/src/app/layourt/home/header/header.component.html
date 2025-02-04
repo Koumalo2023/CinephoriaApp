@@ -21,7 +21,7 @@
         <div class="dropdown-menu">
           <p>Bonjour, {{ username }}</p>
           <div class="dropdown-divider"></div>
-          <a class="dropdown-item" href="#">Profil</a>
+          <a routerLink="/home/profile" class="dropdown-item" href="#">Profil</a>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" (click)="logout()">Déconnexion</a>
         </div>
@@ -37,10 +37,10 @@
 <!-- Mobile Menu -->
 <nav class="mobile-nav" [ngClass]="{'active': isMenuOpen}">
   <ul>
-    <li><a routerLink="/"><i class="bi bi-house pe-2"></i> Home</a></li>
-    <li><a routerLink="/movies"><i class="bi bi-film pe-2"></i> Movies</a></li>
-    <li><a routerLink="/about"><i class="bi bi-info-circle pe-2"></i> About Us</a></li>
-    <li><a routerLink="/contact"><i class="bi bi-envelope pe-2"></i> Contact</a></li>
+    <li><a routerLink="/home/home"><i class="bi bi-house pe-2"></i> Accueil</a></li>
+    <li><a routerLink="/home/movies"><i class="bi bi-film pe-2"></i> Fimls</a></li>
+    <li><a routerLink="/home/reservation"><i class="bi bi-info-circle pe-2"></i> Reservation</a></li>
+    <li><a routerLink="/home/contacts"><i class="bi bi-envelope pe-2"></i> Contact</a></li>
 
     <!-- Mobile view: Conditional Login / Profile & Logout -->
     <li *ngIf="!isLoggedIn"><a routerLink="/login"><i class="bi bi-person-circle pe-2"></i> Login</a></li>

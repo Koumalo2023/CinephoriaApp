@@ -151,5 +151,13 @@ namespace CinephoriaServer.Services
         /// <param name="AppUserId">L'identifiant de l'employé.</param>
         /// <returns>Un message indiquant si la réinitialisation forcée a réussi.</returns>
         Task<string> ChangeEmployeePasswordAsync(ChangeEmployeePasswordDto changePasswordDto);
+
+        /// <summary>
+        /// Permet à un utilisateur connecté de changer son mot de passe.
+        /// </summary>
+        /// <param name="userId">L'ID de l'utilisateur connecté.</param>
+        /// <param name="changePasswordDto">Les informations de changement de mot de passe.</param>
+        /// <returns>Un message indiquant si le changement de mot de passe a réussi.</returns>
+        Task<string> ChangeUserPasswordAsync(string userId, ChangeUserPasswordDto changePasswordDto);
     }
 }

@@ -287,6 +287,9 @@ namespace CinephoriaServer.Repository
         {
             return await _context.Set<Reservation>()
                 .Include(r => r.Showtime)
+                    .ThenInclude(s => s.Movie) 
+                .Include(r => r.Showtime)
+                    .ThenInclude(s => s.Cinema)
                 .Include(r => r.Seats)
                 .Where(r => r.AppUserId == AppUserId)
                 .ToListAsync();

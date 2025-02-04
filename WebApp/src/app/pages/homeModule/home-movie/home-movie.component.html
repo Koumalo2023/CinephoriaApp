@@ -56,5 +56,40 @@
       </div>
     </div>
   </div>
+
+  <app-container cardTitle="About Me">
+    <p class="mb-4">
+      Hello,I’m Anshan Handgun Creative Graphic Designer & User Experience Designer based in Website, I create digital
+      Products a more Beautiful and usable place. Morbid accusant ipsum. Nam nec tellus at.
+    </p>
+  </app-container>
+
+  <app-container
+  [cardTitle]="'Mon Titre'"
+  [cardClass]="'ma-classe-carte'"
+  [showHeader]="false"
+  [showContent]="true"
+  [blockClass]="'mon-bloc'"
+  [headerClass]="'mon-en-tête'"
+  [footerClass]="'mon-pied-de-page'"
+  [padding]="24"
+>
+  <!-- Contenu projeté pour les templates personnalisés -->
+  <ng-template #headerOptionsTemplate>
+    <button>Option 1</button>
+    <button>Option 2</button>
+  </ng-template>
+
+  <ng-template #headerTitleTemplate>
+    <h1>Titre Personnalisé</h1>
+  </ng-template>
+
+  <ng-template #footerTemplate>
+    <p>Ceci est un pied de page personnalisé.</p>
+  </ng-template>
+
+  <!-- Contenu principal du composant -->
+  <p>Ceci est le contenu principal de la carte.</p>
+</app-container>
 </div>
 

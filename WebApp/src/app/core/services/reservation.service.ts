@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import {
   CreateReservationDto,
   ReservationDto,
+  UserReservationDto,
 } from '../models/reservation.models'; 
 import { ShowtimeDto } from '../models/showtime.models';
 import { SeatDto } from '../models/seat.models';
@@ -44,8 +45,8 @@ export class ReservationService {
    * @param userId L'identifiant de l'utilisateur.
    * @returns Observable contenant une liste de réservations.
    */
-  getUserReservations(userId: string): Observable<ReservationDto[]> {
-    return this.http.get<ReservationDto[]>(`${this.apiUrl}/user/${userId}`);
+  getUserReservations(userId: string): Observable<UserReservationDto[]> {
+    return this.http.get<UserReservationDto[]>(`${this.apiUrl}/user/${userId}`);
   }
 
   /**

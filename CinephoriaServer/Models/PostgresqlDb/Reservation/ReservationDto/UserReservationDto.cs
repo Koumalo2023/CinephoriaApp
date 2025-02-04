@@ -35,6 +35,31 @@ namespace CinephoriaServer.Models.PostgresqlDb
         public bool IsValidated { get; set; }
 
         /// <summary>
+        /// Nom du film
+        /// </summary>
+        public string MovieName { get; set; } 
+
+        /// <summary>
+        /// Nom du cinéma
+        /// </summary>
+        public string CinemaName { get; set; } 
+
+        /// <summary>
+        /// Heure de début de la séance
+        /// </summary>
+        public DateTime StartTime { get; set; }
+
+        /// <summary>
+        /// Identifiant du film
+        /// </summary>
+        public int MovieId { get; set; }
+
+        /// <summary>
+        /// Heure de fin de la séance
+        /// </summary>
+        public DateTime EndTime { get; set; } 
+
+        /// <summary>
         /// Statut de la réservation (par exemple, CONFIRMED ou CANCELLED).
         /// </summary>
         public ReservationStatus Status { get; set; }

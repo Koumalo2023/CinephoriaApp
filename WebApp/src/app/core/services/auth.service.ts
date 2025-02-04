@@ -187,15 +187,24 @@ export class AuthService {
     });
   }
 
+  /**
+ * Permet à un utilisateur connecté de changer son mot de passe.
+ * @param changePasswordDto Les informations de changement de mot de passe.
+ * @returns Observable contenant le message de réussite ou d'échec.
+ */
+  updateUserPassword(appUserId: string, changePasswordDto: { oldPassword: string; newPassword: string; confirmNewPassword: string }): Observable<{ Message: string }> {
+    return this.http.post<{ Message: string }>(`${this.apiUrl}/change-password/${appUserId}`, changePasswordDto);
+}
+
 
   /**
-   * Permet à un employé de changer son mot de passe après avoir utilisé un mot de passe temporaire.
-   * @param changePasswordDto Les informations de changement de mot de passe.
-   * @returns Observable contenant le message de réussite ou d'échec.
-   */
-  changeEmployeePassword(changePasswordDto: { oldPassword: string; newPassword: string }): Observable<{ Message: string }> {
-    return this.http.post<{ Message: string }>(`${this.apiUrl}/change-password`, changePasswordDto);
-  }
+ * Permet à un employé de changer son mot de passe après avoir utilisé un mot de passe temporaire.
+ * @param changePasswordDto Les informations de changement de mot de passe.
+ * @returns Observable contenant le message de réussite ou d'échec.
+ */
+changeEmployeePassword(changePasswordDto: { oldPassword: string; newPassword: string; confirmNewPassword: string; appUserId: string }): Observable<{ Message: string }> {
+  return this.http.post<{ Message: string }>(`${this.apiUrl}/change-password`, changePasswordDto);
+}
 
   /**
    * Force un employé à changer son mot de passe (ex. mot de passe temporaire expiré).

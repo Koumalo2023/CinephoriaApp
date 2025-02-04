@@ -430,19 +430,72 @@ namespace CinephoriaServer.Controllers
         /// Permet à un employé de changer son mot de passe après avoir utilisé un mot de passe temporaire.
         /// </summary>
         /// <param name="changePasswordDto">Les informations de changement de mot de passe.</param>
-        /// <returns>Un message indiquant si le changement de mot de passe a réussi.</returns>
-        [HttpPost("change-password")]
+        /// <returns>Un résultat HTTP contenant un message de réussite ou d'échec.</returns>
+        [HttpPost("change-employee-password")]
         public async Task<IActionResult> ChangeEmployeePassword([FromBody] ChangeEmployeePasswordDto changePasswordDto)
         {
             try
             {
+                // Vérifier la validité du modèle
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    return BadRequest(new { Errors = errors });
+                }
+
+                // Appeler le service pour changer le mot de passe
                 var result = await _authService.ChangeEmployeePasswordAsync(changePasswordDto);
-                return Ok(result);
+
+                return Ok(new { Message = result });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { Message = "Une erreur s'est produite lors du changement de mot de passe." });
-                
+            }
+        }
+
+        /// <summary>
+        /// Permet à un utilisateur connecté de changer son mot de passe.
+        /// </summary>
+        /// <param name="changePasswordDto">Les informations de changement de mot de passe.</param>
+        /// <returns>Un résultat HTTP contenant un message de réussite ou d'échec.</returns>
+        [HttpPost("change-password")]
+        [Authorize] // Assurez-vous que seul un utilisateur authentifié peut accéder à cette route
+        public async Task<IActionResult> ChangeUserPassword([FromBody] ChangeUserPasswordDto changePasswordDto)
+        {
+            try
+            {
+                // Vérifier la validité du modèle
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    return BadRequest(new { Errors = errors });
+                }
+
+                // Récupérer l'ID de l'utilisateur connecté depuis le contexte d'authentification
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { Message = "Utilisateur non authentifié." });
+                }
+
+                // Appeler le service pour changer le mot de passe
+                var result = await _authService.ChangeUserPasswordAsync(userId, changePasswordDto);
+
+                return Ok(new { Message = result });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Une erreur s'est produite lors du changement de mot de passe." });
             }
         }
 
