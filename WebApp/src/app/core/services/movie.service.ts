@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import {
   MovieDto,
   MovieReviewDto,
@@ -26,16 +26,17 @@ export class MovieService {
    */
   getRecentMovies(): Observable<MovieDto[]> {
     return this.http.get<MovieDto[]>(`${this.apiUrl}/recent`).pipe(
-      map((movies) => {
-        return movies.map((movie) => {
-          movie.posterUrls = movie.posterUrls.map((url) =>
-            url.startsWith('http') ? url : `${this.apiUrl}/${url}`
-          ); 
-          return movie;
-        });
-      })
+      map((movies) =>
+        movies.map((movie) => ({
+          ...movie,
+          posterUrls: movie.posterUrls.map((url) =>
+            url.startsWith('http') ? url : `${this.apiUrl.replace(/\/$/, '')}/${url.replace(/^\//, '')}`
+          ),
+        }))
+      )
     );
   }
+  
   
 
 
@@ -44,7 +45,16 @@ export class MovieService {
    * @returns Observable contenant une liste de films.
    */
   getAllMovies(): Observable<MovieDto[]> {
-    return this.http.get<MovieDto[]>(`${this.apiUrl}/all`);
+    return this.http.get<MovieDto[]>(`${this.apiUrl}/all`).pipe(
+      map((movies) =>
+        movies.map((movie) => ({
+          ...movie,
+          posterUrls: movie.posterUrls.map((url) =>
+            url.startsWith('http') ? url : `${this.apiUrl.replace(/\/$/, '')}/${url.replace(/^\//, '')}`
+          ),
+        }))
+      )
+    );
   }
 
   /**
@@ -53,8 +63,16 @@ export class MovieService {
    * @returns Observable contenant les détails du film.
    */
   getMovieDetails(movieId: number): Observable<MovieDetailsDto> {
-    return this.http.get<MovieDetailsDto>(`${this.apiUrl}/movie/${movieId}`);
+    return this.http.get<MovieDetailsDto>(`${this.apiUrl}/movie/${movieId}`).pipe(
+      map((movie) => ({
+        ...movie,
+        posterUrls: movie.posterUrls.map((url) =>
+          url.startsWith('http') ? url : `${this.apiUrl.replace(/\/$/, '')}/${url.replace(/^\//, '')}`
+        ),
+      }))
+    );
   }
+  
 
   /**
    * Récupère la liste des films qui ont des séances dans un cinéma spécifique.
@@ -62,7 +80,16 @@ export class MovieService {
    * @returns Observable contenant une liste de films.
    */
   getMoviesByCinemaId(cinemaId: number): Observable<MovieDto[]> {
-    return this.http.get<MovieDto[]>(`${this.apiUrl}/cinema/${cinemaId}/movies`);
+    return this.http.get<MovieDto[]>(`${this.apiUrl}/cinema/${cinemaId}/movies`).pipe(
+      map((movies) =>
+        movies.map((movie) => ({
+          ...movie,
+          posterUrls: movie.posterUrls.map((url) =>
+            url.startsWith('http') ? url : `${this.apiUrl.replace(/\/$/, '')}/${url.replace(/^\//, '')}`
+          ),
+        }))
+      )
+    );
   }
 
   /**
@@ -89,7 +116,16 @@ export class MovieService {
    * @returns Observable contenant une liste de films correspondant aux critères.
    */
   filterMovies(filterDto: FilterMoviesRequestDto): Observable<MovieDto[]> {
-    return this.http.post<MovieDto[]>(`${this.apiUrl}/filter`, filterDto);
+    return this.http.post<MovieDto[]>(`${this.apiUrl}/filter`, filterDto).pipe(
+      map((movies) =>
+        movies.map((movie) => ({
+          ...movie,
+          posterUrls: movie.posterUrls.map((url) =>
+            url.startsWith('http') ? url : `${this.apiUrl.replace(/\/$/, '')}/${url.replace(/^\//, '')}`
+          ),
+        }))
+      )
+    );
   }
   
   

@@ -7,33 +7,31 @@ export enum UserRole {
   
   // Enum pour les statuts des réservations
   export enum ReservationStatus {
-    Pending = 'Pending',
-    Confirmed = 'Confirmed',
-    Cancelled = 'Cancelled'
+    Pending = 'En attente',
+    Confirmed = 'Confirmée',
+    Cancelled = 'Annulée'
   }
   
   // Enum pour les qualités de projection
   export enum ProjectionQuality {
-    FourDX = 'FourDX',
-    ThreeD = 'ThreeD',
+    FourDX = '4DX',
+    ThreeD = '3D',
     IMAX = 'IMAX',
-    FourK = 'FourK',
-    Standard2D = 'Standard2D',
-    DolbyCinema = 'DolbyCinema'
+    FourK = '4K'
   }
   
   // Enum pour les statuts des incidents
   export enum IncidentStatus {
-    Pending = 'Pending',
-    InProgress = 'InProgress',
-    Resolved = 'Resolved'
+    Pending = 'En attente',
+    Confirmed = 'Confirmée',
+    Cancelled = 'Annulée'
   }
   
   // Enum pour les genres de films
   export enum MovieGenre {
     Action = 'Action',
     Aventure = 'Aventure',
-    Comédie = 'Comédie',
+    Comedie = 'Comedie',
     Animation = 'Animation',
     Crime = 'Crime',
     Documentaire = 'Documentaire',
@@ -44,6 +42,5 @@ export enum UserRole {
     Romance = 'Romance',
     Familiale = 'Familiale',
     Thriller = 'Thriller',
-    Mystère = 'Mystère',
-    Comedie = 'Comedie'
+    Mystere = 'Mystere'
   }
