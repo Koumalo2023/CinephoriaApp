@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { AuthGuard } from '@app/core/guards/auth.guard';
 
 
 const routes: Routes = [
@@ -20,7 +21,9 @@ const routes: Routes = [
     loadComponent: () => import('@app/pages/homeModule/reservation/reservation.component').then(m => m.ReservationComponent) 
   },
   { 
-    path: 'profile', 
+    path: 'profile',
+    canActivate: [AuthGuard], 
+    data: { expectedRole: 'Admin, Employee, User' },  
     loadComponent: () => import('@app/pages/userModule/user-profile.component').then(m => m.UserProfileComponent) 
   },
 ];
