@@ -9,20 +9,22 @@
     public class ImageService : IImageService
     {
         private readonly IWebHostEnvironment _environment;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ImageService(IWebHostEnvironment environment)
+        public ImageService(IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor)
         {
             _environment = environment;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<string> UploadImageAsync(IFormFile file, string folder)
         {
             if (file == null || file.Length == 0)
                 throw new ArgumentException("Le fichier est vide ou non valide.");
-
             if (string.IsNullOrEmpty(_environment.WebRootPath))
                 throw new InvalidOperationException("Le chemin racine pour les fichiers statiques (WebRootPath) n'est pas configuré.");
 
+            // Chemin pour enregistrer le fichier
             string uploadsFolder = Path.Combine(_environment.WebRootPath, "images", folder);
             if (!Directory.Exists(uploadsFolder))
             {
@@ -37,7 +39,11 @@
                 await file.CopyToAsync(fileStream);
             }
 
-            return Path.Combine("images", folder, uniqueFileName).Replace("\\", "/");
+            // Construit une URL absolue en utilisant l'URL de base de l'application
+            string baseUrl = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}";
+            string imageUrl = Path.Combine(baseUrl, "images", folder, uniqueFileName).Replace("\\", "/");
+
+            return imageUrl;
         }
 
         public Task<bool> DeleteImageAsync(string imageUrl)

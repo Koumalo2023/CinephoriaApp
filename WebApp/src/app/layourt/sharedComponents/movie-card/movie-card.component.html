@@ -1,27 +1,46 @@
 
-<div class="movie-card">
-  <div
-    class="movie-img"
-    [ngStyle]="{
-      'background-image': movie.posterUrls && movie.posterUrls.length > 0
-        ? 'url(' + movie.posterUrls[0] + ')'
-        : 'url(assets/images/default-movie-poster.jpg)'
-    }"
-  ></div>
-
-  <div class="movie-content">
-    <h2 class="movie-title">{{ movie.title }}</h2>
-    <h3 class="movie-genres">{{ movie.genre }}</h3>
-    <p class="movie-description">{{ truncatedDescription }}</p>
-
-    <div class="movie-details">
-      <p><strong>Durée :</strong> {{ movie.duration }}</p>
-      <p><strong>Âge minimum :</strong> {{ movie.minimumAge }}+</p>
+<div class="col-md-3">
+  <div class="card shadow-sm card-custom">
+    <div *ngIf="getMainPosterUrl(); else noImage">
+      <img
+        [src]="getMainPosterUrl()"
+        [alt]="movie.title"
+        class="movie-poster"
+        [style.max-height.px]="imageMaxHeight" 
+      />
     </div>
-
-    <!-- Bouton pour afficher les détails du film -->
-    <button class="btn-details" (click)="onCardClick()">
-      <i class="bi bi-info-circle"></i> {{ mode === 'details' ? 'Voir les détails' : 'Voir les séances' }}
-    </button>
+    <ng-template #noImage>
+      <img
+        src="https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg"
+        [alt]="movie.title"
+        class="movie-poster"
+        [style.max-height.px]="imageMaxHeight" 
+      />
+    </ng-template>
+    <div class="card-body">
+      <h5 class="card-title">{{ movie.title }}</h5>
+      <p class="card-text">{{ getFormattedGenre(movie.genre) }}</p>
+      <p class="card-text">{{ truncatedDescription }}</p>
+      <p class="badge badge-custom">{{ movie.minimumAge }} +</p>
+      <div class="rating">
+        <ng-container *ngIf="movie.averageRating && movie.averageRating > 0">
+          <span *ngFor="let i of Array(getStarRating(movie.averageRating).fullStars).fill(0)">
+            <i class="bi bi-star-fill text-warning"></i>
+          </span>
+          <span *ngIf="getStarRating(movie.averageRating).halfStar">
+            <i class="bi bi-star-half text-warning"></i>
+          </span>
+          <span *ngFor="let i of Array(getStarRating(movie.averageRating).emptyStars).fill(0)">
+            <i class="bi bi-star text-warning"></i>
+          </span>
+        </ng-container>
+        <span *ngIf="!movie. averageRating || movie.averageRating <= 0">
+          Pas encore évalué
+        </span>
+      </div>
+      <button class="btn-details" (click)="onCardClick()">
+        <i class="bi bi-info-circle"></i> Voir les détails
+      </button>
+    </div>
   </div>
 </div>

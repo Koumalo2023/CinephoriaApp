@@ -1,67 +1,100 @@
-.movie-card {
+// Variables SCSS pour personnalisation
+$card-border-radius: 10px;
+$card-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+$image-max-height: 200px; // Valeur par défaut, peut être modifiée via @Input()
+$text-color-primary: #fff;
+$text-color-secondary: #839496;
+$button-bg-color: #b58900;
+$button-hover-bg-color: #977100;
+
+.card-custom {
+  border-radius: $card-border-radius;
+  box-shadow: $card-box-shadow;
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  .movie-poster {
+    width: 100%;
+    height: auto;
+    max-height: $image-max-height; // Hauteur maximale de l'image
+    object-fit: cover;
+    border-top-left-radius: $card-border-radius;
+    border-top-right-radius: $card-border-radius;
+  }
+
+  .card-body {
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    border-radius: 7px;
-    overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    background: linear-gradient(to top, rgba(0, 43, 54, 1) 40%, rgba(128, 128, 128, 0.8) 100%);
-    border: #b58900 solid 1px;
+    align-items: flex-start;
 
-    &:hover {
-        transform: scale(1.02);
-        box-shadow: 0 6px 12px rgba(#000000, 0.15);
+    .card-title {
+    align-self: center;
+      font-size: 30px;
+      color: $text-color-primary;
+      margin-bottom: 0.5rem;
     }
 
-    .movie-img {
-        height: 200px;
-        background-size: cover;
-        background-position: center;
+    .card-text {
+      color: $text-color-secondary;
+      margin-bottom: 0.5rem;
+      font-style: 26px;
     }
 
-    .movie-content {
-        padding: 1.5rem;
-
-        .movie-title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 0.5rem; 
-            color: #fff; 
-        }
-
-        .movie-genres {
-            font-size: 14px;
-            color: #fff; 
-        }
-
-        .movie-description {
-            font-size: 'Montserrat', sans-serif;
-            line-height: 1.5;
-            color: #fff; 
-        }
-
-        .btn-details {
-            background-color: #b58900; 
-            color: white; 
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            width: 100%;
-            text-align: center;
-            transition: background-color 0.3s ease;
-          }
-          
-          .btn-details:hover {
-            background-color: #9a6d00; 
-          }
-          
-          .btn-details i {
-            font-size: 1.2rem;
-          }
+    .text-muted {
+      font-size: 0.875rem;
     }
+
+    .badge-custom {
+      background-color: $button-bg-color;
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 5px;
+      font-size: 0.875rem;
+    }
+
+    .fw-bold {
+      font-size: 1rem;
+      color: $text-color-primary;
+    }
+    .rating {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        color: #096c47;
+      
+        i.bi-star-fill,
+        i.bi-star-half,
+        i.bi-star {
+          font-size: 1rem;
+        }
+    }
+
+    .btn-details {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: $button-bg-color;
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+
+      i.bi-info-circle {
+        margin-right: 0.5rem;
+      }
+
+      &:hover {
+        background-color: $button-hover-bg-color;
+      }
+    }
+  }
 }
