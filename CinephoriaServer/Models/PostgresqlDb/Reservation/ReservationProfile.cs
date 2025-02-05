@@ -36,7 +36,12 @@ namespace CinephoriaServer.Models.PostgresqlDb
                 .ForMember(dest => dest.QrCode, opt => opt.MapFrom(src => src.QrCode))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                 .ForMember(dest => dest.NumberOfSeats, opt => opt.MapFrom(src => src.NumberOfSeats))
-                .ForMember(dest => dest.Seats, opt => opt.MapFrom(src => src.Seats));
+                .ForMember(dest => dest.Seats, opt => opt.MapFrom(src => src.Seats))
+                .ForMember(dest => dest.MovieName, opt => opt.MapFrom(src => src.Showtime.Movie.Title))
+                .ForMember(dest => dest.MovieId, opt => opt.MapFrom(src => src.Showtime.Movie.MovieId))
+                .ForMember(dest => dest.CinemaName, opt => opt.MapFrom(src => src.Showtime.Cinema.Name))
+                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.Showtime.StartTime))
+                .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.Showtime.EndTime));
         }
     }
 }

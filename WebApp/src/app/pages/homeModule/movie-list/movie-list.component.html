@@ -12,6 +12,7 @@
       *ngFor="let movie of filteredMovies"
       [movie]="movie"
       (movieSelected)="onMovieSelected($event)"
+      [imageMaxHeight]="'800px'"
     ></app-movie-card>
   </div>
 

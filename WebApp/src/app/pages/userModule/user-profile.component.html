@@ -1,0 +1,302 @@
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header pb-0">
+                <ul ngbNav aria-busy="true" #nav="ngbNav" class="nav-tabs nav profile-tabs">
+                    <li class="nav-item" [ngbNavItem]="1">
+                        <a href="javascript:" ngbNavLink class="nav-link">
+                            <i class="bi bi-person-lines-fill me-2"></i>
+                            Profile
+                        </a>
+                        <ng-template ngbNavContent>
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <div class="media align-items-center">
+                                                <img class="img-radius img-fluid wid-40"
+                                                    src="assets/images/user/avatar-1.jpg" alt="User image" />
+                                                <div class="media-body mx-3">
+                                                    <h4 class="mb-1">John Doe</h4>
+                                                    <h6 class="text-muted mb-0">UI/UX Designer</h6>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-body px-2 pb-0">
+                                            <div class="list-group list-group-flush">
+
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row text-center">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-8">
+                                    <app-container cardTitle="Modifier mon profil">
+
+                                        <div class="row">
+                                            <form [formGroup]="userProfileForm" (ngSubmit)="updateUserProfile()">
+
+                                                <!-- Champ Email -->
+                                                <div class="form-floating mb-3">
+                                                    <input type="email" class="form-control" id="email"
+                                                        formControlName="email" placeholder="Email" />
+                                                    <label for="email">Email</label>
+                                                    <div *ngIf="userProfileForm.get('email')?.invalid && userProfileForm.get('email')?.touched"
+                                                        class="text-danger">
+                                                        Veuillez entrer une adresse email valide.
+                                                    </div>
+                                                </div>
+
+
+                                                <!-- Champ Prénom -->
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="firstName"
+                                                        formControlName="firstName" placeholder="Prénom" />
+                                                    <label for="firstName">Prénom</label>
+                                                    <div *ngIf="userProfileForm.get('firstName')?.invalid && userProfileForm.get('firstName')?.touched"
+                                                        class="text-danger">
+                                                        Le prénom est requis.
+                                                    </div>
+                                                </div>
+
+                                                <!-- Champ Nom -->
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="lastName"
+                                                        formControlName="lastName" placeholder="Nom" />
+                                                    <label for="lastName">Nom</label>
+                                                    <div *ngIf="userProfileForm.get('lastName')?.invalid && userProfileForm.get('lastName')?.touched"
+                                                        class="text-danger">
+                                                        Le nom est requis.
+                                                    </div>
+                                                </div>
+
+
+                                                <!-- Champ Téléphone -->
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" class="form-control" id="phoneNumber"
+                                                        formControlName="phoneNumber" placeholder="Téléphone" />
+                                                    <label for="phoneNumber">Téléphone</label>
+                                                </div>
+
+                                                <!-- Champ Image de profil -->
+                                                <div class="mb-3">
+                                                    <label for="profilePicture" class="form-label">Image de
+                                                        profil</label>
+                                                    <input type="file" class="form-control" id="profilePicture"
+                                                        (change)="onFileSelected($event)" />
+                                                    <div class="mt-2">
+                                                        <button type="button" class="btn btn-primary me-2"
+                                                            (click)="uploadProfileImage()">
+                                                            Télécharger l'image
+                                                        </button>
+                                                        <button type="button" class="btn btn-danger"
+                                                            (click)="deleteProfileImage()">
+                                                            Supprimer l'image
+                                                        </button>
+                                                    </div>
+                                                    <div *ngIf="userProfile?.profilePictureUrl" class="mt-2">
+                                                        <img [src]="userProfile.profilePictureUrl" alt="Profile Picture"
+                                                            class="img-thumbnail" width="100" />
+                                                    </div>
+                                                </div>
+                                                <button type="submit" class="btn btn-success"
+                                                    [disabled]="userProfileForm.invalid">
+                                                    Mettre à jour le profil
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </app-container>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </li>
+                    <li class="nav-item" [ngbNavItem]="2">
+                        <a href="javascript:" ngbNavLink class="nav-link">
+                            <i class="bi bi-list-ul me-2"></i>
+                            Mes Commandes
+                        </a>
+                        <ng-template ngbNavContent>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <app-container cardTitle="Mes réservations">
+                                        <div class="row">
+                                            <div *ngIf="userReservations.length > 0; else noReservations">
+                                                <table class="table table-striped table-bordered table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Film</th>
+                                                            <th>Cinéma</th>
+                                                            <th>Séance</th>
+                                                            <th>Heure</th>
+                                                            <th>Prix total</th>
+                                                            <th>Nombre de sièges</th>
+                                                            <th>Validé</th>
+                                                            <th>Sièges réservés</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr *ngFor="let reservation of userReservations">
+                                                            <td>{{ reservation.movieName }}</td>
+                                                            <td>{{ reservation.cinemaName }}</td>
+                                                            <td>{{ reservation.startTime | date:'EEEE dd MMMM yyyy':'':'fr' }}</td>
+                                                            <td>{{ formatTimeRange(reservation.startTime, reservation.endTime) }}</td>
+                                                            <td>{{ reservation.totalPrice }} €</td>
+                                                            <td>{{ reservation.numberOfSeats }}</td>
+                                                            <td>
+                                                                <span *ngIf="reservation.isValidated; else notValidated">
+                                                                  Oui
+                                                                  <button type="button" class="btn btn-sm btn-primary ms-2" (click)="rateShowtime(reservation.reservationId)">
+                                                                    <i class="fas fa-star"></i> Noter
+                                                                  </button>
+                                                                </span>
+                                                                <ng-template #notValidated>
+                                                                  Non
+                                                                  <button type="button" class="btn btn-sm btn-danger ms-2" (click)="cancelReservation(reservation.reservationId)">
+                                                                    <i class="fas fa-trash"></i> Annuler
+                                                                  </button>
+                                                                </ng-template>
+                                                              </td>
+                                                            <td>
+                                                                <span *ngFor="let seat of reservation.seats" class="badge bg-warning me-2">{{ seat.seatNumber }}</span>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            
+                                            <ng-template #noReservations>
+                                                <div class="alert alert-info">Aucune réservation trouvée.</div>
+                                            </ng-template>
+                                            <ng-template #noReservations>
+                                                <div class="alert alert-info">Aucune réservation trouvée.</div>
+                                            </ng-template>
+                                            <ng-template #noReservations>
+                                                <p>Aucune réservation trouvée.</p>
+                                            </ng-template>
+                                        </div>
+                                    </app-container>
+                                </div>
+                                <div class="col-md-6">
+
+                                </div>
+
+                            </div>
+                        </ng-template>
+                    </li>
+
+                    <li class="nav-item" [ngbNavItem]="3">
+                        <a href="javascript:" ngbNavLink class="nav-link">
+                            <i class="bi bi-shield-check me-2"></i>
+                            Changer mon mot de passe
+                        </a>
+                        <ng-template ngbNavContent>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <app-container cardTitle="Modifier le mot de passe">
+                                        <div class="row">
+                                            <form [formGroup]="passwordForm" (ngSubmit)="onSubmitPassword()">
+                                                <!-- Champ Ancien Mot de passe -->
+                                                <div class="form-floating mb-3">
+                                                  <input type="password" class="form-control" id="oldPassword" formControlName="oldPassword" placeholder="Ancien mot de passe" />
+                                                  <label for="oldPassword">Ancien mot de passe</label>
+                                                  <div *ngIf="passwordForm.get('oldPassword')?.invalid && passwordForm.get('oldPassword')?.touched" class="text-danger">
+                                                    L'ancien mot de passe est requis.
+                                                  </div>
+                                                </div>
+                                              
+                                                <!-- Champ Nouveau Mot de passe -->
+                                                <div class="form-floating mb-3">
+                                                  <input type="password" class="form-control" id="password" formControlName="password" placeholder="Nouveau mot de passe" />
+                                                  <label for="password">Nouveau mot de passe</label>
+                                                  <div *ngIf="passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched" class="text-danger">
+                                                    Le nouveau mot de passe doit contenir au moins 8 caractères.
+                                                  </div>
+                                                </div>
+                                              
+                                                <!-- Champ Confirmation du mot de passe -->
+                                                <div class="form-floating mb-3">
+                                                  <input type="password" class="form-control" id="confirmPassword" formControlName="confirmPassword" placeholder="Confirmer le mot de passe" />
+                                                  <label for="confirmPassword">Confirmer le mot de passe</label>
+                                                  <div *ngIf="passwordForm.hasError('passwordsNotMatch') && passwordForm.get('confirmPassword')?.touched" class="text-danger">
+                                                    Les mots de passe ne correspondent pas.
+                                                  </div>
+                                                </div>
+                                              
+                                                <!-- Bouton de soumission -->
+                                                <button type="submit" class="btn btn-warning" [disabled]="passwordForm.invalid">
+                                                  Mettre à jour le mot de passe
+                                                </button>
+                                              </form>
+                                        </div>
+                                    </app-container>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div [ngbNavOutlet]="nav" class="mt-2"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Offcanvas pour la notation -->
+<button
+  class="d-none"
+  type="button"
+  data-bs-toggle="offcanvas"
+  data-bs-target="#reviewCanvas"
+  aria-controls="reviewCanvas"
+></button>
+
+<div
+  class="offcanvas offcanvas-end"
+  tabindex="-1"
+  id="reviewCanvas"
+  aria-labelledby="reviewCanvasLabel"
+>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="reviewCanvasLabel">Noter ce film</h5>
+    <button
+      type="button"
+      class="btn-close text-reset"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="offcanvas-body">
+    <!-- Formulaire de notation -->
+    <form #reviewForm="ngForm" (ngSubmit)="submitReview()">
+      <div class="mb-3">
+        <label for="rating" class="form-label">Note (1-5 étoiles)</label>
+        <select
+          class="form-select"
+          id="rating"
+          name="rating"
+          [(ngModel)]="createMovieRatingDto.rating"
+          required
+        >
+          <option *ngFor="let i of [1, 2, 3, 4, 5]" [value]="i">{{ i }} étoile(s)</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="comment" class="form-label">Commentaire (optionnel)</label>
+        <textarea
+          class="form-control"
+          id="comment"
+          name="comment"
+          [(ngModel)]="createMovieRatingDto.comment"
+          rows="3"
+        ></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" [disabled]="!reviewForm.valid">
+        Soumettre
+      </button>
+    </form>
+  </div>
+</div>

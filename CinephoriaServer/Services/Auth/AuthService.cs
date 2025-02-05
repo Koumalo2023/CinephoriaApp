@@ -394,6 +394,12 @@ namespace CinephoriaServer.Services
         /// <returns>Un message indiquant si le changement de mot de passe a réussi.</returns>
         public async Task<string> ChangeEmployeePasswordAsync(ChangeEmployeePasswordDto changePasswordDto)
         {
+            // Vérifier si les nouveaux mots de passe correspondent
+            if (changePasswordDto.NewPassword != changePasswordDto.ConfirmNewPassword)
+            {
+                return "Les mots de passe ne correspondent pas.";
+            }
+
             // Vérifier si l'utilisateur existe
             var user = await _userManager.FindByIdAsync(changePasswordDto.AppUserId);
             if (user == null)
@@ -414,9 +420,48 @@ namespace CinephoriaServer.Services
             var changePasswordResult = await _userManager.ChangePasswordAsync(user, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
             if (!changePasswordResult.Succeeded)
             {
-                return "Erreur lors du changement de mot de passe : ";
+                var errors = string.Join(", ", changePasswordResult.Errors.Select(e => e.Description));
+                return $"Erreur lors du changement de mot de passe : {errors}";
             }
-           
+
+            return "Votre mot de passe a été changé avec succès.";
+        }
+
+        /// <summary>
+        /// Permet à un utilisateur connecté de changer son mot de passe.
+        /// </summary>
+        /// <param name="userId">L'ID de l'utilisateur connecté.</param>
+        /// <param name="changePasswordDto">Les informations de changement de mot de passe.</param>
+        /// <returns>Un message indiquant si le changement de mot de passe a réussi.</returns>
+        public async Task<string> ChangeUserPasswordAsync(string userId, ChangeUserPasswordDto changePasswordDto)
+        {
+            // Vérifier si les nouveaux mots de passe correspondent
+            if (changePasswordDto.NewPassword != changePasswordDto.ConfirmNewPassword)
+            {
+                return "Les mots de passe ne correspondent pas.";
+            }
+
+            // Vérifier si l'utilisateur existe
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return "Utilisateur non trouvé.";
+            }
+
+            // Vérifier si l'ancien mot de passe est correct
+            var isOldPasswordValid = await _userManager.CheckPasswordAsync(user, changePasswordDto.OldPassword);
+            if (!isOldPasswordValid)
+            {
+                return "L'ancien mot de passe est incorrect.";
+            }
+
+            // Changer le mot de passe
+            var changePasswordResult = await _userManager.ChangePasswordAsync(user, changePasswordDto.OldPassword, changePasswordDto.NewPassword);
+            if (!changePasswordResult.Succeeded)
+            {
+                var errors = string.Join(", ", changePasswordResult.Errors.Select(e => e.Description));
+                return $"Erreur lors du changement de mot de passe : {errors}";
+            }
 
             return "Votre mot de passe a été changé avec succès.";
         }

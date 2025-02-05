@@ -19,6 +19,10 @@ const routes: Routes = [
     path: 'reservation', 
     loadComponent: () => import('@app/pages/homeModule/reservation/reservation.component').then(m => m.ReservationComponent) 
   },
+  { 
+    path: 'profile', 
+    loadComponent: () => import('@app/pages/userModule/user-profile.component').then(m => m.UserProfileComponent) 
+  },
 ];
 
 @NgModule({

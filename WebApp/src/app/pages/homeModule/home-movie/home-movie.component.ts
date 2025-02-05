@@ -4,11 +4,12 @@ import { Router } from '@angular/router';
 import { MovieCardComponent } from '@app/layourt/sharedComponents/movie-card/movie-card.component';
 import { CommonModule } from '@angular/common';
 import { MovieService } from '@app/core/services/movie.service';
+import { ContainerComponent } from '@app/layourt/sharedComponents/container/container.component';
 
 @Component({
   selector: 'app-home-movie',
   standalone: true,
-  imports: [CommonModule, MovieCardComponent],
+  imports: [CommonModule, MovieCardComponent, ContainerComponent],
   templateUrl: './home-movie.component.html',
   styleUrl: './home-movie.component.scss'
 })

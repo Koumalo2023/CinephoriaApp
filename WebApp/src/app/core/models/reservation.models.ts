@@ -33,10 +33,15 @@ export interface UserReservationDto {
     reservationId: number;
     appUserId: string;
     showtimeId: number;
+    movieId: number;
     totalPrice: number;
     qrCode: string;
     isValidated: boolean;
     status: ReservationStatus;
     numberOfSeats: number;
     seats: SeatDto[];
+    movieName: string;
+    cinemaName: string;
+    startTime: Date;
+    endTime: Date;
 }

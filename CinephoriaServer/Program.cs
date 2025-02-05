@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -159,6 +160,8 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "bearer",
     });
 
+    builder.Services.AddHttpContextAccessor();
+
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -222,7 +225,12 @@ app.UseHttpsRedirection();
 // Appliquez la politique CORS
 app.UseCors(SecurityExtensions.DEFAULT_POLICY);
 app.UseMiddleware<ErrorHandlingMiddleware>();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(app.Environment.WebRootPath, "images")),
+    RequestPath = "/images"
+});
 app.UseAuthorization();
 app.MapControllers();
 

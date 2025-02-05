@@ -4,10 +4,13 @@
     background-color: $body-bg-color-second;
   
     .home-content {
-      text-align: center;
       background-color: $body-bg-color-second;
-      
+      display: flex;
+        margin: 1rem 10%;
+        flex-direction: column;
+        justify-content: center;
       .home-container{
+        
         .latest-movies{
           margin: 0 auto;
         }

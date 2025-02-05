@@ -41,7 +41,7 @@
 
             Action,
             Aventure,
-            Comédie,
+            Comedie,
             Animation,
             Crime,
             Documentaire,
@@ -52,8 +52,7 @@
             Romance, 
             Familiale,
             Thriller,
-            Mystère,
-            Comedie,
+            Mystere,
 
         }
     }
