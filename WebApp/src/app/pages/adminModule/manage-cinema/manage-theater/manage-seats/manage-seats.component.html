@@ -1,1 +1,170 @@
-<p>manage-seats works!</p>
+<!-- Onglets pour naviguer entre les cinémas -->
+<ul class="nav nav-tabs" id="cinemaTabs" role="tablist">
+    <li class="nav-item" role="presentation" *ngFor="let cinema of cinemas; let i = index">
+      <button
+        class="nav-link"
+        [class.active]="selectedCinemaId === cinema.cinemaId"
+        id="cinema{{ i + 1 }}-tab"
+        data-bs-toggle="tab"
+        [attr.data-bs-target]="'#cinema' + (i + 1)"
+        type="button"
+        role="tab"
+        [attr.aria-controls]="'cinema' + (i + 1)"
+        [attr.aria-selected]="selectedCinemaId === cinema.cinemaId ? 'true' : 'false'"
+        (click)="selectCinema(cinema.cinemaId)"
+      >
+        {{ cinema.name }}
+      </button>
+    </li>
+  </ul>
+  
+  <!-- Contenu des onglets -->
+  <div class="tab-content" id="cinemaTabsContent">
+    <div
+      class="tab-pane fade"
+      [class.show]="selectedCinemaId === cinema.cinemaId"
+      [class.active]="selectedCinemaId === cinema.cinemaId"
+      *ngFor="let cinema of cinemas; let i = index"
+      [id]="'cinema' + (i + 1)"
+      role="tabpanel"
+      [attr.aria-labelledby]="'cinema' + (i + 1) + '-tab'"
+    >
+      <!-- Si aucune salle n'est sélectionnée -->
+      <div *ngIf="!theaters || theaters.length === 0">
+        <p>Aucune salle disponible pour ce cinéma.</p>
+      </div>
+  
+      <!-- Sélection de la salle -->
+      <div *ngIf="theaters && theaters.length > 0">
+        <h5>Sélectionnez une salle :</h5>
+        <select
+  class="form-select mb-3"
+  [(ngModel)]="selectedTheaterId"
+  (change)="selectedTheaterId && loadSeatsByTheater(selectedTheaterId)"
+>
+  <option value="null" disabled selected>-- Sélectionnez une salle --</option>
+  <option *ngFor="let theater of theaters" [value]="theater.theaterId">{{ theater.name }}</option>
+</select>
+      </div>
+  
+      <!-- Tableau des sièges -->
+      <div *ngIf="seats && seats.length > 0">
+        <h5>Sièges de la salle sélectionnée :</h5>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">Numéro de Siège</th>
+              <th scope="col">Statut d'Accessibilité</th>
+              <th scope="col">Disponibilité</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let seat of seats">
+              <td>{{ seat.seatNumber }}</td>
+              <td>{{ seat.isAccessible ? 'Accessible' : 'Non accessible' }}</td>
+              <td>{{ seat.isAvailable ? 'Disponible' : 'Indisponible' }}</td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  (click)="loadSeatForUpdate(seat.seatId)"
+                  data-bs-toggle="modal"
+                  data-bs-target="#modifySeatModal"
+                >
+                  Modifier
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+  
+      <!-- Message si aucun siège n'est disponible -->
+      <div *ngIf="seats && seats.length === 0">
+        <p>Aucun siège disponible pour cette salle.</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modale pour modifier un siège -->
+  <div
+    class="modal fade"
+    id="modifySeatModal"
+    tabindex="-1"
+    aria-labelledby="modifySeatModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modifySeatModalLabel">Modifier le Siège</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <!-- Formulaire pour Mettre à Jour un Siège -->
+          <form [formGroup]="seatForm" (ngSubmit)="updateSeat()" *ngIf="isEditMode">
+            <div class="mb-3">
+              <label for="seatNumber" class="form-label">Numéro du siège :</label>
+              <input
+                type="text"
+                id="seatNumber"
+                formControlName="seatNumber"
+                class="form-control"
+                required
+              />
+            </div>
+  
+            <div class="mb-3 form-check">
+              <input
+                type="checkbox"
+                id="isAccessible"
+                formControlName="isAccessible"
+                class="form-check-input"
+              />
+              <label for="isAccessible" class="form-check-label">Accessible ?</label>
+            </div>
+  
+            <div class="mb-3 form-check">
+              <input
+                type="checkbox"
+                id="isAvailable"
+                formControlName="isAvailable"
+                class="form-check-input"
+              />
+              <label for="isAvailable" class="form-check-label">Disponible ?</label>
+            </div>
+  
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="seatForm.invalid"
+            >
+              Enregistrer les Modifications
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary ms-2"
+              (click)="resetForm()"
+            >
+              Annuler
+            </button>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Fermer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>

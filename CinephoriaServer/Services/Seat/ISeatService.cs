@@ -26,5 +26,19 @@ namespace CinephoriaServer.Services
         /// <param name="seatNumber">Le numéro du siège à supprimer.</param>
         /// <returns>Une réponse indiquant le succès ou l'échec de l'opération.</returns>
         Task<bool> RemoveHandicapSeatAsync(int theaterId, string seatNumber);
+
+        // <summary>
+        /// Met à jour un siège existant.
+        /// </summary>
+        /// <param name="updateSeatDto">Les nouvelles informations du siège.</param>
+        /// <returns>Un message indiquant le succès de l'opération.</returns>
+        Task<string> UpdateSeatAsync(UpdateSeatDto updateSeatDto);
+
+        /// <summary>
+        /// Récupère la liste des sièges d'une salle spécifique.
+        /// </summary>
+        /// <param name="theaterId">L'identifiant de la salle.</param>
+        /// <returns>Une liste de sièges sous forme de DTOs.</returns>
+        Task<IEnumerable<SeatDto>> GetSeatsByTheaterIdAsync(int theaterId);
     }
 }

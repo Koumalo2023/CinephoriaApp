@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { SeatDto, AddHandicapSeatDto, RemoveHandicapSeatDto } from '../models/seat.models';
+import { SeatDto, AddHandicapSeatDto, RemoveHandicapSeatDto, UpdateSeatDto, Seat } from '../models/seat.models';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -28,6 +28,24 @@ export class SeatsService {
    */
   addHandicapSeat(addHandicapSeatDto: AddHandicapSeatDto): Observable<{ Message: string }> {
     return this.http.post<{ Message: string }>(`${this.apiUrl}/handicap-add-seat`, addHandicapSeatDto);
+  }
+
+   /**
+   * Récupère tous les sièges d'une salle de cinéma par son identifiant.
+   * @param theaterId L'identifiant de la salle.
+   * @returns Observable contenant la liste des sièges.
+   */
+   getSeatsByTheaterId(theaterId: number): Observable<Seat[]> {
+    return this.http.get<Seat[]>(`${this.apiUrl}/theater/${theaterId}`);
+  }
+
+  /**
+   * Met à jour un siège existant.
+   * @param updateSeatDto Les nouvelles informations du siège.
+   * @returns Observable contenant un message de réussite.
+   */
+   updateSeat(updateSeatDto: UpdateSeatDto): Observable<{ Message: string }> {
+    return this.http.put<{ Message: string }>(`${this.apiUrl}/update`, updateSeatDto);
   }
 
   /**

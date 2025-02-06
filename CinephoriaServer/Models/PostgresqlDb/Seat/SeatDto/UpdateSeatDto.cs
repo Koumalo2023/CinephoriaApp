@@ -1,6 +1,8 @@
-﻿namespace CinephoriaServer.Models.PostgresqlDb
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CinephoriaServer.Models.PostgresqlDb
 {
-    public class SeatDto
+    public class UpdateSeatDto
     {
         /// <summary>
         /// Identifiant unique du siège.
@@ -8,28 +10,23 @@
         public int SeatId { get; set; }
 
         /// <summary>
-        /// Identifiant de la salle à laquelle appartient le siège.
-        /// </summary>
-        public int TheaterId { get; set; }
-
-        /// <summary>
         /// Numéro ou identifiant du siège dans la salle (ex: "A1", "B2").
         /// </summary>
-        public string SeatNumber { get; set; }
-
-        /// <summary>
-        /// Numéro ou identifiant du siège dans la salle (ex: "A1", "B2").
-        /// </summary>
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        [Required]
+        [StringLength(10, ErrorMessage = "Le numéro de siège ne peut pas dépasser 10 caractères.")]
+        public string SeatNumber { get; set; } = string.Empty;
 
         /// <summary>
         /// Indique si le siège est réservé pour les personnes à mobilité réduite.
         /// </summary>
+        [Required]
         public bool IsAccessible { get; set; }
 
         /// <summary>
         /// Indique si le siège est disponible pour réservation.
         /// </summary>
+        [Required]
         public bool IsAvailable { get; set; }
     }
+
 }

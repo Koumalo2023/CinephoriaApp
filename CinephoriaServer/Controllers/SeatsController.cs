@@ -98,5 +98,47 @@ namespace CinephoriaServer.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur inattendue s'est produite lors de la suppression du siège réservé pour personnes à mobilité réduite.");
             }
         }
+
+        /// <summary>
+        /// Récupère la liste des sièges d'une salle donnée.
+        /// </summary>
+        /// <param name="theaterId">L'identifiant de la salle.</param>
+        /// <returns>Une liste de sièges.</returns>
+        [HttpGet("theater/{theaterId}")]
+        public async Task<IActionResult> GetSeatsByTheaterId(int theaterId)
+        {
+            try
+            {
+                var seats = await _seatService.GetSeatsByTheaterIdAsync(theaterId);
+                return Ok(seats);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur s'est produite.");
+            }
+        }
+
+        /// <summary>
+        /// Met à jour les informations d'un siège existant.
+        /// </summary>
+        /// <param name="updateSeatDto">Les nouvelles informations du siège.</param>
+        /// <returns>Un message indiquant le succès de l'opération.</returns>
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateSeat([FromBody] UpdateSeatDto updateSeatDto)
+        {
+            try
+            {
+                var result = await _seatService.UpdateSeatAsync(updateSeatDto);
+                return Ok(new { Message = result });
+            }
+            catch (ApiException ex)
+            {
+                return StatusCode(ex.StatusCode, ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur inattendue s'est produite.");
+            }
+        }
     }
 }

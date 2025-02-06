@@ -2,13 +2,15 @@
     <app-navigation [isSidebarHidden]="isSidebarHidden"></app-navigation>
     <div class="main">
         <app-nav-bar (toggleSidebar)="onToggleSidebar()"></app-nav-bar>
-        <main class="content px-3 py-2">
-            <div class="container-fluid">
-                <router-outlet />
+        <main class="content px-5 py-5">
+            <div class="row">
+                <div class="main-fluid">
+                    <router-outlet />
+                </div>
             </div>
         </main>
         <footer class="footer">
-            <div class="container-fluid">
+            <div class="footer-fluid">
                 <div class="row text-muted">
                     <div class="col-6 text-start my-4">
 
