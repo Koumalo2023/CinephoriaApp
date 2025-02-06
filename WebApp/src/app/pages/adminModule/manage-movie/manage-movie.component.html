@@ -1,1 +1,247 @@
-<p>manage-movie works!</p>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header pb-0">
+                <ul ngbNav aria-busy="true" #nav="ngbNav" class="nav-tabs nav profile-tabs">
+                    <li class="nav-item" [ngbNavItem]="1">
+                        <a href="javascript:" ngbNavLink class="nav-link">
+                          <i class="bi bi-film me-2"></i>
+                            Gestion des Films
+                        </a>
+                        <ng-template ngbNavContent>
+                            <app-container [showHeader]="false">
+                                <div class="container mt-2">
+                                    <!-- Bouton pour ajouter un nouveau film -->
+                                    <button class="btn btn-primary mb-2" (click)="openCreateOffcanvas()">
+                                      <i class="bi bi-plus-circle"></i> Ajouter un Film
+                                    </button>
+                                  
+                                    <!-- Tableau des films -->
+                                    <table class="table table-striped">
+                                      <thead>
+                                        <tr>
+                                          <th>Titre</th>
+                                          <th>Description</th>
+                                          <th>Genre</th>
+                                          <th>Durée</th>
+                                          <th>Réalisateur</th>
+                                          <th>Date de sortie</th>
+                                          <th>Âge minimum</th>
+                                          <th>Affiches</th>
+                                          <th>Actions</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr *ngFor="let movie of movies">
+                                          <td>{{ movie.title }}</td>
+                                          <td>{{ movie.description | slice:0:50 }}...</td>
+                                          <td>{{ getFormattedGenre(movie.genre) }}</td>
+                                          <td>{{ movie.duration }}</td>
+                                          <td>{{ movie.director }}</td>
+                                          <td>{{ movie.releaseDate | date:'mediumDate' }}</td>
+                                          <td>{{ movie.minimumAge }}</td>
+                                          <td>
+                                            <div *ngIf="movie.posterUrls.length > 0">
+                                              <img
+                                                *ngFor="let posterUrl of movie.posterUrls"
+                                                [src]="posterUrl"
+                                                alt="{{ movie.title }} Poster"
+                                                style="max-width: 50px; max-height: 70px; margin-right: 5px;"
+                                              />
+                                            </div>
+                                            <span *ngIf="movie.posterUrls.length === 0">Aucune affiche</span>
+                                          </td>
+                                          <td>
+                                            <!-- Bouton pour éditer un film -->
+                                            <button
+                                              class="btn btn-secondary btn-sm mx-2"
+                                              (click)="openEditOffcanvas(movie)"
+                                              title="Éditer"
+                                            >
+                                              <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <!-- Bouton pour supprimer un film -->
+                                            <button
+                                              class="btn btn-danger btn-sm"
+                                              (click)="deleteMovie(movie.movieId)"
+                                              title="Supprimer"
+                                            >
+                                              <i class="bi bi-trash"></i>
+                                            </button>
+                                          </td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                            </app-container>
+                        </ng-template>
+                    </li>
+                    <li class="nav-item" [ngbNavItem]="2">
+                        <a href="javascript:" ngbNavLink class="nav-link">
+                          <i class="bi bi-easel2 me-2"></i>
+                            Gestion des séances de films
+                        </a>
+                        <ng-template ngbNavContent>
+                            <app-container [showHeader]="false">
+                                <!-- gestion des séances de cinema -->
+                            </app-container>
+                        </ng-template>
+                    </li>
+                    <li class="nav-item" [ngbNavItem]="3">
+                        <a href="javascript:" ngbNavLink class="nav-link">
+                          <i class="bi bi-chat-left-dots me-2"></i>
+                            Gestion de reviews des films
+                        </a>
+                        <ng-template ngbNavContent>
+                        
+                        </ng-template>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div [ngbNavOutlet]="nav" class="mt-2"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Offcanvas pour créer ou modifier un film -->
+<button
+  class="d-none"
+  type="button"
+  data-bs-toggle="offcanvas"
+  data-bs-target="#manageMovieCanvas"
+  aria-controls="manageMovieCanvas"
+></button>
+<div
+  class="offcanvas offcanvas-end"
+  tabindex="-1"
+  id="manageMovieCanvas"
+  aria-labelledby="manageMovieCanvasLabel"
+>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="manageMovieCanvasLabel">
+      {{ mode === 'create' ? 'Ajouter un nouveau film' : 'Modifier le film' }}
+    </h5>
+    <button
+      type="button"
+      class="btn-close text-reset"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
+  </div>
+  <div class="offcanvas-body">
+    <!-- Formulaire centralisé avec form-floating -->
+    <form [formGroup]="movieForm" (ngSubmit)="submitForm()">
+      <!-- Champ Titre -->
+      <div class="mb-3">
+        <label for="title" class="form-label">Titre</label>
+        <input
+          type="text"
+          class="form-control"
+          id="title"
+          formControlName="title"
+          required
+        />
+      </div>
+
+      <!-- Champ Description -->
+      <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <textarea
+          class="form-control"
+          id="description"
+          formControlName="description"
+          rows="3"
+          required
+        ></textarea>
+      </div>
+
+      <!-- Champ Genre -->
+      <div class="mb-3">
+        <label for="genre" class="form-label">Genre</label>
+        <select class="form-select" id="genre" formControlName="genre" required>
+          <option *ngFor="let genre of movieGenres" [value]="genre">{{ genre }}</option>
+        </select>
+      </div>
+
+      <!-- Champ Durée -->
+      <div class="mb-3">
+        <label for="duration" class="form-label">Durée</label>
+        <input
+          type="text"
+          class="form-control"
+          id="duration"
+          formControlName="duration"
+          required
+        />
+      </div>
+
+      <!-- Champ Réalisateur -->
+      <div class="mb-3">
+        <label for="director" class="form-label">Réalisateur</label>
+        <input
+          type="text"
+          class="form-control"
+          id="director"
+          formControlName="director"
+          required
+        />
+      </div>
+
+      <!-- Champ Date de sortie -->
+      <div class="mb-3">
+        <label for="releaseDate" class="form-label">Date de sortie</label>
+        <input
+          type="date"
+          class="form-control"
+          id="releaseDate"
+          formControlName="releaseDate"
+          required
+        />
+      </div>
+
+      <!-- Champ Âge minimum -->
+      <div class="mb-3">
+        <label for="minimumAge" class="form-label">Âge minimum</label>
+        <input
+          type="number"
+          class="form-control"
+          id="minimumAge"
+          formControlName="minimumAge"
+          required
+        />
+      </div>
+
+      <!-- Champ Affiches -->
+      <div class="mb-3" *ngIf="mode === 'edit' && movieForm.get('posterUrls')?.value.length > 0">
+        <label class="form-label">Affiches actuelles</label>
+        <div>
+          <img
+            *ngFor="let posterUrl of movieForm.get('posterUrls')?.value"
+            [src]="posterUrl"
+            alt="Poster"
+            style="max-width: 50px; max-height: 70px; margin-right: 5px;"
+          />
+        </div>
+      </div>
+
+      <!-- Bouton pour télécharger une nouvelle affiche -->
+      <div class="mb-3" *ngIf="mode === 'edit'">
+        <label for="uploadPoster" class="form-label">Télécharger une nouvelle affiche</label>
+        <input
+          type="file"
+          class="form-control"
+          id="uploadPoster"
+          (change)="onPosterUpload($event)"
+          accept="image/*"
+        />
+      </div>
+
+      <!-- Bouton de soumission -->
+      <button type="submit" class="btn btn-primary" [disabled]="movieForm.invalid">
+        {{ mode === 'create' ? 'Créer' : 'Enregistrer' }}
+      </button>
+    </form>
+  </div>
+</div>

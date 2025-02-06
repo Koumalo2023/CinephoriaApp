@@ -1,0 +1,223 @@
+<!-- Conteneur principal -->
+<div class="container mt-2">
+    <div *ngIf="movies.length > 0; else noData">
+      <!-- Accordion pour afficher les films et leurs séances -->
+      <div class="accordion" id="movieAccordion">
+        <div class="accordion-item" *ngFor="let movie of movies; let i = index">
+          <!-- Header de l'accordéon (Nom du film) -->
+          <h2 class="accordion-header" [id]="'heading' + i">
+            <button
+              class="accordion-button"
+              type="button"
+              data-bs-toggle="collapse"
+              [attr.data-bs-target]="'#collapse' + i"
+              [attr.aria-expanded]="i === 0 ? 'true' : 'false'"
+              [attr.aria-controls]="'collapse' + i"
+            >
+              {{ movie.title }}
+            </button>
+          </h2>
+  
+          <!-- Body de l'accordéon (Informations sur les séances) -->
+          <div
+            [id]="'collapse' + i"
+            class="accordion-collapse collapse"
+            [class.show]="i === 0"
+            [attr.aria-labelledby]="'heading' + i"
+            data-bs-parent="#movieAccordion"
+          >
+            <div class="accordion-body">
+              <!-- Bouton pour ajouter une nouvelle séance -->
+              <button
+                class="btn btn-primary btn-sm me-2 mb-2"
+                (click)="openCreateShowtimeOffcanvas(movie.movieId)"
+              >
+                <i class="bi bi-plus-circle"></i> Ajouter une séance
+              </button>
+  
+              <!-- Tableau des séances -->
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Salle</th>
+                    <th>Cinéma</th>
+                    <th>Date et heure de début</th>
+                    <th>Qualité de projection</th>
+                    <th>Prix ajusté</th>
+                    <th>Promotion</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let showtime of showtimesByMovie[movie.movieId]">
+                    <td>{{ showtime.showtimeId }}</td>
+                    <td>{{ showtime.cinemaId }}</td>
+                    <td>{{ showtime.startTime | date:'medium' }}</td>
+                    <td>{{ showtime.quality }}</td>
+                    <td>{{ showtime.priceAdjustment }} €</td>
+                    <td>
+                      <span *ngIf="showtime.isPromotion" class="text-success">Oui</span>
+                      <span *ngIf="!showtime.isPromotion" class="text-danger">Non</span>
+                    </td>
+                    <td>
+                      <!-- Bouton pour éditer une séance -->
+                      <button
+                        class="btn btn-secondary btn-sm me-2"
+                        (click)="openEditShowtimeOffcanvas(showtime)"
+                        title="Éditer"
+                      >
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <!-- Bouton pour supprimer une séance -->
+                      <button
+                        class="btn btn-danger btn-sm"
+                        (click)="deleteShowtime(showtime.showtimeId)"
+                        title="Supprimer"
+                      >
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Message si aucune donnée n'est disponible -->
+    <ng-template #noData>
+      <div class="alert alert-info text-center">
+        Aucun film ou séance disponible.
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Bouton pour déclencher l'offcanvas (caché si nécessaire) -->
+<button
+class="d-none"
+type="button"
+data-bs-toggle="offcanvas"
+data-bs-target="#showtimeOffcanvas"
+aria-controls="showtimeOffcanvas"
+></button>
+
+<!-- Offcanvas pour gérer les séances -->
+<div
+class="offcanvas offcanvas-end"
+tabindex="-1"
+id="showtimeOffcanvas"
+aria-labelledby="showtimeOffcanvasLabel"
+>
+<div class="offcanvas-header">
+  <h5 class="offcanvas-title" id="showtimeOffcanvasLabel">
+    {{ mode === 'create' ? 'Ajouter une nouvelle séance' : 'Modifier la séance' }}
+  </h5>
+  <button
+    type="button"
+    class="btn-close text-reset"
+    data-bs-dismiss="offcanvas"
+    aria-label="Close"
+  ></button>
+</div>
+<div class="offcanvas-body">
+  <!-- Formulaire avec floating labels -->
+  <form [formGroup]="showtimeForm" (ngSubmit)="submitForm()">
+    <!-- Champ ID du film -->
+    <div class="mb-3">
+      <label for="movieId" class="form-label">Film</label>
+      <input
+        type="text"
+        class="form-control"
+        id="movieId"
+        formControlName="movieId"
+        readonly
+      />
+    </div>
+
+    <!-- Champ ID de la salle -->
+    <div class="mb-3">
+      <label for="theaterId" class="form-label">Salle</label>
+      <input
+        type="text"
+        class="form-control"
+        id="theaterId"
+        formControlName="theaterId"
+        required
+      />
+    </div>
+
+    <!-- Champ ID du cinéma -->
+    <div class="mb-3">
+      <label for="cinemaId" class="form-label">Cinéma</label>
+      <input
+        type="text"
+        class="form-control"
+        id="cinemaId"
+        formControlName="cinemaId"
+        required
+      />
+    </div>
+
+    <!-- Champ Date et heure de début -->
+    <div class="mb-3">
+      <label for="startTime" class="form-label">Date et heure de début</label>
+      <input
+        type="datetime-local"
+        class="form-control"
+        id="startTime"
+        formControlName="startTime"
+        required
+      />
+    </div>
+
+    <!-- Champ Qualité de projection -->
+    <div class="mb-3">
+      <label for="quality" class="form-label">Qualité de projection</label>
+      <select
+        class="form-select"
+        id="quality"
+        formControlName="quality"
+        required
+      >
+        <option *ngFor="let quality of projectionQualityOptions" [value]="quality.index">
+          {{ quality }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Champ Prix ajusté -->
+    <div class="mb-3">
+      <label for="priceAdjustment" class="form-label">Prix ajusté</label>
+      <input
+        type="number"
+        class="form-control"
+        id="priceAdjustment"
+        formControlName="priceAdjustment"
+        required
+      />
+    </div>
+
+    <!-- Champ Promotion -->
+    <div class="mb-3">
+      <label for="isPromotion" class="form-label">Promotion</label>
+      <input
+        type="checkbox"
+        class="form-check-input"
+        id="isPromotion"
+        formControlName="isPromotion"
+      />
+    </div>
+
+    <!-- Bouton de soumission -->
+    <button
+      type="submit"
+      class="btn btn-primary w-100"
+      [disabled]="showtimeForm.invalid"
+    >
+      {{ mode === 'create' ? 'Ajouter' : 'Enregistrer' }}
+    </button>
+  </form>
+</div>
+</div>
