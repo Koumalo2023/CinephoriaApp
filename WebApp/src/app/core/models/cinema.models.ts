@@ -8,6 +8,7 @@ export interface CinemaDto {
     city: string;
     country: string;
     openingHours: string;
+    theaterCount?: number;
     theaters: TheaterDto[];
   }
 

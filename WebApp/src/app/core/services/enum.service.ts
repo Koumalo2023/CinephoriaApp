@@ -70,4 +70,11 @@ export class EnumService {
     public static getEnumValues<T>(enumObj: Record<string, T>): T[] {
         return Object.values(enumObj).filter(value => typeof value === 'string') as T[];
     }
+
+    public static getEnumOptions<T>(enumObj: Record<string, T>): { index: number; value: T }[] {
+        return Object.keys(enumObj).map((key, index) => ({
+            index,
+            value: enumObj[key as keyof typeof enumObj]
+        }));
+    }
 }
