@@ -83,7 +83,7 @@
                         </a>
                         <ng-template ngbNavContent>
                             <app-container [showHeader]="false">
-                                <!-- gestion des séances de cinema -->
+                                <app-manage-showtime></app-manage-showtime>
                             </app-container>
                         </ng-template>
                     </li>
@@ -161,7 +161,7 @@
       <div class="mb-3">
         <label for="genre" class="form-label">Genre</label>
         <select class="form-select" id="genre" formControlName="genre" required>
-          <option *ngFor="let genre of movieGenres" [value]="genre">{{ genre }}</option>
+          <option *ngFor="let genre of movieGenres" [value]="genre.index">{{ genre.value }}</option>
         </select>
       </div>
 

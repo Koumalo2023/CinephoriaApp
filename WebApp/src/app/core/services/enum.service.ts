@@ -42,7 +42,9 @@ export class EnumService {
         FourDX: '4DX',
         ThreeD: '3D',
         IMAX: 'IMAX',
-        FourK: '4K'
+        FourK: '4K',
+        Standard2D:'2D',
+        DolbyCinema:'DolbyC'
     } as const;
 
     // Enum pour les statuts des incidents
@@ -77,4 +79,8 @@ export class EnumService {
             value: enumObj[key as keyof typeof enumObj]
         }));
     }
+
+    static getEnumIndex(enumObject: any, value: string | number): number {
+        return Object.values(enumObject).indexOf(value);
+      }
 }

@@ -26,6 +26,11 @@ namespace CinephoriaServer.Repository
         /// <param name="sessionId">L'identifiant de la séance à supprimer.</param>
         /// <returns>Une tâche asynchrone.</returns>
         Task DeleteSessionAsync(int sessionId);
+
+        Task<List<Showtime>> GetAllShowtimesAsync();
+
+
+        Task<List<Showtime>> GetUpcomingShowtimesAsync();
     }
 
 
@@ -91,5 +96,28 @@ namespace CinephoriaServer.Repository
             _context.Set<Showtime>().Remove(showtime);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<Showtime>> GetAllShowtimesAsync()
+        {
+            return await _context.Set<Showtime>()
+                .Include(s => s.Movie)
+                .Include(s => s.Cinema)
+                .Include(s => s.Theater)
+                .ToListAsync();
+        }
+
+        public async Task<List<Showtime>> GetUpcomingShowtimesAsync()
+        {
+            var today = DateTime.Today;
+
+            return await _context.Set<Showtime>()
+                .Include(s => s.Movie)
+                .Include(s => s.Cinema)
+                .Include(s => s.Theater)
+                .Where(s => s.StartTime >= today)
+                .OrderBy(s => s.StartTime)
+                .ToListAsync();
+        }
+
     }
 }

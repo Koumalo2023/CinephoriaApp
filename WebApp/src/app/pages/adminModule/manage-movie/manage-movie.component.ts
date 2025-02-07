@@ -9,18 +9,20 @@ import * as bootstrap from 'bootstrap';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { ContainerComponent } from '@app/layourt/sharedComponents/container/container.component';
 import { EnumService } from '@app/core/services/enum.service';
+import { ManageShowtimeComponent } from './manage-showtime/manage-showtime.component';
 
 @Component({
   selector: 'app-manage-movie',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ContainerComponent, NgbNavModule],
+  imports: [CommonModule, ReactiveFormsModule, ManageShowtimeComponent, ContainerComponent, NgbNavModule],
   templateUrl: './manage-movie.component.html',
   styleUrl: './manage-movie.component.scss'
 })
 export class ManageMovieComponent implements OnInit {
   movies: MovieDto[] = [];
   mode: 'create' | 'edit' = 'create';
-  movieGenres: string[] = EnumService.getEnumValues(EnumService.MovieGenre);
+  movieGenres : { index: number; value: string }[] =
+  EnumService.getEnumOptions(EnumService.MovieGenre);
   movieForm!: FormGroup;
 
   constructor(
@@ -76,7 +78,7 @@ export class ManageMovieComponent implements OnInit {
     } else {
       // Mode création : initialiser avec des valeurs vides
       this.movieForm = this.fb.group({
-        movieId: [null], // Non requis en mode création
+        movieId: 0,
         title: ['', Validators.required],
         description: ['', Validators.required],
         genre: ['', Validators.required],
@@ -128,25 +130,29 @@ export class ManageMovieComponent implements OnInit {
 
     const formValue = this.movieForm.value;
 
-    if (this.mode === 'create') {
-      // Mode création : appeler la méthode createMovie
-      this.movieService.createMovie(formValue as CreateMovieDto).subscribe(
-        (response) => this.handleSuccessResponse(response),
-        (error) => this.handleError(error)
-      );
-    } else if (this.mode === 'edit') {
-      // Mode édition : appeler la méthode updateMovie
-      this.movieService.updateMovie(formValue as UpdateMovieDto).subscribe(
-        (response) => this.handleSuccessResponse(response),
-        (error) => this.handleError(error)
-      );
+    formValue.genre = Number(formValue.genre);
+
+    if (formValue.releaseDate) {
+      const date = new Date(formValue.releaseDate);
+      formValue.releaseDate = date.toISOString();
     }
+
+    // Définir l'action à exécuter en fonction du mode (create ou edit)
+        const movieAction$ = this.mode === 'create'
+          ? this.movieService.createMovie(formValue as CreateMovieDto)
+          : this.movieService.updateMovie(formValue as UpdateMovieDto);
+      
+        // Souscrire à l'action sélectionnée
+        movieAction$.subscribe(
+          (response) => this.handleSuccessResponse(response), // Gestion de la réponse réussie
+          (error) => this.handleError(error) // Gestion des erreurs
+        );
   }
 
   // Gestion de la réponse réussie
   private handleSuccessResponse(response: { Message: string }): void {
     this.loadingService.hide(); 
-    this.alertService.showAlert(response.Message, 'success');
+    this.alertService.showAlert('Action réalisée avec succès', 'success');
     this.loadMovies(); // Rafraîchir la liste des films
     // Fermer l'offcanvas après soumission
     const manageMovieElement = document.getElementById('manageMovieCanvas');
