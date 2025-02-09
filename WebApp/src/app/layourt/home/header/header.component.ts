@@ -49,10 +49,10 @@ export class HeaderComponent {
           this.dropdownTitle = 'Administration';
           break;
         default:
-          this.dropdownTitle = 'Dropdown';
+          this.dropdownTitle = 'Mon Espace';
       }
     } else {
-      this.dropdownTitle = 'Dropdown';
+      this.dropdownTitle = 'Mon Espace';
     }
   }
 

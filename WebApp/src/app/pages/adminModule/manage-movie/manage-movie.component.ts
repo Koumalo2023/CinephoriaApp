@@ -10,11 +10,12 @@ import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { ContainerComponent } from '@app/layourt/sharedComponents/container/container.component';
 import { EnumService } from '@app/core/services/enum.service';
 import { ManageShowtimeComponent } from './manage-showtime/manage-showtime.component';
+import { ManageReviewsComponent } from './manage-reviews/manage-reviews.component';
 
 @Component({
   selector: 'app-manage-movie',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ManageShowtimeComponent, ContainerComponent, NgbNavModule],
+  imports: [CommonModule, ReactiveFormsModule, ManageReviewsComponent, ManageShowtimeComponent, ContainerComponent, NgbNavModule],
   templateUrl: './manage-movie.component.html',
   styleUrl: './manage-movie.component.scss'
 })

@@ -1,0 +1,109 @@
+<div class="container mt-4">
+    <!-- Titre -->
+    <h2>Gestion des Avis pour le Film</h2>
+  
+    <!-- Formulaire pour Soumettre ou Modifier un Avis -->
+    <div class="card mb-4">
+      <div class="card-header">
+        {{ mode === 'create' ? 'Soumettre un nouvel avis' : 'Modifier un avis' }}
+      </div>
+      <div class="card-body">
+        <form [formGroup]="reviewForm" (ngSubmit)="mode === 'create' ? submitReview() : updateReview()">
+          <!-- Champ Note -->
+          <div class="mb-3">
+            <label for="rating" class="form-label">Note (1 à 5)</label>
+            <input
+              type="number"
+              class="form-control"
+              id="rating"
+              formControlName="rating"
+              min="1"
+              max="5"
+              required
+            />
+            <div *ngIf="reviewForm.get('rating')?.invalid && reviewForm.get('rating')?.touched" class="text-danger">
+              La note doit être comprise entre 1 et 5.
+            </div>
+          </div>
+  
+          <!-- Champ Commentaire -->
+          <div class="mb-3">
+            <label for="comment" class="form-label">Commentaire (optionnel)</label>
+            <textarea
+              class="form-control"
+              id="comment"
+              formControlName="comment"
+              rows="3"
+              maxlength="500"
+            ></textarea>
+            <small class="form-text text-muted">Limite : 500 caractères.</small>
+          </div>
+  
+          <!-- Bouton de Soumission -->
+          <button type="submit" class="btn btn-primary" [disabled]="reviewForm.invalid">
+            {{ mode === 'create' ? 'Soumettre' : 'Mettre à jour' }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-secondary ms-2"
+            *ngIf="mode === 'edit'"
+            (click)="resetForm()"
+          >
+            Annuler
+          </button>
+        </form>
+      </div>
+    </div>
+  
+    <!-- Liste des Avis -->
+    <div class="card" *ngIf="reviews.length > 0; else noReviews">
+      <div class="card-header">Liste des Avis</div>
+      <ul class="list-group list-group-flush">
+        <li
+          class="list-group-item d-flex justify-content-between align-items-center"
+          *ngFor="let review of reviews"
+        >
+          <div>
+            <strong>Note :</strong> {{ review.rating }}<br />
+            <strong>Commentaire :</strong> {{ review.comment || 'Aucun commentaire' }}
+          </div>
+          <div class="btn-group">
+            <!-- Bouton Valider -->
+            <button
+              type="button"
+              class="btn btn-success btn-sm me-2"
+              (click)="validateReview(review.movieRatingId)"
+              *ngIf="!review.movieRatingId"
+            >
+              Valider
+            </button>
+  
+            <!-- Bouton Modifier -->
+            <button
+              type="button"
+              class="btn btn-primary btn-sm me-2"
+              (click)="openEditReview(review)"
+            >
+              Modifier
+            </button>
+  
+            <!-- Bouton Supprimer -->
+            <button
+              type="button"
+              class="btn btn-danger btn-sm"
+              (click)="deleteReview(review.movieRatingId)"
+            >
+              Supprimer
+            </button>
+          </div>
+        </li>
+      </ul>
+    </div>
+  
+    <!-- Message si Aucun Avis -->
+    <ng-template #noReviews>
+      <div class="alert alert-info text-center">
+        Aucun avis disponible pour ce film.
+      </div>
+    </ng-template>
+  </div>

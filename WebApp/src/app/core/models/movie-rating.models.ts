@@ -18,7 +18,7 @@ export interface CreateMovieRatingDto {
 
 export interface MovieReviewDto {
   movieId: number;
-  userId: string;
+  appUserId: string;
   rating: number;
   description?: string;
 }
