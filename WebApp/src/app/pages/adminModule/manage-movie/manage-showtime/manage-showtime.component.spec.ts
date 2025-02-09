@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { UserDashboardComponent } from './user-dashboard.component';
+import { ManageShowtimeComponent } from './manage-showtime.component';
 
-describe('UserDashboardComponent', () => {
-  let component: UserDashboardComponent;
-  let fixture: ComponentFixture<UserDashboardComponent>;
+describe('ManageShowtimeComponent', () => {
+  let component: ManageShowtimeComponent;
+  let fixture: ComponentFixture<ManageShowtimeComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [UserDashboardComponent]
+      imports: [ManageShowtimeComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(UserDashboardComponent);
+    fixture = TestBed.createComponent(ManageShowtimeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

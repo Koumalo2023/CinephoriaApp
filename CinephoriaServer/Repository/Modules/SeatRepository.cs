@@ -52,6 +52,21 @@ namespace CinephoriaServer.Repository
         /// <param name="theaterId">L'identifiant de la salle.</param>
         /// <returns>Une tâche asynchrone.</returns>
         Task DeleteSeatsByTheaterIdAsync(int theaterId);
+
+        /// <summary>
+        /// Met à jour les informations d'un siège existant.
+        /// </summary>
+        /// <param name="seat">L'objet siège contenant les nouvelles informations.</param>
+        /// <returns>Une tâche asynchrone.</returns>
+        Task UpdateSeatAsync(Seat seat);
+
+        /// <summary>
+        /// Récupère tous les sièges d'une salle de cinéma par son identifiant.
+        /// </summary>
+        /// <param name="theaterId">L'identifiant de la salle.</param>
+        /// <returns>Une liste de sièges.</returns>
+        Task<IEnumerable<Seat>> GetSeatsByTheaterIdAsync(int theaterId);
+
     }
     public class SeatRepository : EFRepository<Seat>, ISeatRepository
     {
@@ -184,6 +199,43 @@ namespace CinephoriaServer.Repository
             _context.Set<Seat>().RemoveRange(seats);
             await _context.SaveChangesAsync();
         }
+
+        /// <summary>
+        /// Met à jour un siège existant dans la base de données.
+        /// </summary>
+        /// <param name="seat">L'objet siège contenant les nouvelles informations.</param>
+        /// <returns>Une tâche asynchrone.</returns>
+        public async Task UpdateSeatAsync(Seat seat)
+        {
+            var existingSeat = await _context.Set<Seat>().FindAsync(seat.SeatId);
+
+            if (existingSeat == null)
+            {
+                throw new ArgumentException("Seat not found.");
+            }
+
+            // Mise à jour des propriétés
+            existingSeat.SeatNumber = seat.SeatNumber;
+            existingSeat.IsAccessible = seat.IsAccessible;
+            existingSeat.IsAvailable = seat.IsAvailable;
+            existingSeat.UpdatedAt = DateTime.UtcNow;
+
+            _context.Set<Seat>().Update(existingSeat);
+            await _context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Récupère la liste des sièges d'une salle spécifique.
+        /// </summary>
+        /// <param name="theaterId">L'identifiant de la salle.</param>
+        /// <returns>Une liste de sièges sous forme de DTOs.</returns>
+        public async Task<IEnumerable<Seat>> GetSeatsByTheaterIdAsync(int theaterId)
+        {
+            return await _context.Set<Seat>()
+                .Where(seat => seat.TheaterId == theaterId)
+                .ToListAsync();
+        }
+
     }
 }
 

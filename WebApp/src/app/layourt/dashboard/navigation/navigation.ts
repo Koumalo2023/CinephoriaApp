@@ -10,37 +10,31 @@ export interface NavigationItem {
 export const NAVIGATION_ITEMS: NavigationItem[] = [
   {
     title: 'Dashboard',
-    route: '/dashboard',
+    route: '/admin/dashboard',
     icon: 'bi bi-house',
     roles: ['admin', 'employee']
   },
   {
     title: 'Films',
-    route: '/manage-movie',
+    route: '/admin/manage-movie',
     icon: 'bi bi-film',
     roles: ['admin', 'employee']
   },
   {
-    title: 'Séances',
-    route: '/manage-showtime',
-    icon: 'bi bi-calendar',
-    roles: ['admin', 'employee']
-  },
-  {
     title: 'Cinéma',
-    route: '/manage-theater',
+    route: '/admin/manage-cinema',
     icon: 'bi bi-building',
     roles: ['admin', 'employee']
   },
   {
     title: 'Réservations',
-    route: '/manage-reservation',
+    route: '/admin/manage-reservation',
     icon: 'bi bi-ticket',
     roles: ['admin', 'employee']
   },
   {
     title: 'Employés',
-    route: '/manage-employee',
+    route: '/admin/manage-employee',
     icon: 'bi bi-people',
     roles: ['admin','employee']
   }

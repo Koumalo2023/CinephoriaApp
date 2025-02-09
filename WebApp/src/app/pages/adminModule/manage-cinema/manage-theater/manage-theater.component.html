@@ -1,0 +1,114 @@
+<div class="container mt-2">
+  <div *ngIf="cinemas.length > 0; else noData">
+    <!-- Accordion pour afficher les cinémas et leurs salles -->
+    <div class="accordion" id="cinemaAccordion">
+      <div class="accordion-item" *ngFor="let cinema of cinemas; let i = index">
+
+        <!-- Header de l'accordéon (Nom du cinéma) -->
+        <h2 class="accordion-header" [id]="'heading' + i">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse"
+            [attr.data-bs-target]="'#collapse' + i" [attr.aria-expanded]="i === 0 ? 'true' : 'false'"
+            [attr.aria-controls]="'collapse' + i">
+            {{ cinema.name }}
+          </button>
+        </h2>
+
+        <!-- Body de l'accordéon (Informations sur les salles) -->
+        <div [id]="'collapse' + i" class="accordion-collapse collapse" [class.show]="i === 0"
+          [attr.aria-labelledby]="'heading' + i" data-bs-parent="#cinemaAccordion">
+          <button class="btn btn-primary btn-sm me-2" (click)="openCreateTheaterOffcanvas(cinema.cinemaId)">
+            <i class="bi bi-eye"></i> Ajouter une salle
+          </button>
+          <div class="accordion-body">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Nom</th>
+                  <th>Nombre de Sièges</th>
+                  <th>Qualité de Projection</th>
+                  <th>Fonctionnel</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let theater of theatersByCinema[cinema.cinemaId]">
+                  <td>{{ theater.name }}</td>
+                  <td>{{ theater.seatCount }}</td>
+                  <td>{{ getFormattedProjectionQuality(theater.projectionQuality) }}</td>
+                  <td>
+                    <span *ngIf="theater.isOperational" class="text-success">Oui</span>
+                    <span *ngIf="!theater.isOperational" class="text-danger">Non</span>
+                  </td>
+                  <td>
+
+                    <!-- Bouton pour éditer une salle -->
+                    <button class="btn btn-secondary btn-sm me-2" (click)="openEditTheaterOffcanvas(theater)"
+                      title="Éditer">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <!-- Bouton pour supprimer une salle -->
+                    <button class="btn btn-danger btn-sm" (click)="deleteTheater(theater.theaterId)" title="Supprimer">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message si aucune donnée n'est disponible -->
+  <ng-template #noData>
+    <div class="alert alert-info text-center">
+      Aucun cinéma ou salle de cinéma disponible.
+    </div>
+  </ng-template>
+</div>
+
+
+<!-- Bouton pour déclencher l'offcanvas (caché si nécessaire) -->
+<button class="d-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#theaterOffcanvas"
+  aria-controls="theaterOffcanvas"></button>
+
+<!-- Offcanvas pour gérer les salles de cinéma -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="theaterOffcanvas" aria-labelledby="theaterOffcanvasLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="theaterOffcanvasLabel">{{ mode === 'create' ? 'Ajouter une nouvelle salle' :
+      'Modifier la salle' }}</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <!-- Formulaire avec floating labels -->
+    <form [formGroup]="theaterForm" (ngSubmit)="submitTheaterForm()">
+      <!-- Champ Nom -->
+      <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="name" formControlName="name" placeholder="Nom" required />
+        <label for="name">Nom</label>
+      </div>
+
+      <!-- Champ Nombre de Sièges -->
+      <div class="mb-3">
+        <label for="seatCount" class="form-label">Nombre de Sièges</label>
+        <input type="number" class="form-control" id="seatCount" formControlName="seatCount" required />
+      </div>
+
+      <!-- Champ Qualité de Projection -->
+      <div class="mb-3">
+        <label for="projectionQuality" class="form-label">Qualité de Projection</label>
+        <select class="form-select" id="projectionQuality" formControlName="projectionQuality" required>
+          <option *ngFor="let quality of projectionQualityOptions" [value]="quality.index">
+            {{ quality.value }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Bouton de soumission -->
+      <button type="submit" class="btn btn-primary w-100" [disabled]="theaterForm.invalid">
+        {{ mode === 'create' ? 'Ajouter' : 'Enregistrer' }}
+      </button>
+    </form>
+  </div>
+</div>

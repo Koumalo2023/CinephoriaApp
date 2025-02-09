@@ -4,7 +4,8 @@ import { Observable } from 'rxjs';
 import {
   CreateMovieRatingDto,
   UpdateMovieRatingDto,
-  MovieReviewDto
+  MovieReviewDto,
+  MovieRatingDto
 } from '../models/movie-rating.models';
 import { environment } from 'src/environments/environment';
 
@@ -48,8 +49,8 @@ export class MovieRatingService {
    * @param movieId L'identifiant du film.
    * @returns Observable contenant une liste d'avis.
    */
-  getMovieReviews(movieId: number): Observable<MovieReviewDto[]> {
-    return this.http.get<MovieReviewDto[]>(`${this.apiUrl}/movie/${movieId}`);
+  getMovieReviews(movieId: number): Observable<MovieRatingDto[]> {
+    return this.http.get<MovieRatingDto[]>(`${this.apiUrl}/movie/${movieId}`);
   }
 
   /**
@@ -57,8 +58,8 @@ export class MovieRatingService {
    * @param reviewId L'identifiant de l'avis.
    * @returns Observable contenant les détails de l'avis.
    */
-  getReviewDetails(reviewId: number): Observable<MovieReviewDto> {
-    return this.http.get<MovieReviewDto>(`${this.apiUrl}/${reviewId}`);
+  getReviewDetails(reviewId: number): Observable<MovieRatingDto> {
+    return this.http.get<MovieRatingDto>(`${this.apiUrl}/${reviewId}`);
   }
 
   /**

@@ -18,11 +18,13 @@
       box-shadow: $box-shadow-base;
       border-radius: 10px;
       background: $backgroundColorl2;
+     
 
       @media (min-width: 768px) {
         max-width: auto;
         width: auto;
       }
+      
     }
 
     .footer {

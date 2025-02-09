@@ -113,7 +113,7 @@ namespace CinephoriaServer.Services
         {
 
             // Récupérer les séances
-            var showtimes = await _unitOfWork.Showtimes.GetAllAsync();
+            var showtimes = await _unitOfWork.Showtimes.GetAllShowtimesAsync();
 
             // Vérifier que les séances ne sont pas null
             if (showtimes == null)
@@ -163,12 +163,12 @@ namespace CinephoriaServer.Services
         {
             return quality switch
             {
-                ProjectionQuality.FourDX => 20.00m,
-                ProjectionQuality.ThreeD => 15.00m,
-                ProjectionQuality.IMAX => 18.00m,
-                ProjectionQuality.FourK => 12.00m,
-                ProjectionQuality.Standard2D => 10.00m,
-                ProjectionQuality.DolbyCinema => 22.00m,
+                ProjectionQuality.FourDX => 8.00m,
+                ProjectionQuality.ThreeD => 6.50m,
+                ProjectionQuality.IMAX => 9.00m,
+                ProjectionQuality.FourK => 5.00m,
+                ProjectionQuality.Standard2D => 4.00m,
+                ProjectionQuality.DolbyCinema => 3.00m,
                 _ => throw new ArgumentException("Qualité de projection non reconnue.")
             };
 

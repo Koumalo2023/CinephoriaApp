@@ -17,7 +17,9 @@ export enum UserRole {
     FourDX = '4DX',
     ThreeD = '3D',
     IMAX = 'IMAX',
-    FourK = '4K'
+    FourK = '4K',
+    Standard2D='2D',
+    DolbyCinema='DolbyC'
   }
   
   // Enum pour les statuts des incidents

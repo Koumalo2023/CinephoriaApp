@@ -33,6 +33,14 @@ namespace CinephoriaServer.Services
             return seatDtos;
         }
 
+
+        /// <inheritdoc />
+        public async Task<IEnumerable<SeatDto>> GetSeatsByTheaterIdAsync(int theaterId)
+        {
+            var seats = await _unitOfWork.Seats.GetSeatsByTheaterIdAsync(theaterId);
+            return _mapper.Map<IEnumerable<SeatDto>>(seats);
+        }
+
         /// <summary>
         /// Ajoute un siège réservé pour les personnes à mobilité réduite dans une salle de cinéma.
         /// </summary>
@@ -60,5 +68,35 @@ namespace CinephoriaServer.Services
             _logger.LogInformation("Siège réservé pour personnes à mobilité réduite supprimé avec succès dans la salle avec l'ID {TheaterId}.", theaterId);
             return true;
         }
+
+        // <summary>
+        /// Met à jour un siège existant.
+        /// </summary>
+        /// <param name="updateSeatDto">Les nouvelles informations du siège.</param>
+        /// <returns>Un message indiquant le succès de l'opération.</returns>
+        public async Task<string> UpdateSeatAsync(UpdateSeatDto updateSeatDto)
+        {
+            // Récupérer le siège existant
+            var existingSeat = await _unitOfWork.Seats.GetByIdAsync(updateSeatDto.SeatId);
+            if (existingSeat == null)
+            {
+                throw new ApiException("Siège non trouvé.", StatusCodes.Status404NotFound);
+            }
+
+            // Mapper les nouvelles valeurs sur l'entité existante
+            _mapper.Map(updateSeatDto, existingSeat);
+            existingSeat.UpdatedAt = DateTime.UtcNow;
+
+            // Enregistrer les modifications dans la base de données
+            await _unitOfWork.Seats.UpdateSeatAsync(existingSeat);
+
+            _logger.LogInformation("Siège avec l'ID {SeatId} mis à jour avec succès.", updateSeatDto.SeatId);
+            return "Siège mis à jour avec succès.";
+        }
+
+
+        
+
+
     }
 }

@@ -16,6 +16,7 @@ export interface ShowtimeDto {
   }
 
   export interface CreateShowtimeDto {
+    showtimeId?:number;
     movieId: number;
     theaterId: number;
     cinemaId: number;

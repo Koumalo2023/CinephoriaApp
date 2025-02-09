@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './layourt/home/home.component';
 import { AuthComponent } from './layourt/auth/auth.component';
 import { DashboardComponent } from './layourt/dashboard/dashboard.component';
+import { AuthGuard } from './core/guards/auth.guard';
 
 
 export const routes: Routes = [
@@ -46,6 +47,8 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: DashboardComponent,
+    canActivate: [AuthGuard], 
+    data: { expectedRole: 'Admin, Employee' }, 
     children: [
       {
         path: '',

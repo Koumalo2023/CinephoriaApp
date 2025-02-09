@@ -3,8 +3,8 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FilterMoviesRequestDto, MovieDto } from '@app/core/models/movie.models';
 import { MovieService } from '@app/core/services/movie.service';
 import { MovieCardComponent } from '@app/layourt/sharedComponents/movie-card/movie-card.component';
-import { MovieFilterComponent } from './movie-filter/movie-filter.component';
 import { Router } from '@angular/router';
+import { MovieFilterComponent } from './movie-filter/movie-filter.component';
 
 @Component({
   selector: 'app-movie-list',

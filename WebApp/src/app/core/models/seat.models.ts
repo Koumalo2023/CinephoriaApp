@@ -5,6 +5,14 @@ export interface SeatDto {
     isAccessible: boolean;
     isAvailable: boolean;
   }
+  
+  export interface Seat {
+    seatId: number;
+    seatNumber: string;
+    isAccessible: boolean;
+    isAvailable: boolean;
+  }
+  
 
   export interface AddHandicapSeatDto {
     theaterId: number;
@@ -16,6 +24,14 @@ export interface SeatDto {
     seatNumber: string;
     isAccessible: boolean;
   }
+
+  export interface UpdateSeatDto {
+    seatId: number; 
+    seatNumber: string; // Numéro du siège (ex: "A1", "B2")
+    isAccessible: boolean;
+    isAvailable: boolean;
+  }
+  
 
   export interface RemoveHandicapSeatDto {
     theaterId: number;
