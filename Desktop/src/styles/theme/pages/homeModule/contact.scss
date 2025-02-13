@@ -1,0 +1,58 @@
+  .contact-container {
+    
+
+      h2 {
+          font-size: 1.8rem;
+          font-weight: bold;
+          margin-bottom: 2rem;
+      }
+
+      .loading-spinner {
+          margin-top: 5rem;
+          font-size: 1.2rem;
+
+          .spinner-border {
+              width: 4rem;
+              height: 4rem;
+          }
+      }
+
+      .contact-form {
+          
+          
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+          .form-floating {
+              position: relative;
+
+              input,
+              textarea {
+                  height: auto;
+                  resize: none; 
+              }
+
+              label {
+                  font-size: 0.9rem;
+                  color: #6c757d;
+              }
+          }
+
+          button {
+              padding: 0.75rem;
+              transition: background-color 0.3s ease;
+          }
+      }
+
+      p {
+          font-size: 1rem;
+        //   color: $secondary-color;
+
+          &.error {
+            //   color: $danger-color; // Style pour les messages d'erreur
+          }
+
+          &.success {
+            //   color: $success-color; // Style pour les messages de succès
+          }
+      }
+  }
