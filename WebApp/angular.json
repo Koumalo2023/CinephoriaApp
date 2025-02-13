@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "AnguVersion": {
+    "Cinephoria": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -72,10 +72,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "AnguVersion:build:production"
+              "buildTarget": "Cinephoria:build:production"
             },
             "development": {
-              "buildTarget": "AnguVersion:build:development"
+              "buildTarget": "Cinephoria:build:development"
             }
           },
           "defaultConfiguration": "development"

@@ -1,40 +1,69 @@
-<div *ngIf="movie" class="movie-details">
-  <!-- Afficher l'affiche du film -->
-  <img [src]="movie.posterUrls[0]" alt="{{ movie.title }}" class="movie-poster" />
+<div class="container-fluid p-0 movie-details-container">
+  <div class="row justify-content-center">
+    <!-- Message de chargement ou d'erreur -->
+    <div *ngIf="!movie" class="col-12 text-center loading-message">
+      <p *ngIf="!errorMessage">Chargement des détails du film...</p>
+      <p *ngIf="errorMessage" class="text-danger">{{ errorMessage }}</p>
+    </div>
 
-  <!-- Informations principales du film -->
-  <div class="movie-info">
-    <h1 class="movie-title">{{ movie.title }}</h1>
-    <p class="movie-director">Réalisé par {{ movie.director }}</p>
-    <p class="movie-release-date">Sorti le {{ movie.releaseDate | date: 'dd/MM/yyyy' }}</p>
-    <p class="movie-genre">Genre : {{ movie.genre }}</p>
-    <p class="movie-duration">Durée : {{ movie.duration }}</p>
-    <p class="movie-age">Âge minimum : {{ movie.minimumAge }}+</p>
-    <p class="movie-rating">Note moyenne : {{ movie.averageRating }}/5</p>
+    <!-- Section de chargement -->
+    <div *ngIf="isLoading" class="col-12 text-center loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-3">Chargement en cours...</p>
+    </div>
+
+    <!-- Contenu principal -->
+    <div *ngIf="movie" class="col-12">
+      <div class="row g-4">
+        <!-- Image du film (gauche) -->
+        <div class="col-12 col-md-4">
+          <img
+            [src]="movie.posterUrls[0]"
+            alt="{{ movie.title }}"
+            class="img-fluid movie-poster"
+          />
+        </div>
+
+        <!-- Informations sur le film et séances (droite) -->
+        <div class="col-12 col-md-8">
+          <div class="movie-info">
+            <h1 class="movie-title">{{ movie.title }}</h1>
+            <p><strong>Réalisateur :</strong> {{ movie.director }}</p>
+            <p><strong>Date de sortie :</strong> {{ movie.releaseDate | date: 'dd/MM/yyyy' }}</p>
+            <p><strong>Genre :</strong> {{ movie.genre }}</p>
+            <p><strong>Durée :</strong> {{ movie.duration }}</p>
+            <p><strong>Âge minimum :</strong> {{ movie.minimumAge }}+</p>
+            <p><strong>Note moyenne :</strong> {{ movie.averageRating }}/5</p>
+          </div>
+
+          <!-- Description du film -->
+          <div class="movie-description mt-4">
+            <h2>Synopsis</h2>
+            <p>{{ movie.description }}</p>
+          </div>
+
+          <!-- Sélections des séances -->
+          <app-showtime-selector
+            [movieId]="movieId"
+            [showtimes]="movie.showtimes || []"
+            (showtimeSelected)="onShowtimeSelected($event)"
+            class="mt-4"
+          ></app-showtime-selector>
+        </div>
+      </div>
+
+      <!-- Avis des utilisateurs -->
+      <app-movie-rating
+        [reviews]="movie.ratings || []"
+        class="mt-4"
+      ></app-movie-rating>
+
+      <!-- Bouton Retour -->
+      <div class="text-center mt-4">
+        <button class="btn btn-secondary" (click)="onGoBack()">Retour à la liste des films</button>
+      </div>
+    </div>
   </div>
-
-  <!-- Description du film -->
-  <div class="movie-description">
-    <h2>Synopsis</h2>
-    <p>{{ movie.description }}</p>
-  </div>
-
-  <app-showtime-selector [movieId]="movieId" [showtimes]="movie.showtimes || []"
-    (showtimeSelected)="onShowtimeSelected($event)">
-  </app-showtime-selector>
-
-  <!-- Avis des utilisateurs -->
-  <app-movie-rating [reviews]="movie.ratings || []"></app-movie-rating>
-
-  <button (click)="onGoBack()">Retour à la liste des films</button>
-
-  <div *ngIf="errorMessage">
-    {{ errorMessage }}
-  </div>
-</div>
-
-<!-- Message de chargement ou d'erreur -->
-<div *ngIf="!movie" class="loading">
-  <p *ngIf="!errorMessage">Chargement des détails du film...</p>
-  <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
 </div>

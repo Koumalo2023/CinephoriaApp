@@ -12,6 +12,8 @@ $button-hover-bg-color: #977100;
   box-shadow: $card-box-shadow;
   overflow: hidden;
   transition: transform 0.2s ease-in-out;
+  width: 80%;
+  min-height: 60vh;
 
   &:hover {
     transform: scale(1.02);
@@ -20,7 +22,7 @@ $button-hover-bg-color: #977100;
   .movie-poster {
     width: 100%;
     height: auto;
-    max-height: $image-max-height; // Hauteur maximale de l'image
+    max-height: $image-max-height;
     object-fit: cover;
     border-top-left-radius: $card-border-radius;
     border-top-right-radius: $card-border-radius;
@@ -31,6 +33,7 @@ $button-hover-bg-color: #977100;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    justify-content: space-between;
 
     .card-title {
     align-self: center;

@@ -1,17 +1,23 @@
 <div class="showtime-selector">
-    <h2>Séances disponibles</h2>
-    <div *ngIf="showtimes && showtimes.length > 0; else noShowtimes">
-      <div *ngFor="let showtime of showtimes" class="showtime">
-        <div class="showtime-info">
+  <h2>Séances disponibles</h2>
+  <div *ngIf="showtimes && showtimes.length > 0; else noShowtimes">
+    <div *ngFor="let showtime of showtimes" class="showtime mb-3">
+      <div class="showtime-info d-flex justify-content-between align-items-center">
+        <div>
           <span class="time">{{ showtime.startTime | date: 'dd/MM/yyyy HH:mm' }}</span>
-          <span class="quality">{{ showtime.quality }}</span>
-          <span class="price">{{ showtime.price | currency: 'EUR' }}</span>
-          <span *ngIf="showtime.isPromotion" class="promotion">Promotion</span>
+          <span class="quality ms-2">{{ showtime.quality }}</span>
         </div>
-        <button class="select-button" (click)="onShowtimeSelected(showtime)">Sélectionner</button>
+        <div>
+          <span class="price me-2">{{ showtime.price | currency: 'EUR' }}</span>
+          <span *ngIf="showtime.isPromotion" class="badge bg-success">Promotion</span>
+        </div>
+        <button class="btn btn-primary select-button" (click)="onShowtimeSelected(showtime)">
+          Sélectionner
+        </button>
       </div>
     </div>
-    <ng-template #noShowtimes>
-      <p>Aucune séance disponible pour ce film.</p>
-    </ng-template>
   </div>
+  <ng-template #noShowtimes>
+    <p class="text-muted">Aucune séance disponible pour ce film.</p>
+  </ng-template>
+</div>

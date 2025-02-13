@@ -21,7 +21,7 @@ export class MovieCardComponent {
 
   get truncatedDescription(): string {
     return this.movie.description.length > 120
-      ? this.movie.description.slice(0, 120) + '...'
+      ? this.movie.description.slice(0, 80) + '...'
       : this.movie.description;
   }
 

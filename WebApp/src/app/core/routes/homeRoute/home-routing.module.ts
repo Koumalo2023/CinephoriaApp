@@ -21,6 +21,10 @@ const routes: Routes = [
     loadComponent: () => import('@app/pages/homeModule/reservation/reservation.component').then(m => m.ReservationComponent) 
   },
   { 
+    path: 'contacts', 
+    loadComponent: () => import('@app/pages/homeModule/contacts/contacts.component').then(m => m.ContactsComponent) 
+  },
+  { 
     path: 'profile',
     canActivate: [AuthGuard], 
     data: { expectedRole: 'Admin, Employee, User' },  

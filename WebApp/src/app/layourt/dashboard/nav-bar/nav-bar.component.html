@@ -14,12 +14,12 @@
     <div class="user-dropdown" *ngIf="isMenuOpen">
       <!-- Welcome Message -->
       <div class="dropdown-header">
-        Bienvenue, {{ userName }}
+        Bienvenue, {{ myUser?.firstName }} {{ myUser?.lastName }}
       </div>
       <div class="dropdown-divider"></div>
 
       <!-- Profile Link -->
-      <a class="dropdown-item" [routerLink]="['/profile']">
+      <a class="dropdown-item" [routerLink]="['/home/profile']">
         <i class="bi bi-person"></i> Profile
       </a>
 

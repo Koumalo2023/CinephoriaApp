@@ -1,0 +1,49 @@
+.movie-list-container {
+    // padding: $spacing-md;
+    .loading-spinner {
+      margin-top: 5rem;
+      font-size: 1.2rem;
+  
+      .spinner-border {
+        width: 4rem;
+        height: 4rem;
+      }
+    }
+    h2 {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-bottom: 2rem;
+    }
+  
+    .filter-section {
+      padding: $spacing-sm;
+  
+      label {
+        font-weight: bold;
+        margin-right: 0.5rem;
+      }
+  
+      select,
+      input {
+        margin-right: 1rem;
+        padding: 0.5rem;
+        border: 1px solid #ced4da;
+        // border-radius: $border-radius-sm;
+      }
+  
+      
+      
+    }
+  
+    .movie-list {
+      .movie-card {
+        width: 100%;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+  
+        &:hover {
+          transform: scale(1.02);
+        }
+      }
+    }
+  }

@@ -1,15 +1,23 @@
 <div class="movie-ratings">
-    <h2>Avis des utilisateurs</h2>
-    <div *ngIf="reviews && reviews.length > 0; else noReviews">
-      <div *ngFor="let review of reviews" class="review">
-        <div class="review-header">
+  <h2>Avis des utilisateurs</h2>
+  <div *ngIf="reviews && reviews.length > 0; else noReviews">
+    <div *ngFor="let review of reviews" class="review mb-3">
+      <div class="review-header d-flex justify-content-between align-items-center">
+        <div>
           <span class="user-rating">{{ review.rating }}/10</span>
-          <span class="user-id">Utilisateur : {{ review.appUserId }}</span>
+          <span class="user-id ms-2">Utilisateur : {{ review.appUserId }}</span>
         </div>
-        <p class="review-description" *ngIf="review.comment">{{ review.comment }}</p>
+        <div>
+          <i
+            class="bi bi-star-fill text-warning"
+            *ngFor="let i of Array(review.rating).fill(0)"
+          ></i>
+        </div>
       </div>
+      <p class="review-description" *ngIf="review.comment">{{ review.comment }}</p>
     </div>
-    <ng-template #noReviews>
-      <p>Aucun avis disponible pour ce film.</p>
-    </ng-template>
   </div>
+  <ng-template #noReviews>
+    <p class="text-muted">Aucun avis disponible pour ce film.</p>
+  </ng-template>
+</div>

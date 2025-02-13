@@ -1,6 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, HostListener, OnInit, Output } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
+import { User } from '@app/core/models/user.models';
+import { AlertService } from '@app/core/services/alert.service';
+import { AuthService } from '@app/core/services/auth.service';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
@@ -12,11 +15,29 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 })
 export class NavBarComponent  {
   @Output() toggleSidebar = new EventEmitter<void>();
- 
   isMenuOpen: boolean = false;
-
-  userName: string = "John Doe";
+  isLoggedIn = false;
+  myUser!:User | null;
+  userRole: string | null = null; 
   
+  constructor(private authService: AuthService, private router: Router, private alertService: AlertService) {}
+  
+  ngOnInit() {
+    this.myUser = this.authService.getCurrentUser();
+    this.isLoggedIn = this.authService.isLoggedIn();
+    this.userRole = this.myUser?.role || null;
+    
+    
+    this.authService.authStatus.subscribe(status => {
+      this.isLoggedIn = status;
+      this.userRole = this.authService.getCurrentUser()?.role || null;
+    });
+   
+    this.authService.authStatus.subscribe(status => {
+      this.isLoggedIn = status;
+     
+    });
+  }
   toggleSidebarVisibility() {
     this.toggleSidebar.emit();
   }
@@ -33,8 +54,8 @@ export class NavBarComponent  {
   }
 
   logout() {
-    // Add your logout logic here
-    console.log("User logged out");
-    // You might want to redirect the user to the login page after logout
+    this.authService.logout();
+    this.router.navigate(['/home/home']);
+    this.alertService.showAlert('Vous avez été déconnecté avec succès.', 'success');
   }
 }

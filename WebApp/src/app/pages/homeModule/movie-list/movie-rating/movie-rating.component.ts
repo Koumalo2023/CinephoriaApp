@@ -11,4 +11,5 @@ import { MovieRatingDto, MovieReviewDto } from '@app/core/models/movie-rating.mo
 })
 export class MovieRatingComponent {
   @Input() reviews: MovieRatingDto[] = [];
+  Array = Array;
 }

@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { CreateEmployeeDto, EmployeeProfileDto, LoginResponseDto, LoginUserDto,  RegisterUserDto, UpdateAppUserDto, UpdateEmployeeDto, User, UserDto, UserProfileDto } from '../models/user.models';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { ContactRequest, CreateEmployeeDto, EmployeeProfileDto, LoginResponseDto, LoginUserDto,  RegisterUserDto, UpdateAppUserDto, UpdateEmployeeDto, User, UserDto, UserProfileDto } from '../models/user.models';
+import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 
 
@@ -11,7 +11,10 @@ import { Router } from '@angular/router';
 })
 export class AuthService {
   private authStatusSubject = new BehaviorSubject<boolean>(this.isLoggedIn());
-  authStatus = this.authStatusSubject.asObservable();
+  public authStatus = this.authStatusSubject.asObservable();
+
+  private currentUserSubject = new BehaviorSubject<User | null>(this.getCurrentUser());
+  public currentUser$ = this.currentUserSubject.asObservable();
 
   private apiUrl = `${environment.apiUrl}/Auth`;
 
@@ -39,6 +42,7 @@ export class AuthService {
           try {
             const user = this.mapProfileToUser(response.profile);
             this.storeUserData(user, response.token);
+            this.updateAuthStatus(true);
           } catch (error) {
             console.error('Erreur lors de la conversion du profil en User :', error);
           }
@@ -157,6 +161,11 @@ export class AuthService {
     });
   }
 
+  sendContactEmail(request: ContactRequest): Observable<any> {
+    console.log('Requête envoyée :', request); 
+    return this.http.post(`${this.apiUrl}/send-contact`, request);
+  }
+
   /**
    * Demande de réinitialisation de mot de passe pour un utilisateur normal.
    * @param email L'adresse email de l'utilisateur.
@@ -218,7 +227,9 @@ changeEmployeePassword(changePasswordDto: { oldPassword: string; newPassword: st
   }
 
 
-  // Fonction pour obtenir l'utilisateur connecté
+  /**
+   * Obtient l'utilisateur connecté depuis le localStorage.
+   */
   getCurrentUser(): User | null {
     if (typeof window !== 'undefined' && localStorage) {
       const userJson = localStorage.getItem('user');
@@ -227,15 +238,20 @@ changeEmployeePassword(changePasswordDto: { oldPassword: string; newPassword: st
     return null;
   }
 
-  // Fonction pour sauvegarder l'utilisateur et le token dans le localStorage
+  /**
+   * Sauvegarde l'utilisateur et le token dans le localStorage.
+   */
   private storeUserData(user: User, token: string): void {
     if (typeof window !== 'undefined' && localStorage) {
-      console.log("Utilisateur connecté :", token);
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
+      this.currentUserSubject.next(user); // Notifier les changements
     }
   }
 
+  /**
+   * Récupère le token JWT depuis le localStorage.
+   */
   getToken(): string | null {
     if (typeof window !== 'undefined' && localStorage) {
       return localStorage.getItem('token');
@@ -243,41 +259,58 @@ changeEmployeePassword(changePasswordDto: { oldPassword: string; newPassword: st
     return null;
   }
 
-  // Fonction pour se déconnecter
+  /**
+   * Déconnecte l'utilisateur en supprimant les données du localStorage.
+   */
   logout(): void {
     if (typeof window !== 'undefined' && localStorage) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      localStorage.removeItem('authToken');
-      this.authStatusSubject.next(false);
+      this.updateAuthStatus(false); // Mettre à jour l'état de connexion
+      this.currentUserSubject.next(null); // Réinitialiser l'utilisateur
       this.router.navigate(['/login']);
     }
   }
 
-  // Fonction pour vérifier si un utilisateur est connecté
+  /**
+   * Vérifie si un utilisateur est connecté.
+   */
   isLoggedIn(): boolean {
     return !!this.getToken();
   }
 
-  // Vérifier si l'utilisateur est un administrateur
+  /**
+   * Vérifie si l'utilisateur est un administrateur.
+   */
   isAdmin(): boolean {
     const user = this.getCurrentUser();
     return user ? user.role.includes('Admin') : false;
   }
 
-  // Vérifier si l'utilisateur est un employé
+  /**
+   * Vérifie si l'utilisateur est un employé.
+   */
   isEmployee(): boolean {
     const user = this.getCurrentUser();
     return user ? user.role.includes('Employee') : false;
   }
 
-  // Vérifier si l'utilisateur est un utilisateur
+  /**
+   * Vérifie si l'utilisateur est un utilisateur standard.
+   */
   isUser(): boolean {
     const user = this.getCurrentUser();
     return user ? user.role.includes('User') : false;
   }
 
+  /**
+   * Met à jour l'état de connexion via le sujet authStatusSubject.
+   */
+  private updateAuthStatus(status: boolean): void {
+    this.authStatusSubject.next(status);
+  }
 
+  
   private mapEmployeeProfileDtoToUser(profile: EmployeeProfileDto): User {
     return {
       appUserId: profile.employeeId,
@@ -324,6 +357,10 @@ changeEmployeePassword(changePasswordDto: { oldPassword: string; newPassword: st
   };
 }
 
+/**
+   * Mappe les données de profil reçues depuis le serveur vers l'interface User.
+   */
+  
 private mapProfileToUser(profile: UserProfileDto | EmployeeProfileDto | string): User {
   if (typeof profile === 'string') {
     try {
@@ -343,6 +380,5 @@ private mapProfileToUser(profile: UserProfileDto | EmployeeProfileDto | string):
 
   throw new Error('Le type de profil n\'est pas reconnu.');
 }
-
 }
 

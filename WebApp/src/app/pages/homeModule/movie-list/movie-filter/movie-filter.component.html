@@ -1,18 +1,47 @@
-<div class="movie-filter">
-  <label for="genre">Genre:</label>
-  <select id="genre" (change)="onGenreChange($event)">
-    <option value="">Tous les genres</option>
-    <option *ngFor="let genre of movieGenres" [value]="genre">{{ genre }}</option>
-  </select>
+<!-- Bouton pour ouvrir la modale -->
+<button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">
+  Filtrer
+</button>
 
-  <label for="cinema">Cinéma:</label>
-  <select id="cinema" (change)="onCinemaChange($event)">
-    <option value="">Tous les cinémas</option>
-    <option *ngFor="let cinema of cinemas" [value]="cinema.cinemaId">{{ cinema.name }}</option>
-  </select>
+<!-- Modale -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="filterModalLabel">Filtrer les films</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Genre -->
+        <div class="form-group mb-3">
+          <label for="genre">Genre:</label>
+          <select id="genre" class="form-select" (change)="onGenreChange($event)">
+            <option value="">Tous les genres</option>
+            <option *ngFor="let genre of movieGenres" [value]="genre">{{ genre }}</option>
+          </select>
+        </div>
 
-  <label for="date">Date:</label>
-  <input id="date" type="date" (change)="onDateChange($event)" />
+        <!-- Cinéma -->
+        <div class="form-group mb-3">
+          <label for="cinema">Cinéma:</label>
+          <select id="cinema" class="form-select" (change)="onCinemaChange($event)">
+            <option value="">Tous les cinémas</option>
+            <option *ngFor="let cinema of cinemas" [value]="cinema.cinemaId">{{ cinema.name }}</option>
+          </select>
+        </div>
 
-  <button (click)="applyFilters()">Appliquer les filtres</button>
+        <!-- Date -->
+        <div class="form-group mb-3">
+          <label for="date">Date:</label>
+          <input id="date" type="date" class="form-control" (change)="onDateChange($event)" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="applyFilters()" data-bs-dismiss="modal">
+          Appliquer les filtres
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

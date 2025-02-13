@@ -9,7 +9,7 @@ import { ContainerComponent } from '@app/layourt/sharedComponents/container/cont
 @Component({
   selector: 'app-home-movie',
   standalone: true,
-  imports: [CommonModule, MovieCardComponent, ContainerComponent],
+  imports: [CommonModule, MovieCardComponent],
   templateUrl: './home-movie.component.html',
   styleUrl: './home-movie.component.scss'
 })
