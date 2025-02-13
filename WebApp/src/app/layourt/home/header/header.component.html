@@ -2,33 +2,50 @@
   <div class="header-logo">
     <a routerLink="/home/home">Cinephoria</a>
   </div>
-
   <nav class="header-nav">
     <ul>
+      <!-- Liens communs -->
       <li><a routerLink="/home/home"><i class="bi bi-house pe-2"></i> Accueil</a></li>
       <li><a routerLink="/home/movie-list"><i class="bi bi-film pe-2"></i> Films</a></li>
       <li><a routerLink="/home/reservation"><i class="bi bi-info-circle pe-2"></i> Réservation</a></li>
       <li><a routerLink="/home/contacts"><i class="bi bi-envelope pe-2"></i> Contact</a></li>
-  
-      <li class="nav-item dropdown" *ngIf="!isLoggedIn">
-        <a routerLink="/auth/login" class="nav-link"><i class="bi bi-person-circle pe-2"></i> Login</a>
-      </li>
-  
-      <li class="nav-item dropdown" *ngIf="isLoggedIn">
-        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-          {{ dropdownTitle }}
-        </a>
-        <div class="dropdown-menu">
-          <p>Bonjour, {{ username }}</p>
-          <div class="dropdown-divider"></div>
-          <a routerLink="/home/profile" class="dropdown-item" href="#">Profil</a>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item" (click)="logout()">Déconnexion</a>
-        </div>
-      </li>
+
+      <!-- Gestion des liens selon le rôle -->
+      <ng-container *ngIf="isLoggedIn; else loginSection">
+        <!-- Déconnexion -->
+        <li class="nav-item dropdown">
+          <a routerLink="/home/home"  (click)="logout()" class="nav-link"><i class="bi bi-box-arrow-right"></i> Déconnexion</a>
+        </li>
+
+        <!-- Mon Espace pour User -->
+        <li *ngIf="userRole === 'User'" class="nav-item dropdown">
+          <a routerLink="/home/profile" class="nav-link"><i class="bi bi-person-circle pe-2"></i> Mon Espace</a>
+        </li>
+
+        <!-- Administration pour Admin -->
+        <li *ngIf="userRole === 'Admin'" class="nav-item dropdown">
+          <a routerLink="/admin/dashboard" class="nav-link"><i class="bi bi-building pe-2"></i> Administration</a>
+        </li>
+
+        <!-- Intranet pour Employee -->
+        <li *ngIf="userRole === 'Employee'" class="nav-item dropdown">
+          <a routerLink="/admin/dashboard" class="nav-link"><i class="bi bi-briefcase pe-2"></i> Intranet</a>
+        </li>
+      </ng-container>
+
+      <!-- Section Login si l'utilisateur n'est pas connecté -->
+      <ng-template #loginSection>
+        <li class="nav-item dropdown">
+          <a routerLink="/auth/login" class="nav-link"><i class="bi bi-person-circle pe-2"></i> Login</a>
+        </li>
+        <!-- Déconnexion -->
+        <li class="nav-item dropdown">
+          <a routerLink="/auth/register"   class="nav-link"><i class="bi bi-r-square"></i> Inscription</a>
+        </li>
+      </ng-template>
     </ul>
   </nav>
-  
+
   <button class="mobile-toggle" (click)="toggleMenu()">
     <i class="bi bi-list"></i>
   </button>
@@ -45,7 +62,7 @@
     <!-- Mobile view: Conditional Login / Profile & Logout -->
     <li *ngIf="!isLoggedIn"><a routerLink="/login"><i class="bi bi-person-circle pe-2"></i> Login</a></li>
     <li *ngIf="isLoggedIn">
-      <a (click)="toggleDropdownMobile()"><i class="bi bi-person-circle pe-2"></i> {{ username }}</a>
+      <a (click)="toggleDropdownMobile()"><i class="bi bi-person-circle pe-2"></i> {{ myUser?.firstName }}</a>
       <ul *ngIf="isDropdownMobileOpen" class="mobile-submenu">
         <li><a routerLink="/profile"><i class="bi bi-person pe-2"></i> Profile</a></li>
         <li><a href="#" (click)="logout()"><i class="bi bi-box-arrow-right pe-2"></i> Logout</a></li>

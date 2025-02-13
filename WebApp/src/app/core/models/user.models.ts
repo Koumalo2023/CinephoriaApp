@@ -148,6 +148,13 @@ export interface UserProfileDto {
     movieRatings: MovieRatingDto[];
 }
 
+export interface ContactRequest {
+    username?: string;
+    email: string;
+    title: string;
+    description: string;
+  }
+
 
 
 

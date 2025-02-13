@@ -20,12 +20,12 @@ import { MovieRatingComponent } from '../movie-rating/movie-rating.component';
 export class MovieDetailsComponent implements OnInit {
   movieId: number | null = null;
   movie: MovieDetailsDto | null = null;
+  isLoading: boolean = false; 
   errorMessage: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private authService: AuthService,
     private movieService: MovieService,
     private loadingService: LoadingService,
     private alertService: AlertService
@@ -54,14 +54,14 @@ export class MovieDetailsComponent implements OnInit {
 
 
   private loadMovieDetails(): void {
-    this.loadingService.show();
+    this.isLoading = true;
     this.movieService.getMovieDetails(this.movieId!).subscribe(
       (data: MovieDetailsDto) => {
         this.movie = data;
-        this.loadingService.hide();
+        this.isLoading = false;
       },
       (error) => {
-        this.loadingService.hide();
+        this.isLoading = false;
         this.errorMessage = 'Erreur lors du chargement des détails du film.';
         console.error(error);
         this.alertService.showAlert(this.errorMessage, 'danger');

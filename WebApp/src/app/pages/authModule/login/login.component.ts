@@ -4,7 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { AlertService } from '../../../core/services/alert.service';
 import { CommonModule } from '@angular/common';
-import { EmployeeProfileDto, UserProfileDto } from '@app/core/models/user.models';
+import { EmployeeProfileDto, LoginUserDto, UserProfileDto } from '@app/core/models/user.models';
 import { RedirectService } from '@app/core/services/redirect.service';
 import { app } from 'server';
 
@@ -41,43 +41,29 @@ export class LoginComponent {
     }
   
     this.loading = true;
-    const loginData = {
+  
+    const loginData: LoginUserDto = {
       email: this.loginForm.value.userName,
       password: this.loginForm.value.password,
     };
   
+    // Appel de la méthode login du service AuthService
     this.authService.login(loginData).subscribe({
       next: (response) => {
         if (response.token) {
           this.alertService.showAlert('Connexion réussie !', 'success');
   
-          // Vérifier le type de `response.profile`
-          if (typeof response.profile === 'string') {
-            try {
-              // Parser la chaîne en objet
-              const parsedProfile = JSON.parse(response.profile);
-              this.handleProfile(parsedProfile);
-            } catch (error) {
-              console.error('Erreur lors de l\'analyse du profil :', error);
-              this.errorMessage = 'Erreur lors de la connexion.';
-            }
-          } else {
-            // Si `response.profile` est déjà un objet
-            this.handleProfile(response.profile);
+          // Redirection basée sur le rôle
+          const user = this.authService.getCurrentUser();
+          if (user) {
+            this.redirectBasedOnRole(user.role, user.appUserId || '');
           }
-  
-          // Rediriger en fonction du rôle ou de l'URL de redirection
-          // const redirectUrl = this.redirectService.getRedirectUrl();
-          // if (redirectUrl) {
-          //   this.router.navigateByUrl(redirectUrl);
-          //   this.redirectService.clearRedirectUrl();
-          // }
         } else {
           this.errorMessage = 'Connexion échouée. Vérifiez vos informations.';
         }
-      },  
+      },
       error: (error) => {
-        console.error("Erreur lors de la connexion :", error);
+        console.error('Erreur lors de la connexion :', error);
         this.errorMessage = 'Erreur lors de la connexion : ' + (error?.error?.message || 'Erreur inconnue');
       },
       complete: () => {
@@ -95,12 +81,17 @@ export class LoginComponent {
   private redirectBasedOnRole(role: string, userId: string): void {
     switch (role) {
       case 'Admin':
+        this.router.navigate(['/admin/dashboard']);
+        break;
+  
+      case 'Employee':
+        this.router.navigate(['/admin/dashboard', userId]);
+        break;
+  
+      case 'User':
         this.router.navigate(['/home/home']);
         break;
-      case 'Employee':
-      case 'User':
-        this.router.navigate(['/admin/dashboard/', userId]);
-        break;
+  
       default:
         this.errorMessage = 'Rôle utilisateur non reconnu.';
         console.error('Rôle non reconnu :', role);

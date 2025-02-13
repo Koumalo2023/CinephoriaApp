@@ -108,7 +108,7 @@ namespace CinephoriaServer.Services
         Task<EmployeeProfileDto> GetEmployeeProfileAsync(string employeeId);
 
 
-        // Gestion des mot de passe(Demande de changement & Réinitialisation)
+        /// Gestion des mot de passe(Demande de changement & Réinitialisation)
         /// <summary>
         /// Demande de réinitialisation de mot de passe pour un utilisateur normal.
         /// </summary>
@@ -159,5 +159,7 @@ namespace CinephoriaServer.Services
         /// <param name="changePasswordDto">Les informations de changement de mot de passe.</param>
         /// <returns>Un message indiquant si le changement de mot de passe a réussi.</returns>
         Task<string> ChangeUserPasswordAsync(string userId, ChangeUserPasswordDto changePasswordDto);
+
+        Task SendContactByEmail(string username, string title, string description, string fromEmail);
     }
 }

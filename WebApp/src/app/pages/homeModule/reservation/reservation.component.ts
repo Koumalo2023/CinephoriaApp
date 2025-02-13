@@ -25,7 +25,7 @@ import { DateFormatPipe } from '@app/core/pipes/date-format.pipe';
   styleUrl: './reservation.component.scss'
 })
 export class ReservationComponent {
-  
+  isLoading: boolean = false; 
 
   currentStep: number = 1;
   reservationDetails: any = {
@@ -36,8 +36,7 @@ export class ReservationComponent {
     price: 0
   };
 
-  constructor(private reservationService: ReservationService, private redirectService: RedirectService, 
-    private authService: AuthService,
+  constructor( private redirectService: RedirectService, 
     private route: ActivatedRoute,
     private cinemaService: CinemaService,
     private movieService: MovieService,
@@ -102,19 +101,23 @@ export class ReservationComponent {
 
   // reservation.component.ts
 private loadReservationDetails(showtimeId: number, movieId: number, cinemaId: number): void {
+  this.isLoading = true;
   // Charger les détails du cinéma
   this.cinemaService.getCinemaById(cinemaId).subscribe(cinema => {
     this.reservationDetails.cinema = cinema;
+    this.isLoading = false;
   });
 
   // Charger les détails du film
   this.movieService.getMovieDetails(movieId).subscribe(movie => {
     this.reservationDetails.movie = movie;
+    this.isLoading = false;
   });
 
   // Charger les détails de la séance
   this.showtimeService.getShowtimeDetails(showtimeId).subscribe(session => {
     this.reservationDetails.session = session;
+    this.isLoading = false;
   });
 }
 

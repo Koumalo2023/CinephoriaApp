@@ -18,16 +18,3 @@ export class RedirectService {
     return this.currentStepSubject.value;
   }
 }
-
-//Code d'exemple pour la redirection dans un composant
-// export class MovieDetailsComponent {
-//     constructor(private router: Router, private redirectService: RedirectService) {}
-  
-//     onReserveClick(): void {
-//       // Stocker l'URL actuelle avant de rediriger vers la page de connexion
-//       this.redirectService.setRedirectUrl(this.router.url);
-  
-//       // Rediriger vers la page de connexion
-//       this.router.navigate(['/login']);
-//     }
-// }

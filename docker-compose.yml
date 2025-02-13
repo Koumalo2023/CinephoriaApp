@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Service pour la base de données PostgreSQL
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # Service pour la base de données MongoDB
+  mongo:
+    image: mongo:4.4
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+
+  # Service pour le backend ASP.NET 8
+  backend:
+    build:
+      context: ./CinephoriaServer
+      dockerfile: Dockerfile
+    ports:
+      - "5000:80"
+    depends_on:
+      - postgres
+      - mongo
+    environment:
+      - ConnectionStrings:PostgreSQL=Host=postgres;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
+      - ConnectionStrings:MongoDB=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongo:27017
+
+  # Service pour le frontend Angular 18
+  frontend:
+    build:
+      context: ./WebApp
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+# Volumes pour persister les données des bases de données
+volumes:
+  postgres_data:
+  mongo_data:

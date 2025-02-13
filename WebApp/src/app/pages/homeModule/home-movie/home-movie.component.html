@@ -1,17 +1,25 @@
-<div class="container-fluid p-0  home-container ">
-  <div class="row">
-    <div class="col-12 latest-movies">
-      <div *ngIf="isLoading" class="loading-spinner">
-        Chargement en cours...
+<div class="container-fluid p-0 home-container">
+  <div class="row justify-content-center">
+    <!-- Section de chargement -->
+    <div *ngIf="isLoading" class="col-12 text-center loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
       </div>
-      <div *ngIf="!isLoading" class="movie-list">
-        <app-movie-card
-          *ngFor="let movie of movies"
-          [movie]="movie"
-          (movieSelected)="showMovieDetails($event)"
-        ></app-movie-card>
+      <p class="mt-3">Chargement en cours...</p>
+    </div>
+
+    <!-- Liste des films récents -->
+    <div *ngIf="!isLoading" class="col-12 latest-movies">
+      <h2 class="text-center mb-4">Films récemment ajoutés</h2>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="col-md-3" *ngFor="let movie of movies">
+          <app-movie-card
+            [movie]="movie"
+            (movieSelected)="showMovieDetails($event)"
+            class="movie-card"
+          ></app-movie-card>
+        </div>
       </div>
     </div>
   </div>
 </div>
-

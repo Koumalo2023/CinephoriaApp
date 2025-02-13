@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { CreateMovieRatingDto } from '@app/core/models/movie-rating.models';
 import { UserReservationDto } from '@app/core/models/reservation.models';
 import { UpdateAppUserDto, UserDto } from '@app/core/models/user.models';
+import { DefaultImagePipe } from '@app/core/pipes/default-image.pipe';
 import { AlertService } from '@app/core/services/alert.service';
 import { AuthService } from '@app/core/services/auth.service';
 import { LoadingService } from '@app/core/services/loading.service';
@@ -17,7 +18,7 @@ import * as bootstrap from 'bootstrap';
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, ContainerComponent, NgbNavModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ContainerComponent, NgbNavModule, DefaultImagePipe],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.scss'
 })
@@ -27,6 +28,7 @@ export class UserProfileComponent implements OnInit {
   userProfile!: UserDto;
   userReservations: UserReservationDto[] = [];
   selectedFile: File | null = null;
+  imageMaxHeight: string = '200px';
   createMovieRatingDto: CreateMovieRatingDto = {
     movieId: 0,
     appUserId: '',
@@ -46,6 +48,7 @@ export class UserProfileComponent implements OnInit {
   ngOnInit(): void {
     this.initializeForms();
     this.loadCurrentUser();
+      
   }
 
   /**
@@ -71,23 +74,20 @@ export class UserProfileComponent implements OnInit {
     );
   }
 
-  /**
-   * Charge l'utilisateur connecté depuis le service d'authentification.
-   */
+  
   private loadCurrentUser(): void {
     const currentUser = this.authService.getCurrentUser();
+    console.log(currentUser);
     if (currentUser) {
       this.loadUserProfile(currentUser.appUserId);
+      
       this.loadUserReservations(currentUser.appUserId);
     } else {
       this.alertService.showAlert('Aucun utilisateur connecté.', 'warning');
     }
   }
 
-  /**
-   * Charge les détails du profil utilisateur en fonction de son ID.
-   * @param userId L'ID de l'utilisateur.
-   */
+ 
   private loadUserProfile(userId: string): void {
     this.loadingService.show(); // Afficher le spinner de chargement
     this.authService.getUserProfile(userId).subscribe(
@@ -103,10 +103,28 @@ export class UserProfileComponent implements OnInit {
     );
   }
 
-  /**
-   * Charge les réservations de l'utilisateur en fonction de son ID.
-   * @param userId L'ID de l'utilisateur.
-   */
+  // getMainPosterUrl(): string {
+  //   if (!this.userProfile || !this.userProfile.profilePictureUrl) {
+  //     console.log('No valid profile picture URL found, returning default image.');
+  //     return 'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg';
+  //   }
+  
+  //   const mainUrl = this.userProfile.profilePictureUrl;
+  //   try {
+  //     // Vérifie si l'URL est valide
+  //     new URL(mainUrl);
+  //     return mainUrl;
+  //   } catch (error) {
+  //     console.warn('Invalid profile picture URL:', mainUrl);
+  //     return 'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg';
+  //   }
+  // }
+
+  // onImageLoadError(event: Event): void {
+  //   const imgElement = event.target as HTMLImageElement;
+  //   imgElement.src = 'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg';
+  // }
+
   private loadUserReservations(userId: string): void {
     this.loadingService.show(); // Afficher le spinner de chargement
     this.reservationService.getUserReservations(userId).subscribe(
@@ -256,16 +274,16 @@ export class UserProfileComponent implements OnInit {
       return;
     }
 
-    this.loadingService.show(); // Afficher le spinner de chargement
+    this.loadingService.show();
     this.authService.uploadUserProfile(currentUser.appUserId, this.selectedFile).subscribe(
       (response) => {
-        this.loadingService.hide(); // Cacher le spinner après réussite
+        this.loadingService.hide();
         this.userProfile.profilePictureUrl = response.Url;
         this.userProfileForm.patchValue({ profilePictureUrl: response.Url });
         this.alertService.showAlert('Image de profil téléchargée avec succès.', 'success');
       },
       (error) => {
-        this.loadingService.hide(); // Cacher le spinner en cas d'erreur
+        this.loadingService.hide();
         this.alertService.showAlert('Erreur lors du téléchargement de l\'image de profil.', 'danger');
       }
     );
@@ -281,10 +299,10 @@ export class UserProfileComponent implements OnInit {
       return;
     }
 
-    this.loadingService.show(); // Afficher le spinner de chargement
+    this.loadingService.show();
     this.authService.deleteUserProfileImage(currentUser.appUserId, this.userProfile.profilePictureUrl).subscribe(
       () => {
-        this.loadingService.hide(); // Cacher le spinner après réussite
+        this.loadingService.hide();
         this.userProfile.profilePictureUrl = '';
         this.userProfileForm.patchValue({ profilePictureUrl: '' });
         this.alertService.showAlert('Image de profil supprimée avec succès.', 'success');
@@ -311,7 +329,7 @@ export class UserProfileComponent implements OnInit {
       return;
     }
 
-    this.loadingService.show(); // Afficher le spinner de chargement
+    this.loadingService.show();
     const updatedProfile: UpdateAppUserDto = this.userProfileForm.value;
     this.authService.updateUserProfile(currentUser.appUserId, updatedProfile).subscribe(
       () => {

@@ -13,26 +13,21 @@
                                 <div class="col-lg-4">
                                     <div class="card">
                                         <div class="card-header">
-                                            <div class="media align-items-center">
-                                                <img class="img-radius img-fluid wid-40"
-                                                    src="assets/images/user/avatar-1.jpg" alt="User image" />
-                                                <div class="media-body mx-3">
-                                                    <h4 class="mb-1">John Doe</h4>
-                                                    <h6 class="text-muted mb-0">UI/UX Designer</h6>
-                                                </div>
+                                          <div *ngIf="userProfile" class="media align-items-center">
+                                            <img
+                                                [src]="userProfile.profilePictureUrl | defaultImage:'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg'"
+                                                alt="{{ userProfile.firstName }} {{ userProfile.lastName }}"
+                                                class="movie-poster"
+                                                [style.max-height.px]="imageMaxHeight"
+                                                />
+                                            <div class="media-body mx-3 my-4">
+                                              <h3 class="mb-1">{{ userProfile.firstName }} {{ userProfile.lastName }}</h3>
+                                              <h5 class="text-muted mb-0">{{ userProfile.email }}</h5>
+                                              <h5 class="text-muted mb-0">{{ userProfile.phoneNumber }}</h5>
                                             </div>
+                                          </div>
                                         </div>
-                                        <div class="card-body px-2 pb-0">
-                                            <div class="list-group list-group-flush">
-
-                                            </div>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row text-center">
-
-                                            </div>
-                                        </div>
-                                    </div>
+                                      </div>
                                 </div>
                                 <div class="col-lg-8">
                                     <app-container cardTitle="Modifier mon profil">

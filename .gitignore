@@ -34,11 +34,11 @@
 *.sourceLink.json
 
 # Docker
-docker-compose.yml
-docker-compose.override.yml
-*.dockerignore
-#**/Dockerfile
-#!Dockerfile* # Autoriser les Dockerfiles sp�cifiques
+**/docker-compose.override.yml  
+**/.dockerignore                
+**/data/                        
+**/logs/ 
+
 
 # ASP.NET Core
 **/appsettings.Development.json
@@ -87,3 +87,6 @@ Migrations/*Snapshot.cs
 **/obj/
 **/bin/
 global.json
+
+#variables d'environnement
+.env

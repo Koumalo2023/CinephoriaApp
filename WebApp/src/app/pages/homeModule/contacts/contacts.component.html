@@ -1,0 +1,73 @@
+<div class="container-fluid p-0 contact-container">
+  <div class="row justify-content-center">
+     
+  <div class="row justify-content-center">    
+    <div class="col-12 col-md-8 col-lg-6">
+      <!-- Titre -->
+      <h2 class="text-center mb-4">Contactez-nous</h2>
+      <app-container [showHeader]="false">
+        <form (ngSubmit)="onSubmit()" class="contact-form">
+          <!-- Champ Nom d'utilisateur (facultatif) -->
+          <div class="form-floating mb-3">
+            <input
+              id="username"
+              type="text"
+              class="form-control"
+              [(ngModel)]="contactRequest.username"
+              name="username"
+              placeholder="Nom d'utilisateur"
+            />
+            <label for="username">Nom d'utilisateur (facultatif)</label>
+          </div>
+  
+          <!-- Champ Email (obligatoire) -->
+          <div class="form-floating mb-3">
+            <input
+              id="email"
+              type="email"
+              class="form-control"
+              [(ngModel)]="contactRequest.email"
+              name="email"
+              placeholder="Email"
+              required
+            />
+            <label for="email">Email</label>
+          </div>
+  
+          <!-- Champ Titre de la demande (obligatoire) -->
+          <div class="form-floating mb-3">
+            <input
+              id="title"
+              type="text"
+              class="form-control"
+              [(ngModel)]="contactRequest.title"
+              name="title"
+              placeholder="Titre de la demande"
+              required
+            />
+            <label for="title">Titre de la demande</label>
+          </div>
+  
+          <!-- Champ Description (obligatoire) -->
+          <div class="form-floating mb-3">
+            <textarea
+              id="description"
+              class="form-control"
+              [(ngModel)]="contactRequest.description"
+              name="description"
+              placeholder="Description"
+              rows="5"
+              required
+            ></textarea>
+            <label for="description">Description</label>
+          </div>
+  
+          <!-- Bouton Envoyer -->
+          <button type="submit" class="btn btn-primary w-100">Envoyer</button>
+        </form>
+      </app-container>
+      <!-- Formulaire de contact -->
+      
+    </div>
+  </div>
+</div>

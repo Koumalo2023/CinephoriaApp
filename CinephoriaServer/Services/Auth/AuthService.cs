@@ -699,7 +699,6 @@ namespace CinephoriaServer.Services
             return "Email confirmé avec succès.";
         }
 
-
         private string GenerateJwtToken(AppUser user)
         {
             // Récupérer les rôles de l'utilisateur
@@ -827,6 +826,26 @@ namespace CinephoriaServer.Services
             {
                 registerDto.Role = UserRole.User;
             }
+        }
+
+
+        public async Task SendContactByEmail(string username, string title, string description, string fromEmail)
+        {
+            // Adresse email générique de Cinéphoria
+            string cinephoriaEmail = "contact@cinephoria.com";
+
+            // Construire le corps de l'email
+            string emailBody = $@"
+                <h2>Nouveau message de contact</h2>
+                <p><strong>Nom d'utilisateur:</strong> {(string.IsNullOrEmpty(username) ? "Non spécifié" : username)}</p>
+                <p><strong>Email:</strong> {fromEmail}</p>
+                <p><strong>Titre de la demande:</strong> {title}</p>
+                <p><strong>Description:</strong></p>
+                <p>{description}</p>
+            ";
+
+            // Envoyer l'email via EmailService
+            await _emailService.SendEmailAsync(cinephoriaEmail, title, emailBody);
         }
     }
 }
