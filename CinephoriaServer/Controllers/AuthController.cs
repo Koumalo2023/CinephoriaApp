@@ -519,5 +519,47 @@ namespace CinephoriaServer.Controllers
             }
         }
 
+        /// <summary>
+        /// Permet à un utilisateur d'envoyer un message de contact par email.
+        /// </summary>
+        /// <param name="request">Les informations du message de contact.</param>
+        /// <returns>Un résultat HTTP contenant un message de succès ou d'échec.</returns>
+        [HttpPost("send-contact")]
+        public async Task<IActionResult> SendContactEmail([FromBody] ContactRequest request)
+        {
+            try
+            {
+                // Vérifier la validité du modèle
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    return BadRequest(new { Errors = errors });
+                }
+
+                // Vérifier si les champs obligatoires sont bien remplis
+                if (string.IsNullOrEmpty(request.Email) ||
+                    string.IsNullOrEmpty(request.Title) ||
+                    string.IsNullOrEmpty(request.Description))
+                {
+                    return BadRequest(new { Message = "L'email, le titre et la description sont obligatoires." });
+                }
+
+                // Envoyer l'email via le service approprié
+                await _authService.SendContactByEmail(request.Username, request.Title, request.Description, request.Email);
+
+                return Ok(new { Message = "Votre message a été envoyé avec succès." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Une erreur s'est produite lors de l'envoi du message." });
+            }
+        }
+
     }
+
 }
+
