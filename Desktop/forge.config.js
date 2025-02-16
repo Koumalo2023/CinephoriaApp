@@ -42,4 +42,7 @@ module.exports = {
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
   ],
+  electronPackagerConfig: {
+    main: 'main.js',
+  },
 };
