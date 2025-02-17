@@ -1,59 +1,80 @@
 ﻿using ZXing;
+using ZXing.Common;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using CinephoriaServer.Models.PostgresqlDb;
-using ZXing.Common;
-
-
 
 namespace CinephoriaServer.Services
 {
-
-}
-public class QRCodeService
-{
-    /// <summary>
-    /// Génère un QRCode pour une réservation spécifique.
-    /// </summary>
-    /// <param name="reservation">La réservation pour laquelle générer le QRCode.</param>
-    /// <returns>Le QRCode sous forme de tableau de bytes (image).</returns>
-    public byte[] GenerateQRCode(Reservation reservation)
+    public class QRCodeService
     {
-        if (reservation == null)
-            throw new ArgumentNullException(nameof(reservation));
-
-        var qrCodeData = $"ReservationId:{reservation.ReservationId};ShowtimeId:{reservation.ShowtimeId};AppUserId:{reservation.AppUserId}";
-
-        var writer = new BarcodeWriterPixelData
+        /// <summary>
+        /// Génère un QRCode pour une réservation spécifique.
+        /// </summary>
+        /// <param name="reservation">La réservation pour laquelle générer le QRCode.</param>
+        /// <returns>Le QRCode sous forme de tableau de bytes (image).</returns>
+        public byte[] GenerateQRCode(Reservation reservation)
         {
-            Format = BarcodeFormat.QR_CODE,
-            Options = new EncodingOptions
+            // Vérification des entrées
+            if (reservation == null)
             {
-                Width = 300,
-                Height = 300,
-                Margin = 1
-            }
-        };
-
-        var pixelData = writer.Write(qrCodeData);
-
-        using (var bitmap = new Bitmap(pixelData.Width, pixelData.Height, System.Drawing.Imaging.PixelFormat.Format32bppRgb))
-        {
-            var bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.WriteOnly, bitmap.PixelFormat);
-            try
-            {
-                System.Runtime.InteropServices.Marshal.Copy(pixelData.Pixels, 0, bitmapData.Scan0, pixelData.Pixels.Length);
-            }
-            finally
-            {
-                bitmap.UnlockBits(bitmapData);
+                throw new ArgumentNullException(nameof(reservation), "La réservation ne peut pas être nulle.");
             }
 
-            using (var memoryStream = new MemoryStream())
+            if (reservation.ReservationId == 0 || reservation.ShowtimeId == 0 || string.IsNullOrEmpty(reservation.AppUserId))
             {
-                bitmap.Save(memoryStream, ImageFormat.Png);
-                return memoryStream.ToArray();
+                throw new ArgumentException("Les champs ReservationId, ShowtimeId et AppUserId doivent être valides.");
+            }
+
+            // Génération du contenu du QRCode
+            string qrCodeData = $"{reservation.ReservationId}-{reservation.ShowtimeId}-{reservation.AppUserId}";
+
+            // Configuration du générateur de QRCode
+            var barcodeWriter = new BarcodeWriterPixelData
+            {
+                Format = BarcodeFormat.QR_CODE,
+                Options = new EncodingOptions
+                {
+                    Width = 200,
+                    Height = 200,
+                    Margin = 1
+                }
+            };
+
+            // Génération des pixels du QRCode
+            var pixelData = barcodeWriter.Write(qrCodeData);
+
+            if (pixelData == null || pixelData.Pixels == null || pixelData.Pixels.Length == 0)
+            {
+                throw new InvalidOperationException("La génération des données du QRCode a échoué.");
+            }
+
+            // Conversion des pixels en image Bitmap
+            using (var bitmap = new Bitmap(pixelData.Width, pixelData.Height, PixelFormat.Format32bppRgb))
+            {
+                var bitmapData = bitmap.LockBits(
+                    new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                    ImageLockMode.WriteOnly,
+                    bitmap.PixelFormat
+                );
+
+                try
+                {
+                    // Copie des pixels dans l'image Bitmap
+                    System.Runtime.InteropServices.Marshal.Copy(pixelData.Pixels, 0, bitmapData.Scan0, pixelData.Pixels.Length);
+                }
+                finally
+                {
+                    bitmap.UnlockBits(bitmapData);
+                }
+
+                // Conversion de l'image en tableau de bytes (format PNG)
+                using (var memoryStream = new MemoryStream())
+                {
+                    bitmap.Save(memoryStream, ImageFormat.Png); // Utilisation du format PNG
+                    return memoryStream.ToArray();
+                }
             }
         }
     }

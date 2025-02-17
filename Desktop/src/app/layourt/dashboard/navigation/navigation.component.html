@@ -1,0 +1,23 @@
+<aside id="sidebar" [ngClass]="{ 'hidden': isSidebarHidden }" class="js-sidebar">
+  <div class="h-100">
+    <!-- Sidebar Logo -->
+    <div class="sidebar-logo">
+      <a href="#">Cinephoria</a>
+    </div>
+    
+    <!-- Navigation List -->
+    <ul class="sidebar-nav">
+      <!-- Iterate through NAVIGATION_ITEMS -->
+      <li *ngFor="let item of navigationItems" class="sidebar-item">
+        <!-- Sidebar Item without children -->
+        <a [routerLink]="item.route" class="sidebar-link" *ngIf="!item.children && item.route !== '/logout'" (click)="item.route === '/logout' ? logout() : null">
+          <i [class]="item.icon + ' pe-2'"></i> {{ item.title }}
+        </a>
+        <!-- Logout Button -->
+        <a class="sidebar-link" *ngIf="item.route === '/logout'" (click)="logout()">
+          <i [class]="item.icon + ' pe-2'"></i> {{ item.title }}
+        </a>
+      </li>
+    </ul>
+  </div>
+</aside>

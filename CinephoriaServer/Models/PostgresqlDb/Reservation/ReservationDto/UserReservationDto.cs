@@ -69,6 +69,11 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// </summary>
         public int NumberOfSeats { get; set; }
 
+        /// <summary>
+        /// Liste des images déposées sur ce film.
+        /// </summary>
+        public string PosterUrls { get; set; }
+
         // <summary>
         /// liste des sièges réservés.
         /// </summary>

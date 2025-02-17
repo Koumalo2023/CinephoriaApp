@@ -41,6 +41,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
                 .ForMember(dest => dest.MovieId, opt => opt.MapFrom(src => src.Showtime.Movie.MovieId))
                 .ForMember(dest => dest.CinemaName, opt => opt.MapFrom(src => src.Showtime.Cinema.Name))
                 .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.Showtime.StartTime))
+                .ForMember(dest => dest.PosterUrls, opt => opt.MapFrom(src => src.Showtime.Movie.PosterUrls))
                 .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.Showtime.EndTime));
         }
     }

@@ -6,7 +6,7 @@
         [src]="getMainPosterUrl()"
         [alt]="movie.title"
         class="movie-poster"
-        [style.max-height.px]="imageMaxHeight" 
+        [style.max-height.px]="imageMaxHeight"
       />
     </div>
     <ng-template #noImage>
@@ -14,7 +14,7 @@
         src="https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg"
         [alt]="movie.title"
         class="movie-poster"
-        [style.max-height.px]="imageMaxHeight" 
+        [style.max-height.px]="imageMaxHeight"
       />
     </ng-template>
     <div class="card-body">
@@ -34,7 +34,7 @@
             <i class="bi bi-star text-warning"></i>
           </span>
         </ng-container>
-        <span *ngIf="!movie. averageRating || movie.averageRating <= 0">
+        <span *ngIf="!movie.averageRating || movie.averageRating <= 0">
           Pas encore évalué
         </span>
       </div>

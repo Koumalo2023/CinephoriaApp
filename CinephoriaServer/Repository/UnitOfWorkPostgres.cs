@@ -1,5 +1,6 @@
 ﻿using CinephoriaBackEnd.Data;
 using CinephoriaServer.Repository.EntityFramwork;
+using CinephoriaServer.Services;
 
 namespace CinephoriaServer.Repository
 {

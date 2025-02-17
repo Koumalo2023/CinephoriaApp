@@ -13,8 +13,8 @@ export interface MovieDto {
     minimumAge: number;
     isFavorite: boolean;
     averageRating: number;
-    posterUrls: string[];
-    showtimes: ShowtimeDto[];
+    posterUrls: string;
+    showtimes: ShowtimeDto;
     movieRatings: MovieRatingDto[];
   }
 
@@ -28,7 +28,7 @@ export interface MovieDetailsDto {
     releaseDate: Date;
     minimumAge: number;
     averageRating: number;
-    posterUrls: string[];
+    posterUrls: string;
     showtimes: ShowtimeDto[];
     ratings: MovieRatingDto[];
   }
@@ -41,7 +41,7 @@ export interface CreateMovieDto {
     director: string;
     releaseDate: Date;
     minimumAge: number;
-    posterUrls: string[];
+    posterUrls: string;
   }
 
   export interface UpdateMovieDto {
@@ -54,7 +54,7 @@ export interface CreateMovieDto {
     releaseDate: Date;
     minimumAge: number;
     isFavorite: boolean;
-    posterUrls: string[];
+    posterUrls: string;
   }
 
   export interface MovieReviewDto {
