@@ -41,6 +41,7 @@ export interface CreateIncidentDto {
 export interface UpdateIncidentDto {
     incidentId: number;
     status: IncidentStatus;
+    description: string;
     resolvedAt?: Date;
     imageUrls: string[];
 }
@@ -52,9 +53,10 @@ export interface IncidentStatusUpdateDto {
 }
 
 
+
 // Enum pour les statuts des incidents
 export enum IncidentStatus {
-    Pending = 'En attente',
-    Confirmed = 'Confirmée',
-    Cancelled = 'Annulée'
-  }
+    Pending = 0,
+    Confirmed = 1,
+    Cancelled = 2
+}

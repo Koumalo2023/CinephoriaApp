@@ -23,6 +23,13 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// </summary>
         public DateTime? ResolvedAt { get; set; }
 
+        [Required(ErrorMessage = "La description de l'incident est requise.")]
+        [StringLength(1000, ErrorMessage = "La description ne peut pas dépasser 1000 caractères.")]
+        /// <summary>
+        /// Description de l'incident.
+        /// </summary>
+        public string Description { get; set; }
+
         /// <summary>
         /// Liste des images de l'incident.
         /// </summary>

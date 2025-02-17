@@ -17,12 +17,6 @@
         Bienvenue, {{ myUser?.firstName }} {{ myUser?.lastName }}
       </div>
       <div class="dropdown-divider"></div>
-
-      <!-- Profile Link -->
-      <a class="dropdown-item" [routerLink]="['/home/profile']">
-        <i class="bi bi-person"></i> Profile
-      </a>
-
       <!-- Logout Link -->
       <a class="dropdown-item" (click)="logout()">
         <i class="bi bi-box-arrow-right"></i> Déconnexion

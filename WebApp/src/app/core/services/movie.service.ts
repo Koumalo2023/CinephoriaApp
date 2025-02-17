@@ -29,14 +29,11 @@ export class MovieService {
       map((movies) =>
         movies.map((movie) => ({
           ...movie,
-          posterUrls: movie.posterUrls.map((url) =>
-            url.startsWith('http') ? url : `${this.apiUrl.replace(/\/$/, '')}/${url.replace(/^\//, '')}`
-          ),
+          posterUrls: movie.posterUrls.startsWith('http') ? movie.posterUrls : `${this.apiUrl.replace(/\/$/, '')}/${movie.posterUrls.replace(/^\//, '')}`
         }))
       )
     );
-  } 
-
+  }
 
   /**
    * Récupère la liste de tous les films.
@@ -47,9 +44,7 @@ export class MovieService {
       map((movies) =>
         movies.map((movie) => ({
           ...movie,
-          posterUrls: movie.posterUrls.map((url) =>
-            url.startsWith('http') ? url : `${this.apiUrl.replace(/\/$/, '')}/${url.replace(/^\//, '')}`
-          ),
+          posterUrls: movie.posterUrls.startsWith('http') ? movie.posterUrls : `${this.apiUrl.replace(/\/$/, '')}/${movie.posterUrls.replace(/^\//, '')}`
         }))
       )
     );
@@ -64,13 +59,10 @@ export class MovieService {
     return this.http.get<MovieDetailsDto>(`${this.apiUrl}/movie/${movieId}`).pipe(
       map((movie) => ({
         ...movie,
-        posterUrls: movie.posterUrls.map((url) =>
-          url.startsWith('http') ? url : `${this.apiUrl.replace(/\/$/, '')}/${url.replace(/^\//, '')}`
-        ),
+        posterUrls: movie.posterUrls.startsWith('http') ? movie.posterUrls : `${this.apiUrl.replace(/\/$/, '')}/${movie.posterUrls.replace(/^\//, '')}`
       }))
     );
   }
-  
 
   /**
    * Récupère la liste des films qui ont des séances dans un cinéma spécifique.
@@ -82,9 +74,7 @@ export class MovieService {
       map((movies) =>
         movies.map((movie) => ({
           ...movie,
-          posterUrls: movie.posterUrls.map((url) =>
-            url.startsWith('http') ? url : `${this.apiUrl.replace(/\/$/, '')}/${url.replace(/^\//, '')}`
-          ),
+          posterUrls: movie.posterUrls.startsWith('http') ? movie.posterUrls : `${this.apiUrl.replace(/\/$/, '')}/${movie.posterUrls.replace(/^\//, '')}`
         }))
       )
     );
@@ -118,15 +108,11 @@ export class MovieService {
       map((movies) =>
         movies.map((movie) => ({
           ...movie,
-          posterUrls: movie.posterUrls.map((url) =>
-            url.startsWith('http') ? url : `${this.apiUrl.replace(/\/$/, '')}/${url.replace(/^\//, '')}`
-          ),
+          posterUrls: movie.posterUrls.startsWith('http') ? movie.posterUrls : `${this.apiUrl.replace(/\/$/, '')}/${movie.posterUrls.replace(/^\//, '')}`
         }))
       )
     );
   }
-  
-  
 
   /**
    * Crée un nouveau film.

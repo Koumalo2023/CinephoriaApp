@@ -4,7 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { AlertService } from '../../../core/services/alert.service';
 import { CommonModule } from '@angular/common';
-import { EmployeeProfileDto, LoginUserDto, UserProfileDto } from '@app/core/models/user.models';
+import { LoginUserDto,  } from '@app/core/models/user.models';
 
 @Component({
   selector: 'app-login',
@@ -50,7 +50,7 @@ export class LoginComponent {
         if (response.token) {
           this.alertService.showAlert('Connexion réussie !', 'success');
   
-          this.router.navigate(['/admin/dashboard']);
+          this.router.navigate(['/admin/incident-list']);
         } else {
           this.errorMessage = 'Connexion échouée. Vérifiez vos informations.';
         }

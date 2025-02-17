@@ -8,18 +8,19 @@ export interface NavigationItem {
 }
 
 export const NAVIGATION_ITEMS: NavigationItem[] = [
-  {
-    title: 'Dashboard',
-    route: '/admin/dashboard',
-    icon: 'bi bi-house',
-    roles: ['admin', 'employee']
-  },
+  
   {
     title: 'Incidents',
     route: '/admin/incident-list',
     icon: 'bi bi-building',
     roles: ['admin', 'employee']
   },
+  {
+    title: 'Déconnexion',
+    icon: 'bi bi-box-arrow-right', 
+    roles: ['admin', 'employee'],
+    route: '/logout'
+  }
   
 ];
 

@@ -52,7 +52,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// <summary>
         /// Liste des URLs des affiches du film.
         /// </summary>
-        public List<string> PosterUrls { get; set; } = new List<string>();
+        public string PosterUrls { get; set; }
 
         /// <summary>
         /// Liste des séances disponibles pour ce film.

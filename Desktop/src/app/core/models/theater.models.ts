@@ -1,12 +1,5 @@
 import { SeatDto } from "./seat.models";
 
-export interface CreateTheaterDto {
-    name: string;
-    seatCount: number;
-    cinemaId: number;
-    projectionQuality: ProjectionQuality;
-  }
-
   export interface TheaterDto {
     theaterId: number;
     name: string;
@@ -17,13 +10,6 @@ export interface CreateTheaterDto {
     seats: SeatDto[];
   }
 
-  export interface UpdateTheaterDto {
-    theaterId: number;
-    name: string;
-    seatCount: number;
-    cinemaId: number;
-    projectionQuality: ProjectionQuality;
-  }
 
   export enum ProjectionQuality {
     FourDX = '4DX',

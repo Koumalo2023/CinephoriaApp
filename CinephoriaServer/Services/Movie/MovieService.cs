@@ -140,7 +140,7 @@ namespace CinephoriaServer.Services
             }
 
             // Ajouter l'URL de l'affiche à la liste des affiches du film
-            movie.PosterUrls.Add(posterUrl);
+            movie.PosterUrls = posterUrl;
 
             // Mettre à jour le film dans la base de données
             await _unitOfWork.Movies.UpdateAsync(movie);
@@ -173,7 +173,7 @@ namespace CinephoriaServer.Services
             }
 
             // Supprimer l'URL de l'affiche de la liste des affiches du film
-            movie.PosterUrls.Remove(posterUrl);
+            movie.PosterUrls = posterUrl;
 
             // Mettre à jour le film dans la base de données
             await _unitOfWork.Movies.UpdateAsync(movie);

@@ -7,14 +7,6 @@ const routes: Routes = [
 
 
   {
-    // Route pour l'administration'
-    path: 'dashboard',
-    loadComponent: () =>
-      import('@app/pages/adminModule/admin-dashboard/admin-dashboard.component').then(
-        (m) => m.AdminDashboardComponent
-      ),
-  },
-  {
     // Route pour la gestion des cinemas
     path: 'incident-list',
     loadComponent: () =>

@@ -72,11 +72,10 @@ export class MovieCardComponent {
   }
 
   getMainPosterUrl(): string {
-    if (this.movie?.posterUrls && this.movie.posterUrls.length > 0) {
-      const mainUrl = this.movie.posterUrls[0];
-      return mainUrl;
+    if (this.movie?.posterUrls) {
+      return this.movie.posterUrls;
     }
-    console.log('No poster URLs found, returning default image.');
+    console.log('No poster URL found, returning default image.');
     return 'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg';
   }
 

@@ -54,6 +54,6 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// <summary>
         /// Liste des images associées au film.
         /// </summary>
-        public List<string> PosterUrls { get; set; } = new List<string>();
+        public string PosterUrls { get; set; }
     }
 }

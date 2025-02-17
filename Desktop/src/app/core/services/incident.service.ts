@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { 
+import {
   CreateIncidentDto,
-  UpdateIncidentDto, 
-  IncidentStatusUpdateDto, 
+  UpdateIncidentDto,
+  IncidentStatusUpdateDto,
   IncidentDto
 } from '../models/incident.models';
 import { environment } from 'src/environments/environment';
@@ -15,7 +15,7 @@ import { environment } from 'src/environments/environment';
 export class IncidentService {
   private apiUrl = `${environment.apiUrl}/Incident`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Signale un nouvel incident dans une salle de cinéma.
@@ -53,11 +53,11 @@ export class IncidentService {
   }
 
   /**
-   * Télécharge une image pour un incident.
-   * @param incidentId L'identifiant de l'incident.
-   * @param file Le fichier image à télécharger.
-   * @returns Observable contenant l'URL de l'image et un message de réussite.
-   */
+ * Télécharge une image pour un incident.
+ * @param incidentId L'identifiant de l'incident.
+ * @param file Le fichier image à télécharger.
+ * @returns Observable contenant l'URL de l'image et un message de réussite.
+ */
   uploadIncidentImage(incidentId: number, file: File): Observable<{ Url: string; Message: string }> {
     const formData = new FormData();
     formData.append('file', file);
@@ -66,6 +66,15 @@ export class IncidentService {
       `${this.apiUrl}/upload-incident-image/${incidentId}`,
       formData
     );
+  }
+
+  /**
+   * Récupère les URLs des images associées à un incident.
+   * @param incidentId L'identifiant de l'incident.
+   * @returns Observable contenant la liste des URLs des images.
+   */
+  getIncidentImages(incidentId: number): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/${incidentId}/images`);
   }
 
   /**

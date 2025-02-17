@@ -78,7 +78,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
         /// <summary>
         /// Liste des images déposées sur ce film.
         /// </summary>
-        public List<string> PosterUrls { get; set; } = new List<string>();
+        public string PosterUrls { get; set; }
 
         /// <summary>
         /// Liste des notations associées à ce film.

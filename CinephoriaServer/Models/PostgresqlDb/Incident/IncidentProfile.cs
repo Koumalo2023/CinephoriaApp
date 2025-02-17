@@ -29,6 +29,7 @@ namespace CinephoriaServer.Models.PostgresqlDb
             // --- Mapping de UpdateIncidentDto vers Incident ---
             CreateMap<UpdateIncidentDto, Incident>()
                 .ForMember(dest => dest.ImageUrls, opt => opt.MapFrom(src => src.ImageUrls))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.ResolvedAt, opt => opt.MapFrom(src => src.Status == IncidentStatus.Resolved ? DateTime.UtcNow : (DateTime?)null));
         }
     }

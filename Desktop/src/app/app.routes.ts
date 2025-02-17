@@ -34,5 +34,5 @@ export const routes: Routes = [
   },
 
   // Gestion des routes non trouvées (redirection vers la page d'accueil)
-  { path: '**', redirectTo: '/admin/dashboard' },
+  { path: '**', redirectTo: '/admin/incident-list' },
 ];
