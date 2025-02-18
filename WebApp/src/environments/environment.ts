@@ -5,8 +5,8 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:5048/api', 
-  url: 'https://localhost:4200'
+  apiUrl: process.env.API_URL || 'http://localhost:5048/api', 
+  url: 'http://localhost:4200'
 };
 
 

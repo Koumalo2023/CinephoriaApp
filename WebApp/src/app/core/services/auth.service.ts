@@ -1,10 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment';
-import { ContactRequest, CreateEmployeeDto, EmployeeProfileDto, LoginResponseDto, LoginUserDto,  RegisterUserDto, UpdateAppUserDto, UpdateEmployeeDto, User, UserDto, UserProfileDto } from '../models/user.models';
+import { ContactRequest, CreateEmployeeDto, EmployeeProfileDto, LoginResponseDto, LoginUserDto, RegisterUserDto, UpdateAppUserDto, UpdateEmployeeDto, User, UserDto, UserProfileDto } from '../models/user.models';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
-
+import { ApiConfigService } from './apiConfigService.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,25 +15,17 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(this.getCurrentUser());
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  private apiUrl = `${environment.apiUrl}/Auth`;
+  private apiUrl: string;
 
+  constructor(private http: HttpClient, private router: Router, private apiConfigService: ApiConfigService) {
+    this.apiUrl = this.apiConfigService.getAuthUrl();
+  }
 
-  constructor(private http: HttpClient, private router: Router) { }
-
-  /**
-   * Crée un compte employé ou administrateur avec un mot de passe temporaire.
-   * @param createEmployeeDto Les informations de création pour l'employé ou l'administrateur.
-   * @returns Observable contenant le message de réussite ou d'échec.
-   */
+  
   registerEmployee(createEmployeeDto: CreateEmployeeDto): Observable<{ Message: string }> {
     return this.http.post<{ Message: string }>(`${this.apiUrl}/register-employee`, createEmployeeDto);
   }
 
-  /**
-   * Connecte un utilisateur en vérifiant ses informations d'identification.
-   * @param loginUserDto Les informations de connexion de l'utilisateur.
-   * @returns Observable contenant un jeton JWT et les informations de profil de l'utilisateur.
-   */
   login(loginUserDto: LoginUserDto): Observable<LoginResponseDto> {
     return this.http.post<LoginResponseDto>(`${this.apiUrl}/login`, loginUserDto).pipe(
       tap(response => {
@@ -50,14 +41,13 @@ export class AuthService {
       })
     );
   }
-  
 
   /**
-   * Télécharge une image de profil pour un utilisateur spécifique.
-   * @param appUserId L'identifiant de l'utilisateur.
-   * @param file Le fichier image à télécharger.
-   * @returns Observable contenant l'URL de l'image téléchargée.
-   */
+     * Télécharge une image de profil pour un utilisateur spécifique.
+     * @param appUserId L'identifiant de l'utilisateur.
+     * @param file Le fichier image à télécharger.
+     * @returns Observable contenant l'URL de l'image téléchargée.
+     */
   uploadUserProfile(appUserId: string, file: File): Observable<{ Message: string; Url: string }> {
     const formData = new FormData();
     formData.append('file', file);
@@ -67,7 +57,6 @@ export class AuthService {
       formData
     );
   }
-
 
   /**
    * Supprime l'image de profil d'un utilisateur spécifique.
@@ -89,7 +78,6 @@ export class AuthService {
   registerUser(registerUserDto: RegisterUserDto): Observable<{ Message: string }> {
     return this.http.post<{ Message: string }>(`${this.apiUrl}/register`, registerUserDto);
   }
-
 
   /**
    * Récupère la liste de tous les utilisateurs enregistrés.
@@ -161,8 +149,13 @@ export class AuthService {
     });
   }
 
+  /**
+   * Envoie un email de contact.
+   * @param request Les données de la demande de contact.
+   * @returns Observable contenant la réponse du serveur.
+   */
   sendContactEmail(request: ContactRequest): Observable<any> {
-    console.log('Requête envoyée :', request); 
+    console.log('Requête envoyée :', request);
     return this.http.post(`${this.apiUrl}/send-contact`, request);
   }
 
@@ -197,23 +190,23 @@ export class AuthService {
   }
 
   /**
- * Permet à un utilisateur connecté de changer son mot de passe.
- * @param changePasswordDto Les informations de changement de mot de passe.
- * @returns Observable contenant le message de réussite ou d'échec.
- */
+   * Permet à un utilisateur connecté de changer son mot de passe.
+   * @param appUserId L'identifiant de l'utilisateur.
+   * @param changePasswordDto Les informations de changement de mot de passe.
+   * @returns Observable contenant le message de réussite ou d'échec.
+   */
   updateUserPassword(appUserId: string, changePasswordDto: { oldPassword: string; newPassword: string; confirmNewPassword: string }): Observable<{ Message: string }> {
     return this.http.post<{ Message: string }>(`${this.apiUrl}/change-password/${appUserId}`, changePasswordDto);
-}
-
+  }
 
   /**
- * Permet à un employé de changer son mot de passe après avoir utilisé un mot de passe temporaire.
- * @param changePasswordDto Les informations de changement de mot de passe.
- * @returns Observable contenant le message de réussite ou d'échec.
- */
-changeEmployeePassword(changePasswordDto: { oldPassword: string; newPassword: string; confirmNewPassword: string; appUserId: string }): Observable<{ Message: string }> {
-  return this.http.post<{ Message: string }>(`${this.apiUrl}/change-password`, changePasswordDto);
-}
+   * Permet à un employé de changer son mot de passe après avoir utilisé un mot de passe temporaire.
+   * @param changePasswordDto Les informations de changement de mot de passe.
+   * @returns Observable contenant le message de réussite ou d'échec.
+   */
+  changeEmployeePassword(changePasswordDto: { oldPassword: string; newPassword: string; confirmNewPassword: string; appUserId: string }): Observable<{ Message: string }> {
+    return this.http.post<{ Message: string }>(`${this.apiUrl}/change-password`, changePasswordDto);
+  }
 
   /**
    * Force un employé à changer son mot de passe (ex. mot de passe temporaire expiré).
@@ -310,16 +303,16 @@ changeEmployeePassword(changePasswordDto: { oldPassword: string; newPassword: st
     this.authStatusSubject.next(status);
   }
 
-  
+
   private mapEmployeeProfileDtoToUser(profile: EmployeeProfileDto): User {
     return {
       appUserId: profile.employeeId,
       firstName: profile.firstName,
       lastName: profile.lastName,
       email: profile.email,
-      userName: `${profile.firstName}.${profile.lastName}`, 
-      emailConfirmed: true, 
-      phoneNumber: '', 
+      userName: `${profile.firstName}.${profile.lastName}`,
+      emailConfirmed: true,
+      phoneNumber: '',
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,
       hasApprovedTermsOfUse: true, // Supposons que les termes sont approuvés
@@ -330,55 +323,55 @@ changeEmployeePassword(changePasswordDto: { oldPassword: string; newPassword: st
       resolvedByIncidents: profile.resolvedByIncidents,
       role: profile.role,
       reservations: [],
-      movieRatings: [], 
+      movieRatings: [],
     };
   }
 
   private mapUserProfileDtoToUser(profile: UserProfileDto): User {
-  return {
-    appUserId: profile.appUserId,
-    firstName: profile.firstName,
-    lastName: profile.lastName,
-    email: profile.email,
-    userName: `${profile.firstName}.${profile.lastName}`, // Générer un nom d'utilisateur
-    emailConfirmed: true, // Supposons que l'email est confirmé
-    phoneNumber: profile.phoneNumber || '', // Utiliser la valeur fournie ou une chaîne vide
-    createdAt: profile.createdAt,
-    updatedAt: profile.updatedAt,
-    hasApprovedTermsOfUse: true, // Supposons que les termes sont approuvés
-    hiredDate: undefined, // Non fourni dans UserProfileDto
-    position: undefined, // Non fourni dans UserProfileDto
-    profilePictureUrl: undefined, // Non fourni dans UserProfileDto
-    reportedIncidents: [], // Non fourni dans UserProfileDto
-    resolvedByIncidents: [], // Non fourni dans UserProfileDto
-    role: profile.role,
-    reservations: profile.reservations,
-    movieRatings: profile.movieRatings,
-  };
-}
+    return {
+      appUserId: profile.appUserId,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      email: profile.email,
+      userName: `${profile.firstName}.${profile.lastName}`, // Générer un nom d'utilisateur
+      emailConfirmed: true, // Supposons que l'email est confirmé
+      phoneNumber: profile.phoneNumber || '', // Utiliser la valeur fournie ou une chaîne vide
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
+      hasApprovedTermsOfUse: true, // Supposons que les termes sont approuvés
+      hiredDate: undefined, // Non fourni dans UserProfileDto
+      position: undefined, // Non fourni dans UserProfileDto
+      profilePictureUrl: undefined, // Non fourni dans UserProfileDto
+      reportedIncidents: [], // Non fourni dans UserProfileDto
+      resolvedByIncidents: [], // Non fourni dans UserProfileDto
+      role: profile.role,
+      reservations: profile.reservations,
+      movieRatings: profile.movieRatings,
+    };
+  }
 
-/**
-   * Mappe les données de profil reçues depuis le serveur vers l'interface User.
-   */
-  
-private mapProfileToUser(profile: UserProfileDto | EmployeeProfileDto | string): User {
-  if (typeof profile === 'string') {
-    try {
-      return JSON.parse(profile) as User;
-    } catch (error) {
-      throw new Error('Le profil ne peut pas être converti en User.');
+  /**
+     * Mappe les données de profil reçues depuis le serveur vers l'interface User.
+     */
+
+  private mapProfileToUser(profile: UserProfileDto | EmployeeProfileDto | string): User {
+    if (typeof profile === 'string') {
+      try {
+        return JSON.parse(profile) as User;
+      } catch (error) {
+        throw new Error('Le profil ne peut pas être converti en User.');
+      }
     }
-  }
 
-  if ('reservations' in profile && 'movieRatings' in profile) {
-    return this.mapUserProfileDtoToUser(profile as UserProfileDto);
-  }
+    if ('reservations' in profile && 'movieRatings' in profile) {
+      return this.mapUserProfileDtoToUser(profile as UserProfileDto);
+    }
 
-  if ('employeeId' in profile) {
-    return this.mapEmployeeProfileDtoToUser(profile);
-  }
+    if ('employeeId' in profile) {
+      return this.mapEmployeeProfileDtoToUser(profile);
+    }
 
-  throw new Error('Le type de profil n\'est pas reconnu.');
-}
+    throw new Error('Le type de profil n\'est pas reconnu.');
+  }
 }
 

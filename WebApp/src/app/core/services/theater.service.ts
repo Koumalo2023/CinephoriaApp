@@ -3,15 +3,17 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { TheaterDto, CreateTheaterDto, UpdateTheaterDto,} from '../models/theater.models';
 import { IncidentDto } from '../models/incident.models';
-import { environment } from 'src/environments/environment';
+import { ApiConfigService } from './apiConfigService.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TheaterService {
-  private apiUrl = `${environment.apiUrl}/Theater`;
-
-  constructor(private http: HttpClient) {}
+   private apiUrl: string;
+  
+    constructor(private http: HttpClient, private apiConfigService: ApiConfigService) {
+      this.apiUrl = this.apiConfigService.getTheaterUrl();
+    }
 
   /**
    * Récupère la liste des salles de cinéma associées à un cinéma spécifique.

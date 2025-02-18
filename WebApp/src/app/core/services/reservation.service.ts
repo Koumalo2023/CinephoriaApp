@@ -5,22 +5,26 @@ import {
   CreateReservationDto,
   ReservationDto,
   UserReservationDto,
-} from '../models/reservation.models'; 
+} from '../models/reservation.models';
 import { ShowtimeDto } from '../models/showtime.models';
 import { SeatDto } from '../models/seat.models';
-import { environment } from 'src/environments/environment';
+import { ApiConfigService } from './apiConfigService.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReservationService {
-  private apiUrl =`${environment.apiUrl}/Reservation`;
 
-  
+  private apiUrl: string;
+
+  constructor(private http: HttpClient, private apiConfigService: ApiConfigService) {
+    this.apiUrl = this.apiConfigService.getReservationUrl();
+  }
+
+
   private currentReservationSubject = new BehaviorSubject<any>(null);
   currentReservation$ = this.currentReservationSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
 
   /**
    * Récupère la liste des séances disponibles pour un film spécifique.

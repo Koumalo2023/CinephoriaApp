@@ -2,15 +2,17 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CinemaDto, CreateCinemaDto, UpdateCinemaDto } from '../models/cinema.models';
-import { environment } from 'src/environments/environment';
+import { ApiConfigService } from './apiConfigService.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CinemaService {
-  private apiUrl = `${environment.apiUrl}/Cinemas`;
+  private apiUrl: string;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private apiConfigService: ApiConfigService) {
+    this.apiUrl = this.apiConfigService.getCinemasUrl();
+  }
 
   /**
    * Crée un nouveau cinéma.

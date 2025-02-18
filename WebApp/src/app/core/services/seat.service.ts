@@ -3,14 +3,17 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SeatDto, AddHandicapSeatDto, RemoveHandicapSeatDto, UpdateSeatDto, Seat } from '../models/seat.models';
 import { environment } from 'src/environments/environment';
+import { ApiConfigService } from './apiConfigService.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SeatsService {
-  private apiUrl = `${environment.apiUrl}/Seats`;
+  private apiUrl: string;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private apiConfigService: ApiConfigService) {
+    this.apiUrl = this.apiConfigService.getSeatsUrl();
+  }
 
   /**
    * Récupère la liste des sièges disponibles pour une séance spécifique.
@@ -44,7 +47,7 @@ export class SeatsService {
    * @param updateSeatDto Les nouvelles informations du siège.
    * @returns Observable contenant un message de réussite.
    */
-   updateSeat(updateSeatDto: UpdateSeatDto): Observable<{ Message: string }> {
+  updateSeat(updateSeatDto: UpdateSeatDto): Observable<{ Message: string }> {
     return this.http.put<{ Message: string }>(`${this.apiUrl}/update`, updateSeatDto);
   }
 

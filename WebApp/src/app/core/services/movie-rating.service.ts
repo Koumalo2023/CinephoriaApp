@@ -8,15 +8,17 @@ import {
   MovieRatingDto
 } from '../models/movie-rating.models';
 import { environment } from 'src/environments/environment';
+import { ApiConfigService } from './apiConfigService.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MovieRatingService {
-  private apiUrl = `${environment.apiUrl}/MovieRating`; // Base URL de l'API
+  private apiUrl: string;
 
-  constructor(private http: HttpClient) {}
-
+  constructor(private http: HttpClient, private apiConfigService: ApiConfigService) {
+    this.apiUrl = this.apiConfigService.getMovieRatingUrl();
+  }
   /**
    * Soumet un nouvel avis sur un film.
    * @param createMovieRatingDto Les données de l'avis à soumettre.

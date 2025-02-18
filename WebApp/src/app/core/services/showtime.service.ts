@@ -3,14 +3,17 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ShowtimeDto, CreateShowtimeDto, UpdateShowtimeDto } from '../models/showtime.models';
 import { environment } from 'src/environments/environment';
+import { ApiConfigService } from './apiConfigService.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ShowtimeService {
-  private apiUrl = `${environment.apiUrl}/Showtime`; 
+  private apiUrl: string;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private apiConfigService: ApiConfigService) {
+    this.apiUrl = this.apiConfigService.getShowtimesUrl();
+  }
 
   /**
    * Crée une nouvelle séance.
@@ -20,6 +23,7 @@ export class ShowtimeService {
   createShowtime(createShowtimeDto: CreateShowtimeDto): Observable<{ Message: string }> {
     return this.http.post<{ Message: string }>(`${this.apiUrl}/create`, createShowtimeDto);
   }
+
 
   /**
    * Met à jour une séance existante.

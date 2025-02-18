@@ -10,15 +10,17 @@ import {
   MovieDetailsDto
 } from '../models/movie.models'; 
 import { ShowtimeDto } from '../models/showtime.models';
-import { environment } from 'src/environments/environment';
+import { ApiConfigService } from './apiConfigService.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MovieService {
-  private apiUrl = `${environment.apiUrl}/Movie`;
+  private apiUrl: string;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private apiConfigService: ApiConfigService) {
+    this.apiUrl = this.apiConfigService.getMoviesUrl(); // Configurez l'URL de base
+  }
 
   /**
    * Récupère la liste des derniers films ajoutés.

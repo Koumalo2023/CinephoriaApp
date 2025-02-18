@@ -1,15 +1,17 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { ApiConfigService } from './apiConfigService.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ImageService {
-  private apiUrl = `${environment.apiUrl}/Image`;
-
-  constructor(private http: HttpClient) { }
+ private apiUrl: string;
+ 
+   constructor(private http: HttpClient, private apiConfigService: ApiConfigService) {
+     this.apiUrl = this.apiConfigService.getImageUrl();
+   }
 
   uploadPoster(movieId: string, file: File): Observable<any> {
     const formData = new FormData();
