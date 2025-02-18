@@ -17,72 +17,56 @@ using System.Reflection;
 using System.Text;
 
 
-
 // Configurer le chemin racine pour les fichiers statiques si besoin
 var options = new WebApplicationOptions
 {
     ContentRootPath = AppContext.BaseDirectory,
     WebRootPath = "wwwroot"
 };
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(options);
 
-// Add services to the container.
-
+// Chargement dynamique des configurations
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
-    .AddEnvironmentVariables() 
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables()
     .AddUserSecrets<Program>(optional: true);
-
 
 // Configuration de Serilog
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.File("logs/CinephoriaLog.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
-
 builder.Host.UseSerilog();
 
-// Configuration de la base de données
-if (builder.Environment.IsDevelopment())
+// Ajout du contexte de base de donnÃ©es
+builder.Services.AddDbContext<CinephoriaDbContext>(options =>
 {
-    builder.Services.AddDbContext<CinephoriaDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSql"),
+    var connectionStringKey = builder.Environment.IsDevelopment() ? "PostgreSql" : "cinephoriaapp-db";
+    options.UseNpgsql(builder.Configuration.GetConnectionString(connectionStringKey),
         npgsqlOptions => npgsqlOptions.EnableRetryOnFailure())
-               .EnableSensitiveDataLogging() // Active l'affichage des valeurs sensibles dans les logs
-               .LogTo(Console.WriteLine, LogLevel.Information)); // Journalisation dans la console
-}
-else
-{
-    builder.Services.AddDbContext<CinephoriaDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSqlProd"),
-        npgsqlOptions => npgsqlOptions.EnableRetryOnFailure())
-               .EnableSensitiveDataLogging() // Active l'affichage des valeurs sensibles dans les logs  en production
-               .LogTo(Console.WriteLine, LogLevel.Warning)); // Journalisation des avertissements et erreurs en production
-}
+          .EnableSensitiveDataLogging(builder.Environment.IsDevelopment())
+          .LogTo(Console.WriteLine, LogLevel.Information);
+});
 
-//Configuration de MongoDB
+// Configuration de MongoDB
 builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDbSettings"));
-
-// Ajout de MongoDbContext en tant que service Singleton
 builder.Services.AddSingleton<MongoDbContext>();
-
-// Enregistrement d'IMongoDatabase dans le conteneur DI
 builder.Services.AddSingleton<IMongoDatabase>(sp =>
 {
     var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
-var client = new MongoClient(settings.ConnectionString);
-return client.GetDatabase(settings.DatabaseName);
+    var client = new MongoClient(settings.ConnectionString);
+    return client.GetDatabase(settings.DatabaseName);
 });
 
-// Ajout de  Identity
+// Ajout de Identity
 builder.Services
     .AddIdentity<AppUser, IdentityRole>()
     .AddEntityFrameworkStores<CinephoriaDbContext>()
     .AddDefaultTokenProviders();
 
-// Configuration de Identity
+// Configuration globale d'Identity
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.Password.RequiredLength = 8;
@@ -90,15 +74,10 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireLowercase = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireNonAlphanumeric = false;
-    options.SignIn.RequireConfirmedAccount = false;
-    options.SignIn.RequireConfirmedEmail = false;
-    options.SignIn.RequireConfirmedPhoneNumber = false;
+    options.SignIn.RequireConfirmedEmail = true; // Exigence gÃ©nÃ©rale de confirmation d'email
 });
 
-// Gérer les injections de dépendances
-builder.Services.AddDbServiceInjection();
-
-// Exiger la confirmation d'email
+// Ajout de l'autorisation avec politique personnalisÃ©e
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("EmailConfirmed", policy =>
@@ -106,27 +85,20 @@ builder.Services.AddAuthorization(options =>
             context.User.HasClaim(c => c.Type == "EmailConfirmed" && c.Value == "true")));
 });
 
-builder.Services.Configure<IdentityOptions>(options =>
-{
-    options.SignIn.RequireConfirmedEmail = true;
-}); 
+// Gestion des injections de dÃ©pendances
+builder.Services.AddDbServiceInjection();
 
-//Configuration d'AutoMapper
+// Configuration d'AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-// Add AuthenticationSchema and JwtBearer
+// Configuration de l'authentification JWT
 builder.Services
-    .AddAuthentication(options =>
-    {
-        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.SaveToken = true;
         options.RequireHttpsMetadata = false;
-        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+        options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
@@ -136,12 +108,9 @@ builder.Services
         };
     });
 
-
-
-//Documentation swagger
+// Documentation Swagger
 builder.Services.AddSwaggerGen(options =>
 {
-    // Informations générales sur l'API
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
@@ -149,7 +118,6 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Comprehensive API documentation for the Web, Mobile, and Desktop applications."
     });
 
-    // Configuration pour l'authentification JWT Bearer
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -159,8 +127,6 @@ builder.Services.AddSwaggerGen(options =>
         BearerFormat = "JWT",
         Scheme = "bearer",
     });
-
-    builder.Services.AddHttpContextAccessor();
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -180,41 +146,36 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 
-    // Support de fichiers avec IFormFile
     options.OperationFilter<SwaggerFileOperationFilter>();
 
-    // Inclusion des commentaires XML (optionnel si déjà configuré)
+    // Inclusion des commentaires XML
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    options.IncludeXmlComments(xmlPath);
+    if (File.Exists(xmlPath))
+    {
+        options.IncludeXmlComments(xmlPath);
+    }
 
-    options.OrderActionsBy((apiDesc) => $"{apiDesc.HttpMethod} {apiDesc.RelativePath}");
+    options.OrderActionsBy(apiDesc => $"{apiDesc.HttpMethod} {apiDesc.RelativePath}");
 });
 
-// Ajouter la configuration de sécurité (incluant les CORS) en utilisant SecurityExtensions
+// Ajout de la sÃ©curitÃ© CORS
 builder.Services.AddCustomSecurity(builder.Configuration);
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-
-
-
-// Configuration Kestrel pour utiliser HTTPS avec le certificat spécifié
+// Configuration Kestrel pour utiliser HTTPS avec le certificat spÃ©cifiÃ©
 builder.WebHost.ConfigureKestrel((context, options) =>
 {
-    // Charger les paramètres depuis appsettings.json
     options.Configure(context.Configuration.GetSection("Kestrel"));
 });
 
+// Ajout des services MVC
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
 
-
+// Construction de l'application
 var app = builder.Build();
 
-
-
-
-// Configure the HTTP request pipeline.
+// Configuration du pipeline HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -222,19 +183,22 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-// Appliquez la politique CORS
 app.UseCors(SecurityExtensions.DEFAULT_POLICY);
 app.UseMiddleware<ErrorHandlingMiddleware>();
+
+// Configuration des fichiers statiques pour /images
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
         Path.Combine(app.Environment.WebRootPath, "images")),
     RequestPath = "/images"
 });
+
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-//Exécutez la méthode de seeding d'administrateur lors du démarrage de l'application
+// Initialisation de l'utilisateur administrateur par dÃ©faut
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -242,14 +206,13 @@ using (var scope = app.Services.CreateScope())
     {
         var userManager = services.GetRequiredService<UserManager<AppUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-
-        // Initialisez les rôles et utilisateurs avec SeedAdmin
         await SeedAdmin.Initialize(services, userManager, roleManager);
     }
     catch (Exception ex)
     {
-        // Loggez l'exception si nécessaire
-        Console.WriteLine("Erreur lors de l'initialisation de l'administrateur par défaut : " + ex.Message);
+        Console.WriteLine("Erreur lors de l'initialisation de l'administrateur par dÃ©faut : " + ex.Message);
     }
 }
+
+// DÃ©marrage de l'application
 app.Run();

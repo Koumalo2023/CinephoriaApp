@@ -54,5 +54,4 @@
     <Folder Include="wwwroot\" />
     <Folder Include="wwwroot\images\movies\" />
   </ItemGroup>
-
 </Project>
