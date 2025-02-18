@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -8,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CinephoriaServer.Migrations
 {
     /// <inheritdoc />
-    public partial class FirstMigration : Migration
+    public partial class FisrtMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -89,14 +88,14 @@ namespace CinephoriaServer.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
-                    Genre = table.Column<int>(type: "integer", maxLength: 50, nullable: false),
-                    Duration = table.Column<int>(type: "integer", nullable: false),
+                    Genre = table.Column<int>(type: "integer", nullable: false),
+                    Duration = table.Column<string>(type: "text", nullable: false),
                     Director = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     ReleaseDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     MinimumAge = table.Column<int>(type: "integer", nullable: false),
                     IsFavorite = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     AverageRating = table.Column<double>(type: "double precision", nullable: false, defaultValue: 0.0),
-                    PosterUrls = table.Column<List<string>>(type: "text[]", nullable: false),
+                    PosterUrls = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -132,7 +131,7 @@ namespace CinephoriaServer.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    AppUserId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
                     ClaimType = table.Column<string>(type: "text", nullable: true),
                     ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
@@ -140,8 +139,8 @@ namespace CinephoriaServer.Migrations
                 {
                     table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetUserClaims_AspNetUsers_AppUserId",
-                        column: x => x.AppUserId,
+                        name: "FK_AspNetUserClaims_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -154,14 +153,14 @@ namespace CinephoriaServer.Migrations
                     LoginProvider = table.Column<string>(type: "text", nullable: false),
                     ProviderKey = table.Column<string>(type: "text", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
-                    AppUserId = table.Column<string>(type: "text", nullable: false)
+                    UserId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
                     table.ForeignKey(
-                        name: "FK_AspNetUserLogins_AspNetUsers_AppUserId",
-                        column: x => x.AppUserId,
+                        name: "FK_AspNetUserLogins_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -171,12 +170,12 @@ namespace CinephoriaServer.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    AppUserId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
                     RoleId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.AppUserId, x.RoleId });
+                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
                     table.ForeignKey(
                         name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
                         column: x => x.RoleId,
@@ -184,8 +183,8 @@ namespace CinephoriaServer.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetUsers_AppUserId",
-                        column: x => x.AppUserId,
+                        name: "FK_AspNetUserRoles_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -195,17 +194,17 @@ namespace CinephoriaServer.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    AppUserId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
                     LoginProvider = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Value = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserTokens", x => new { x.AppUserId, x.LoginProvider, x.Name });
+                    table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
                     table.ForeignKey(
-                        name: "FK_AspNetUserTokens_AspNetUsers_AppUserId",
-                        column: x => x.AppUserId,
+                        name: "FK_AspNetUserTokens_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -243,7 +242,7 @@ namespace CinephoriaServer.Migrations
                     MovieRatingId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     MovieId = table.Column<int>(type: "integer", nullable: false),
-                    AppAppUserId = table.Column<string>(type: "text", nullable: false),
+                    AppUserId = table.Column<string>(type: "text", nullable: false),
                     Rating = table.Column<float>(type: "real", nullable: false),
                     Comment = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     IsValidated = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
@@ -254,8 +253,8 @@ namespace CinephoriaServer.Migrations
                 {
                     table.PrimaryKey("PK_MovieRatings", x => x.MovieRatingId);
                     table.ForeignKey(
-                        name: "FK_MovieRatings_AspNetUsers_AppAppUserId",
-                        column: x => x.AppAppUserId,
+                        name: "FK_MovieRatings_AspNetUsers_AppUserId",
+                        column: x => x.AppUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -342,8 +341,11 @@ namespace CinephoriaServer.Migrations
                     StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CinemaId = table.Column<int>(type: "integer", nullable: false),
                     Quality = table.Column<int>(type: "integer", nullable: false),
+                    AvailableSeats = table.Column<int>(type: "integer", nullable: false),
                     EndTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Price = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    PriceAdjustment = table.Column<decimal>(type: "numeric", nullable: false),
+                    IsPromotion = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -376,7 +378,7 @@ namespace CinephoriaServer.Migrations
                 {
                     ReservationId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    AppAppUserId = table.Column<string>(type: "text", nullable: false),
+                    AppUserId = table.Column<string>(type: "text", nullable: false),
                     ShowtimeId = table.Column<int>(type: "integer", nullable: false),
                     TotalPrice = table.Column<float>(type: "real", nullable: false),
                     QrCode = table.Column<string>(type: "text", nullable: false),
@@ -390,8 +392,8 @@ namespace CinephoriaServer.Migrations
                 {
                     table.PrimaryKey("PK_Reservations", x => x.ReservationId);
                     table.ForeignKey(
-                        name: "FK_Reservations_AspNetUsers_AppAppUserId",
-                        column: x => x.AppAppUserId,
+                        name: "FK_Reservations_AspNetUsers_AppUserId",
+                        column: x => x.AppUserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -439,14 +441,14 @@ namespace CinephoriaServer.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserClaims_AppUserId",
+                name: "IX_AspNetUserClaims_UserId",
                 table: "AspNetUserClaims",
-                column: "AppUserId");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserLogins_AppUserId",
+                name: "IX_AspNetUserLogins_UserId",
                 table: "AspNetUserLogins",
-                column: "AppUserId");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserRoles_RoleId",
@@ -480,9 +482,9 @@ namespace CinephoriaServer.Migrations
                 column: "TheaterId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MovieRatings_AppAppUserId",
+                name: "IX_MovieRatings_AppUserId",
                 table: "MovieRatings",
-                column: "AppAppUserId");
+                column: "AppUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MovieRatings_MovieId",
@@ -490,9 +492,9 @@ namespace CinephoriaServer.Migrations
                 column: "MovieId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Reservations_AppAppUserId",
+                name: "IX_Reservations_AppUserId",
                 table: "Reservations",
-                column: "AppAppUserId");
+                column: "AppUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reservations_ShowtimeId",
